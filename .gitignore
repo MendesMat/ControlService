@@ -52,4 +52,8 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
-/.vs
+
+# User-specific files (Visual Studio)
+.vs/
+*.user
+*.userosscache
