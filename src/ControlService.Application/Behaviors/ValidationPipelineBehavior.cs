@@ -10,7 +10,8 @@ public class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior
 
     public ValidationPipelineBehavior(IEnumerable<IValidator<TRequest>> validators)
     {
-        _validators = validators;
+        ArgumentNullException.ThrowIfNull(validators);
+        _validators = validators.ToList();
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
