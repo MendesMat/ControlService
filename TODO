@@ -1,5 +1,3 @@
-- Verificar quais arquivos precisarão passar por uma auditoria de test-driven development;
-
 - Certificar que o pacote do MediatR e Microsoft.EntityFrameworkCore estão devidamente instalados nos projetos Application e Infrastructure.
 
 - Registrar o ControlServiceDbContext e toda a injeção de dependência (AddMediatR, AddScoped<ICustomerRepository, CustomerRepository>()) em seu contêiner IoC (Program.cs ou classe de DependencyInjection).
