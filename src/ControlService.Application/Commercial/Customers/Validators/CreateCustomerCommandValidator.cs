@@ -1,5 +1,7 @@
+using System.Linq;
 using FluentValidation;
 using ControlService.Application.Commercial.Customers.Commands;
+using ControlService.Domain.Commercial.Customers.Enums;
 
 namespace ControlService.Application.Commercial.Customers.Validators;
 
@@ -38,5 +40,15 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
         RuleFor(c => c.DocumentValue)
             .NotEmpty().WithMessage("Documento é obrigatório quando o tipo de documento é informado.")
             .When(c => c.DocumentType.HasValue);
+
+        RuleFor(c => c.DocumentValue)
+            .Must((cmd, value) => {
+                if (string.IsNullOrWhiteSpace(value)) return true;
+                var rawValue = new string(value.Where(char.IsDigit).ToArray());
+                return cmd.DocumentType == DocumentType.CPF ? rawValue.Length == 11 : rawValue.Length == 14;
+            })
+            .WithMessage(c => $"O documento deve ter {(c.DocumentType == DocumentType.CPF ? "11" : "14")} dígitos para o tipo {c.DocumentType}.")
+            .When(c => c.DocumentType.HasValue && !string.IsNullOrWhiteSpace(c.DocumentValue));
     }
 }
+

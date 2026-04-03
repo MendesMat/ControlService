@@ -2,6 +2,7 @@ using ControlService.Application.Commercial.Customers.Queries;
 using ControlService.Application.Commercial.Customers.DTOs;
 using ControlService.Domain.Commercial.Customers;
 using ControlService.Domain.Commercial.Customers.Enums;
+using ControlService.Domain.Commercial.Customers.ValueObjects;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Queries;
 
@@ -52,8 +53,70 @@ public class GetAllCustomersQueryHandlerTests
         result.Should().BeEmpty();
     }
 
-    private static Customer BuildCustomer(Guid id, string name) =>
-        new(CustomerType.Business, name, name, null,
-            ControlService.Domain.Commercial.Customers.ValueObjects.Address.Create(
-                "01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP"));
+    [Fact]
+    public async Task Handle_WhenCustomersExist_ShouldMapAllFieldsCorrectly()
+    {
+        // Arrange
+        var document = Document.Create("12345678901", DocumentType.CPF);
+        var address = Address.Create("01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP");
+        var customer = new Customer(CustomerType.Business, "Legal Name", "Trade Name", document, address);
+        
+        _repository.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Customer> { customer });
+
+        var query = new GetAllCustomersQuery();
+
+        // Act
+        var resultList = await _handler.Handle(query, CancellationToken.None);
+        var result = resultList.First();
+
+        // Assert
+        result.Id.Should().Be(customer.Id);
+        result.Type.Should().Be(CustomerType.Business.ToString());
+        result.LegalName.Should().Be("Legal Name");
+        result.TradeName.Should().Be("Trade Name");
+        result.Document.Should().Be(document.GetFormattedValue());
+        result.DocumentType.Should().Be(DocumentType.CPF.ToString());
+        result.Status.Should().Be(CustomerStatus.Active.ToString());
+        result.City.Should().Be("São Paulo");
+        result.State.Should().Be("SP");
+    }
+
+    [Fact]
+    public async Task Handle_WhenCustomerHasNoDocument_ShouldMapDocumentFieldsAsNull()
+    {
+        // Arrange
+        var customer = BuildCustomer(Guid.NewGuid(), "Client No Doc", null);
+        _repository.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Customer> { customer });
+
+        var query = new GetAllCustomersQuery();
+
+        // Act
+        var resultList = await _handler.Handle(query, CancellationToken.None);
+        var result = resultList.First();
+
+        // Assert
+        result.Document.Should().BeNull();
+        result.DocumentType.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Handle_WhenCalled_ShouldPassCancellationTokenToRepository()
+    {
+        // Arrange
+        var cts = new CancellationTokenSource();
+        var token = cts.Token;
+        _repository.GetAllAsync(token).Returns(new List<Customer>());
+
+        var query = new GetAllCustomersQuery();
+
+        // Act
+        await _handler.Handle(query, token);
+
+        // Assert
+        await _repository.Received(1).GetAllAsync(token);
+    }
+
+    private static Customer BuildCustomer(Guid id, string name, Document? document = null) =>
+        new(CustomerType.Business, name, name, document,
+            Address.Create("01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP"));
 }
