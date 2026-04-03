@@ -6,25 +6,6 @@ O projeto possui apenas **um projeto de testes** (`ControlService.Domain.Tests`)
 
 ---
 
-## 🔴 Prioridade ALTA — Sem cobertura, lógica crítica
-
-Esses arquivos contêm lógica de negócio, orquestração ou validação com **zero testes** associados. São o maior risco do projeto.
-
-### `ControlService.Application`
-
-| Arquivo | Problema observado |
-|---|---|
-| [`CreateCustomerCommandHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Commands/CreateCustomerCommandHandler.cs) | Constrói `Address`, `Document` e `Customer` e persiste. Ramificação `if (!IsNullOrWhiteSpace && HasValue)` sem teste de caminho feliz e de caminho nulo. Viola CQS: retorna DTO após persistir. |
-| [`UpdateCustomerCommandHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Commands/UpdateCustomerCommandHandler.cs) | Retorna `DomainException("Cliente não encontrado.")` ao invés de `EntityNotFoundException` (inconsistência com `DeleteCustomerCommandHandler`). Ramo `null` sem teste. |
-| [`DeleteCustomerCommandHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Commands/DeleteCustomerCommandHandler.cs) | Lança `EntityNotFoundException` quando cliente não existe — comportamento correto, mas sem teste de cenário negativo. |
-| [`GetCustomerByIdQueryHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Queries/GetCustomerByIdQueryHandler.cs) | Handler de consulta sem cobertura alguma. |
-| [`GetAllCustomersQueryHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Queries/GetAllCustomersQueryHandler.cs) | Handler de consulta sem cobertura alguma (lista vazia, lista com itens). |
-| [`CreateCustomerCommandValidator.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Validators/CreateCustomerCommandValidator.cs) | Regras de `DocumentValue`/`DocumentType` são condicionais (`When`) — cenários cruzados (type sem value e vice-versa) precisam de testes. |
-| [`UpdateCustomerCommandValidator.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Validators/UpdateCustomerCommandValidator.cs) | Regras condicionais (`When`) de `OperationalNote`, `FinancialNote` e `Activity` sem cobertura. |
-| [`ValidationPipelineBehavior.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Behaviors/ValidationPipelineBehavior.cs) | Pipeline genérico sem testes: cenário sem validadores (deve chamar `next`), cenário com falhas (deve lançar `ValidationException`). |
-
----
-
 ## 🟡 Prioridade MÉDIA — Cobertura parcial ou lacunas identificadas
 
 Esses arquivos já têm algum teste, mas há comportamentos específicos não cobertos.
