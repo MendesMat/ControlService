@@ -3,8 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ControlService.API.Exceptions;
 using ControlService.Application.Behaviors;
-using ControlService.Infrastructure.Data;
-using ControlService.Infrastructure.Data.Repositories.Commercial;
+using ControlService.Infrastructure;
 using ControlService.Domain.Commercial.Customers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,12 +25,8 @@ builder.Services.AddMediatR(cfg =>
 // ── FluentValidation ───────────────────────────────────────────────────────────
 builder.Services.AddValidatorsFromAssembly(typeof(ControlService.Application.Behaviors.ValidationPipelineBehavior<,>).Assembly);
 
-// ── Database ───────────────────────────────────────────────────────────────────
-builder.Services.AddDbContext<ControlServiceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// ── Repositories ───────────────────────────────────────────────────────────────
-builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+// ── Infrastructure ─────────────────────────────────────────────────────────────
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // ── Swagger / OpenAPI ──────────────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
