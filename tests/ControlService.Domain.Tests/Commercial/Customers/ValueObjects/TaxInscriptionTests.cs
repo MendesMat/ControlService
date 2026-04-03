@@ -1,7 +1,6 @@
 using FluentAssertions;
 using ControlService.Domain.Commercial.Customers.Enums;
 using ControlService.Domain.Commercial.Customers.ValueObjects;
-using Xunit;
 
 namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 
@@ -10,11 +9,11 @@ public class TaxInscriptionTests
     public class Create
     {
         [Theory]
-        [InlineData("12.345/6",   "123456")]
-        [InlineData("12.345-6",   "123456")]
-        [InlineData("12 345 6",   "123456")]
-        [InlineData("123456",     "123456")]
-        [InlineData("",           "")]
+        [InlineData("12.345/6", "123456")]
+        [InlineData("12.345-6", "123456")]
+        [InlineData("12 345 6", "123456")]
+        [InlineData("123456", "123456")]
+        [InlineData("", "")]
         public void GivenMunicipalValue_WhenCreated_ShouldStripFormatting(string raw, string expected)
         {
             var inscription = TaxInscription.Create(raw, TaxInscriptionType.Municipal);
@@ -23,9 +22,9 @@ public class TaxInscriptionTests
         }
 
         [Theory]
-        [InlineData("12.345.678/9",  "123456789")]
-        [InlineData("12.345.678-9",  "123456789")]
-        [InlineData("123456789",     "123456789")]
+        [InlineData("12.345.678/9", "123456789")]
+        [InlineData("12.345.678-9", "123456789")]
+        [InlineData("123456789", "123456789")]
         public void GivenStateValue_WhenCreated_ShouldStripFormatting(string raw, string expected)
         {
             var inscription = TaxInscription.Create(raw, TaxInscriptionType.State);
@@ -74,7 +73,7 @@ public class TaxInscriptionTests
         [Fact]
         public void GivenSameValueAndType_WhenCompared_ShouldBeEqual()
         {
-            var first  = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
+            var first = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
             var second = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
 
             first.Should().Be(second);
@@ -83,7 +82,7 @@ public class TaxInscriptionTests
         [Fact]
         public void GivenSameValueAndType_WhenComparedWithOperator_ShouldBeEqual()
         {
-            var first  = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
+            var first = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
             var second = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
 
             (first == second).Should().BeTrue();
@@ -92,7 +91,7 @@ public class TaxInscriptionTests
         [Fact]
         public void GivenDifferentValues_WhenCompared_ShouldNotBeEqual()
         {
-            var first  = TaxInscription.Create("111111", TaxInscriptionType.Municipal);
+            var first = TaxInscription.Create("111111", TaxInscriptionType.Municipal);
             var second = TaxInscription.Create("999999", TaxInscriptionType.Municipal);
 
             first.Should().NotBe(second);
@@ -103,7 +102,7 @@ public class TaxInscriptionTests
         public void GivenDifferentTypes_WhenCompared_ShouldNotBeEqual()
         {
             var municipal = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
-            var state     = TaxInscription.Create("123456", TaxInscriptionType.State);
+            var state = TaxInscription.Create("123456", TaxInscriptionType.State);
 
             municipal.Should().NotBe(state);
             (municipal != state).Should().BeTrue();
@@ -112,7 +111,7 @@ public class TaxInscriptionTests
         [Fact]
         public void GivenSameValueAndType_WhenHashCodeComputed_ShouldProduceSameHash()
         {
-            var first  = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
+            var first = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
             var second = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
 
             first.GetHashCode().Should().Be(second.GetHashCode());
@@ -122,7 +121,7 @@ public class TaxInscriptionTests
         public void GivenFormattedAndRawEquivalents_WhenCompared_ShouldBeEqual()
         {
             var formatted = TaxInscription.Create("12.345/6", TaxInscriptionType.Municipal);
-            var raw       = TaxInscription.Create("123456",   TaxInscriptionType.Municipal);
+            var raw = TaxInscription.Create("123456", TaxInscriptionType.Municipal);
 
             formatted.Should().Be(raw);
         }

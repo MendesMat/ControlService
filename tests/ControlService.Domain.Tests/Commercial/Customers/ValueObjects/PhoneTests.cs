@@ -1,9 +1,7 @@
 using FluentAssertions;
-using System;
 using ControlService.Domain.Commercial.Customers.Enums;
 using ControlService.Domain.Commercial.Customers.ValueObjects;
 using ControlService.Domain.SeedWork;
-using Xunit;
 
 namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 

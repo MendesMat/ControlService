@@ -1,8 +1,6 @@
 using FluentAssertions;
-using System;
 using ControlService.Domain.Commercial.Customers.ValueObjects;
 using ControlService.Domain.SeedWork;
-using Xunit;
 
 namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 
@@ -115,10 +113,10 @@ public class AddressTests
     [Fact]
     public void Equals_NullNumberAndComplement_ShouldBeEqualToEmptyStrings()
     {
-         var address1 = Address.Create("12345678", "Main St", null, null, "Downtown", "Metropolis", "NY");
-         var address2 = Address.Create("12345678", "Main St", "", "", "Downtown", "Metropolis", "NY");
+        var address1 = Address.Create("12345678", "Main St", null, null, "Downtown", "Metropolis", "NY");
+        var address2 = Address.Create("12345678", "Main St", "", "", "Downtown", "Metropolis", "NY");
 
-         address1.Should().Be(address2);
+        address1.Should().Be(address2);
     }
 
     [Fact]

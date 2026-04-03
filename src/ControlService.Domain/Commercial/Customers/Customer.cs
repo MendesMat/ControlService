@@ -17,7 +17,6 @@ public class Customer : Entity, IAggregateRoot
     public string? OperationalNote { get; private set; }
     public string? FinancialNote { get; private set; }
     public Guid? PayingOfficeId { get; private set; }
-    public Customer? PayingOffice { get; private set; }
     public CustomerStatus Status { get; private set; }
 
     private readonly List<Phone> _phones = new();
@@ -51,10 +50,7 @@ public class Customer : Entity, IAggregateRoot
             _phones.Add(phone);
     }
 
-    public void RemoveGeneralPhone(Phone phone)
-    {
-        _phones.RemoveAll(p => p == phone);
-    }
+    public void RemoveGeneralPhone(Phone phone) => _phones.RemoveAll(p => p == phone);
 
     public void AddGeneralEmail(Email email)
     {
@@ -62,10 +58,7 @@ public class Customer : Entity, IAggregateRoot
             _emails.Add(email);
     }
 
-    public void RemoveGeneralEmail(Email email)
-    {
-        _emails.RemoveAll(e => e == email);
-    }
+    public void RemoveGeneralEmail(Email email) => _emails.RemoveAll(e => e == email);
 
     public void AddContactPerson(string person)
     {
@@ -82,29 +75,37 @@ public class Customer : Entity, IAggregateRoot
         _contactPersons.RemoveAll(p => p.Equals(person.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
-    public void AddTaxInscription(TaxInscription inscription)
+    public void SetMunicipalInscription(TaxInscription inscription)
+    {
+        EnsureIsBusinessCustomer();
+        MunicipalInscription = inscription;
+    }
+
+    public void RemoveMunicipalInscription() => MunicipalInscription = null;
+
+    public void SetStateInscription(TaxInscription inscription)
+    {
+        EnsureIsBusinessCustomer();
+        StateInscription = inscription;
+    }
+
+    public void RemoveStateInscription() => StateInscription = null;
+
+    private void EnsureIsBusinessCustomer()
     {
         if (Type != CustomerType.Business)
             throw new DomainException("Inscrições fiscais são permitidas apenas para clientes do tipo Pessoa Jurídica.");
-
-        if (inscription.Type == TaxInscriptionType.Municipal)
-            MunicipalInscription = inscription;
-
-        else if (inscription.Type == TaxInscriptionType.State)
-            StateInscription = inscription;
-    }
-
-    public void RemoveTaxInscription(TaxInscriptionType type)
-    {
-        if (type == TaxInscriptionType.Municipal)
-            MunicipalInscription = null;
-        else if (type == TaxInscriptionType.State)
-            StateInscription = null;
     }
 
     public void UpdateAddress(Address address)
     {
         Address = address ?? throw new DomainException("Endereço é obrigatório.");
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateActivity(string? activity)
+    {
+        Activity = activity;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -128,22 +129,5 @@ public class Customer : Entity, IAggregateRoot
     {
         Status = status;
         UpdatedAt = DateTime.UtcNow;
-    }
-
-    public ValidationResult Validate()
-    {
-        var errors = new List<string>();
-
-        if (ErrorsInTaxes(errors)) { }
-
-        if (errors.Any())
-            return ValidationResult.Failure(errors);
-
-        return ValidationResult.Success();
-    }
-
-    private bool ErrorsInTaxes(List<string> errors)
-    {
-        return false;
     }
 }

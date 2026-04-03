@@ -1,6 +1,5 @@
 using FluentAssertions;
 using ControlService.Domain.Commercial.Customers.ValueObjects;
-using Xunit;
 
 namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 
