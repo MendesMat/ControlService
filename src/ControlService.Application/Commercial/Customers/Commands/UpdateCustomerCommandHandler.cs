@@ -19,9 +19,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
     {
         var customer = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (customer == null)
-        {
-            throw new DomainException("Cliente não encontrado.");
-        }
+            throw new EntityNotFoundException(nameof(Customer), request.Id);
 
         var address = Address.Create(
             request.PostalCode, request.Street, request.Number, request.Complement,

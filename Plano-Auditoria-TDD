@@ -1,0 +1,94 @@
+# Auditoria TDD — ControlService
+
+## Resumo Executivo
+
+O projeto possui apenas **um projeto de testes** (`ControlService.Domain.Tests`), cobrindo somente a camada de **Domínio**. As camadas de **Application** e **Infrastructure** estão completamente **sem cobertura de testes**, e os Handlers têm lógica de ramificação significativa sem qualquer par de teste. A auditoria classifica cada arquivo em três categorias de prioridade.
+
+---
+
+## 🔴 Prioridade ALTA — Sem cobertura, lógica crítica
+
+Esses arquivos contêm lógica de negócio, orquestração ou validação com **zero testes** associados. São o maior risco do projeto.
+
+### `ControlService.Application`
+
+| Arquivo | Problema observado |
+|---|---|
+| [`CreateCustomerCommandHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Commands/CreateCustomerCommandHandler.cs) | Constrói `Address`, `Document` e `Customer` e persiste. Ramificação `if (!IsNullOrWhiteSpace && HasValue)` sem teste de caminho feliz e de caminho nulo. Viola CQS: retorna DTO após persistir. |
+| [`UpdateCustomerCommandHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Commands/UpdateCustomerCommandHandler.cs) | Retorna `DomainException("Cliente não encontrado.")` ao invés de `EntityNotFoundException` (inconsistência com `DeleteCustomerCommandHandler`). Ramo `null` sem teste. |
+| [`DeleteCustomerCommandHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Commands/DeleteCustomerCommandHandler.cs) | Lança `EntityNotFoundException` quando cliente não existe — comportamento correto, mas sem teste de cenário negativo. |
+| [`GetCustomerByIdQueryHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Queries/GetCustomerByIdQueryHandler.cs) | Handler de consulta sem cobertura alguma. |
+| [`GetAllCustomersQueryHandler.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Queries/GetAllCustomersQueryHandler.cs) | Handler de consulta sem cobertura alguma (lista vazia, lista com itens). |
+| [`CreateCustomerCommandValidator.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Validators/CreateCustomerCommandValidator.cs) | Regras de `DocumentValue`/`DocumentType` são condicionais (`When`) — cenários cruzados (type sem value e vice-versa) precisam de testes. |
+| [`UpdateCustomerCommandValidator.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Commercial/Customers/Validators/UpdateCustomerCommandValidator.cs) | Regras condicionais (`When`) de `OperationalNote`, `FinancialNote` e `Activity` sem cobertura. |
+| [`ValidationPipelineBehavior.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Application/Behaviors/ValidationPipelineBehavior.cs) | Pipeline genérico sem testes: cenário sem validadores (deve chamar `next`), cenário com falhas (deve lançar `ValidationException`). |
+
+---
+
+## 🟡 Prioridade MÉDIA — Cobertura parcial ou lacunas identificadas
+
+Esses arquivos já têm algum teste, mas há comportamentos específicos não cobertos.
+
+### `ControlService.Domain`
+
+| Arquivo | Lacuna identificada |
+|---|---|
+| [`Customer.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Domain/Commercial/Customers/Customer.cs) | `CustomerTests.cs` existe, mas verifique: `SetPayingOffice(self)` lança exceção? `AddContactPerson` é case-insensitive? `RemoveGeneralPhone/Email` com phone inexistente funciona sem erro? `SetStatus` atualiza `UpdatedAt`? |
+| [`Document.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Domain/Commercial/Customers/ValueObjects/Document.cs) | `IsValid()` sempre retorna `true` — há comentário indicando matematicamente inválido; `GetFormattedValue()` com comprimento diferente de 11/14 retorna raw. Esses dois casos têm teste? |
+| [`TaxInscription.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Domain/Commercial/Customers/ValueObjects/TaxInscription.cs) | `Create` não lança exceção para valor nulo/vazio — aceite silencioso de `string.Empty`. Comportamento intencional? Deve ter teste documentando decisão. `GetFormattedValue()` sempre retorna o raw sem formatação — coberto? |
+| [`Address.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Domain/Commercial/Customers/ValueObjects/Address.cs) | `state` com 2 chars mas `null` na `street`/`neighborhood`/`city` — `Create` não valida esses campos. |
+
+---
+
+## 🟢 Prioridade BAIXA — Infraestrutura e plumbing
+
+Esses arquivos têm baixo retorno de teste unitário (dependem de IO externo ou são contratos), mas precisam de **testes de integração** futuros.
+
+### `ControlService.Infrastructure`
+
+| Arquivo | Observação |
+|---|---|
+| [`CustomerRepository.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Infrastructure/Data/Repositories/Commercial/CustomerRepository.cs) | Depende de `DbContext` → teste de integração com banco em memória (EF InMemory ou SQLite). |
+| [`ControlServiceDbContext.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Infrastructure/Data/ControlServiceDbContext.cs) | Mapeamentos e migrations → validados por testes de integração. |
+
+### `ControlService.Domain.SeedWork` (já testado, mas revisar)
+
+| Arquivo | Observação |
+|---|---|
+| [`Entity.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Domain/SeedWork/Entity.cs) | `EntityTests.cs` existe. Verificar: operador `==` com `null` em ambos os lados? `IsTransient()` com `Guid.Empty`? |
+| [`ValueObject.cs`](file:///c:/Projetos/.NET/ControlService/src/ControlService.Domain/SeedWork/ValueObject.cs) | `ValueObjectTests.cs` existe. Verificar: `==` com `null` à esquerda e à direita? |
+
+---
+
+## Projetos de Teste Ausentes
+
+> [!CAUTION]
+> Não existe nenhum projeto de teste para as camadas abaixo. Precisam ser criados do zero:
+
+| Projeto necessário | O que testar |
+|---|---|
+| `ControlService.Application.Tests` | Handlers (com mock do repositório via `ICustomerRepository`), Validators (FluentValidation), `ValidationPipelineBehavior` |
+| `ControlService.Infrastructure.Tests` *(integração)* | `CustomerRepository` contra banco em memória |
+
+---
+
+## Inconsistência a Corrigir Antes de Testar
+
+> [!WARNING]
+> `UpdateCustomerCommandHandler` lança `DomainException("Cliente não encontrado.")` enquanto `DeleteCustomerCommandHandler` lança `EntityNotFoundException`. O comportamento entre os dois Handlers está **inconsistente** e deve ser padronizado para `EntityNotFoundException` antes de escrever os testes.
+
+---
+
+## Sugestão de Ordem de Execução TDD
+
+```
+1. Criar ControlService.Application.Tests
+2. ValidationPipelineBehavior (menor, mais isolado)
+3. CreateCustomerCommandValidator / UpdateCustomerCommandValidator
+4. CreateCustomerCommandHandler (mock ICustomerRepository)
+5. UpdateCustomerCommandHandler + correção da inconsistência
+6. DeleteCustomerCommandHandler
+7. GetCustomerByIdQueryHandler / GetAllCustomersQueryHandler
+8. Lacunas no CustomerTests.cs existente
+9. Criar ControlService.Infrastructure.Tests (integração)
+```
