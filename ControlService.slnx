@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="src/ControlService.Domain/ControlService.Domain.csproj" Id="b7a4306a-167b-4d73-bcf3-e417e33f87de" />
+  <Project Path="src/ControlService.Application/ControlService.Application.csproj" Id="f1c2e3d4-1111-4a5b-8c6d-a1b2c3d4e5f6" />
+  <Project Path="src/ControlService.Infrastructure/ControlService.Infrastructure.csproj" Id="a2b3c4d5-2222-4b6c-9d7e-b2c3d4e5f6a7" />
+  <Project Path="src/ControlService.API/ControlService.API.csproj" Id="c3d4e5f6-3333-4c7d-ae8f-c3d4e5f6a7b8" />
 </Solution>
