@@ -38,7 +38,7 @@ public class DeleteCustomerCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithNonExistentCustomer_ThrowsEntityNotFoundException()
+    public async Task Handle_WithNonExistentCustomer_ThrowsEntityNotFoundExceptionWithCorrectMetadata()
     {
         // Arrange
         var unknownId = Guid.NewGuid();
@@ -50,7 +50,9 @@ public class DeleteCustomerCommandHandlerTests
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<EntityNotFoundException>();
+        var exception = await act.Should().ThrowAsync<EntityNotFoundException>();
+        exception.Which.Message.Should().Contain(nameof(Customer));
+        exception.Which.Message.Should().Contain(unknownId.ToString());
     }
 
     [Fact]
@@ -67,8 +69,44 @@ public class DeleteCustomerCommandHandlerTests
         await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        _repository.Received(1).Remove(Arg.Any<Customer>());
+        _repository.Received(1).Remove(customer);
         await _unitOfWork.Received(1).SaveEntitiesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_WhenCancellationTokenRequested_PropagatesToRepository()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        var customer = BuildCustomer();
+        _repository.GetByIdAsync(customer.Id, cts.Token).Returns(customer);
+        _unitOfWork.SaveEntitiesAsync(cts.Token).Returns(true);
+
+        var command = new DeleteCustomerCommand(customer.Id);
+
+        // Act
+        await _handler.Handle(command, cts.Token);
+
+        // Assert
+        await _repository.Received(1).GetByIdAsync(customer.Id, cts.Token);
+        await _unitOfWork.Received(1).SaveEntitiesAsync(cts.Token);
+    }
+
+    [Fact]
+    public async Task Handle_WhenSaveFails_ReturnsFalse()
+    {
+        // Arrange
+        var customer = BuildCustomer();
+        _repository.GetByIdAsync(customer.Id, Arg.Any<CancellationToken>()).Returns(customer);
+        _unitOfWork.SaveEntitiesAsync(Arg.Any<CancellationToken>()).Returns(false);
+
+        var command = new DeleteCustomerCommand(customer.Id);
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.Should().BeFalse();
     }
 
     private static Customer BuildCustomer() =>

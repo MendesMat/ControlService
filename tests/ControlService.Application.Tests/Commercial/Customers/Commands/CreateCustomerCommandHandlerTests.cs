@@ -40,6 +40,59 @@ public class CreateCustomerCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WithIndividualCustomer_ReturnsCorrectData()
+    {
+        // Arrange
+        _unitOfWork.SaveEntitiesAsync(Arg.Any<CancellationToken>()).Returns(true);
+
+        var command = BuildValidCommand();
+        command.Type = CustomerType.Individual;
+        command.LegalName = "John Doe";
+        command.DocumentValue = "123.456.789-00";
+        command.DocumentType = DocumentType.CPF;
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.LegalName.Should().Be("John Doe");
+        result.Type.Should().Be(CustomerType.Individual.ToString());
+        result.Document.Should().Be("123.456.789-00");
+        result.DocumentType.Should().Be(DocumentType.CPF.ToString());
+    }
+
+    [Fact]
+    public async Task Handle_WithInvalidState_ThrowsDomainException()
+    {
+        // Arrange
+        var command = BuildValidCommand();
+        command.State = "INVALID"; // Must be 2 chars
+
+        // Act
+        var act = async () => await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<DomainException>()
+            .WithMessage("State must be a 2-character abbreviation.");
+    }
+
+    [Fact]
+    public async Task Handle_WithInvalidDocumentLength_ThrowsDomainException()
+    {
+        // Arrange
+        var command = BuildValidCommand();
+        command.DocumentValue = "123"; // Too short for any type
+        command.DocumentType = DocumentType.CPF;
+
+        // Act
+        var act = async () => await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<DomainException>()
+            .WithMessage("Invalid length for CPF document.");
+    }
+
+    [Fact]
     public async Task Handle_WithoutDocument_DoesNotThrow()
     {
         // Arrange
@@ -54,6 +107,24 @@ public class CreateCustomerCommandHandlerTests
 
         // Assert
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task Handle_WithFullOptionalFields_ReturnsCorrectData()
+    {
+        // Arrange
+        _unitOfWork.SaveEntitiesAsync(Arg.Any<CancellationToken>()).Returns(true);
+
+        var command = BuildValidCommand();
+        command.TradeName = "Acme Services";
+        command.Complement = "Suite 100";
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.TradeName.Should().Be("Acme Services");
+        result.Document.Should().NotBeNull();
     }
 
     [Fact]
@@ -77,6 +148,8 @@ public class CreateCustomerCommandHandlerTests
         Type = CustomerType.Business,
         LegalName = "Acme Corp",
         TradeName = "Acme",
+        DocumentValue = "12.345.678/0001-99",
+        DocumentType = DocumentType.CNPJ,
         PostalCode = "01310-100",
         Street = "Av. Paulista",
         Number = "1000",
