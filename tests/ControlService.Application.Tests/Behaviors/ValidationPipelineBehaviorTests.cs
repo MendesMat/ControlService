@@ -99,9 +99,7 @@ public class ValidationPipelineBehaviorTests
     {
         // Arrange
         var validator = Substitute.For<IValidator<SampleRequest>>();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         var resultWithNull = new FluentValidation.Results.ValidationResult(new[] { (FluentValidation.Results.ValidationFailure)null });
-#pragma warning restore CS8625
         validator.Validate(Arg.Any<IValidationContext>()).Returns(resultWithNull);
 
         var validators = new[] { validator };

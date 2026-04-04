@@ -1,0 +1,1 @@
+[] Ver a questão de Document e DocumentType: o DocumentType não deveria ser definido a partir de uma validação, ao inves de ser recebido diretamente do json?
