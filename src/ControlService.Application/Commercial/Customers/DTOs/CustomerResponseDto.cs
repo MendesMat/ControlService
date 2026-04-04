@@ -6,13 +6,13 @@ namespace ControlService.Application.Commercial.Customers.DTOs;
 public class CustomerResponseDto
 {
     /// <summary> Identificador único do cliente. </summary>
-    public Guid Id { get; set; }
+    public required Guid Id { get; set; }
 
     /// <summary> Tipo do cliente (Pessoa Física ou Jurídica). </summary>
-    public string Type { get; set; }
+    public required string Type { get; set; }
 
     /// <summary> Nome legal ou razão social. </summary>
-    public string LegalName { get; set; }
+    public required string LegalName { get; set; }
 
     /// <summary> Nome fantasia (se aplicável). </summary>
     public string? TradeName { get; set; }

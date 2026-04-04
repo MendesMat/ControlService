@@ -46,7 +46,7 @@ public class Document : ValueObject
         return Value;
     }
 
-    public static bool IsValid() => true;
+    public bool IsValid() => true;
 
     protected override IEnumerable<object> GetEqualityComponents()
     {
