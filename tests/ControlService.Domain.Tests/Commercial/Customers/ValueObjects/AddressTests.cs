@@ -40,9 +40,9 @@ public class AddressTests
     [InlineData(" ")]
     [InlineData("ABC")]
     [InlineData("New York")]
-    public void Create_InvalidState_ShouldThrowException(string invalidState)
+    public void Create_InvalidState_ShouldThrowException(string? invalidState)
     {
-        Action action = () => Address.Create("12345678", "Main St", "123", null, "Downtown", "Metropolis", invalidState);
+        Action action = () => Address.Create("12345678", "Main St", "123", null, "Downtown", "Metropolis", invalidState!);
         action.Should().Throw<DomainException>().WithMessage("State must be a 2-character abbreviation.");
     }
 
@@ -50,8 +50,10 @@ public class AddressTests
     [InlineData("12345-678", "12345678")]
     [InlineData("12.345-678", "12345678")]
     [InlineData("12345678abc", "12345678")]
-    [InlineData(null, "")]
-    public void Create_PostalCodeWithNonNumericChars_ShouldCleanPostalCode(string inputPostalCode, string expectedPostalCode)
+    [InlineData(null, null)]
+    [InlineData("", null)]
+    [InlineData(" ", null)]
+    public void Create_PostalCodeWithNonNumericChars_ShouldCleanPostalCode(string? inputPostalCode, string? expectedPostalCode)
     {
         var address = Address.Create(inputPostalCode, "Main St", "123", null, "Downtown", "Metropolis", "NY");
 
@@ -68,7 +70,15 @@ public class AddressTests
 
         var result = address.GetFormattedPostalCode();
 
-        result.Should().Be(postalCode);
+        result.Should().Be(address.PostalCode);
+    }
+
+    [Fact]
+    public void GetFormattedPostalCode_NullPostalCode_ShouldReturnNull()
+    {
+        var address = Address.Create(null, "Main St", "123", null, "Downtown", "Metropolis", "NY");
+
+        address.GetFormattedPostalCode().Should().BeNull();
     }
 
     [Fact]
@@ -99,6 +109,17 @@ public class AddressTests
         var result = address.GetFullAddress();
 
         result.Should().Be("Main St, S/N, Downtown. Metropolis/NY. CEP: 12345-678");
+    }
+
+    [Fact]
+    public void GetFullAddress_WithNullPostalCode_ShouldOmitPostalCodePart()
+    {
+        var address = Address.Create(null, "Main St", "123", null, "Downtown", "Metropolis", "NY");
+
+        var result = address.GetFullAddress();
+
+        result.Should().Be("Main St, 123, Downtown. Metropolis/NY");
+        result.Should().NotContain("CEP");
     }
 
     [Fact]
@@ -138,5 +159,23 @@ public class AddressTests
         address1.Should().NotBe(address6);
         address1.Should().NotBe(address7);
         address1.Should().NotBe(address8);
+    }
+
+    [Fact]
+    public void Equals_BothWithNullPostalCode_ShouldBeEqual()
+    {
+        var address1 = Address.Create(null, "Main St", "123", null, "Downtown", "Metropolis", "NY");
+        var address2 = Address.Create(null, "Main St", "123", null, "Downtown", "Metropolis", "NY");
+
+        address1.Should().Be(address2);
+    }
+
+    [Fact]
+    public void Equals_OneWithNullPostalCodeAndOtherWithValue_ShouldNotBeEqual()
+    {
+        var addressWithPostalCode = Address.Create("12345678", "Main St", "123", null, "Downtown", "Metropolis", "NY");
+        var addressWithoutPostalCode = Address.Create(null, "Main St", "123", null, "Downtown", "Metropolis", "NY");
+
+        addressWithPostalCode.Should().NotBe(addressWithoutPostalCode);
     }
 }

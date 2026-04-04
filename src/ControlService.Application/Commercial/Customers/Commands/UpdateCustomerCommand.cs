@@ -1,5 +1,4 @@
 using MediatR;
-using ControlService.Domain.Commercial.Customers.Enums;
 using ControlService.Application.Commercial.Customers.DTOs;
 
 namespace ControlService.Application.Commercial.Customers.Commands;
@@ -13,7 +12,7 @@ public class UpdateCustomerCommand : IRequest<CustomerResponseDto>
     public Guid Id { get; set; }
 
     /// <summary> CEP do endereço. </summary>
-    public string PostalCode { get; set; } = string.Empty;
+    public string? PostalCode { get; set; }
 
     /// <summary> Nome da rua/logradouro. </summary>
     public string Street { get; set; } = string.Empty;

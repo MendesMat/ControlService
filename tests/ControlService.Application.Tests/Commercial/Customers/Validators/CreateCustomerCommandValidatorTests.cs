@@ -1,9 +1,6 @@
-using System.Linq;
 using ControlService.Application.Commercial.Customers.Commands;
 using ControlService.Application.Commercial.Customers.Validators;
 using ControlService.Domain.Commercial.Customers.Enums;
-using FluentAssertions;
-using Xunit;
 using DocumentTypeEnum = ControlService.Domain.Commercial.Customers.Enums.DocumentType;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Validators;
@@ -85,13 +82,22 @@ public class CreateCustomerCommandValidatorTests
     }
 
     [Theory]
-    [InlineData("")]
     [InlineData(null)]
-    public void Validate_EmptyPostalCode_HasError(string? postalCode)
+    [InlineData("")]
+    public void Validate_NullOrEmptyPostalCode_ShouldNotHaveError(string? postalCode)
     {
-        var command = new CreateCustomerCommand { PostalCode = postalCode! };
+        var command = new CreateCustomerCommand
+        {
+            LegalName = "Valid Corp",
+            Type = CustomerType.Business,
+            PostalCode = postalCode,
+            Street = "Av Paulista",
+            Neighborhood = "Bela Vista",
+            City = "São Paulo",
+            State = "SP"
+        };
         var result = _validator.Validate(command);
-        result.Errors.Should().Contain(x => x.PropertyName == nameof(CreateCustomerCommand.PostalCode));
+        result.Errors.Should().NotContain(x => x.PropertyName == nameof(CreateCustomerCommand.PostalCode));
     }
 
     [Fact]
@@ -188,9 +194,9 @@ public class CreateCustomerCommandValidatorTests
 
 
         // Fix up the command to be otherwise valid
-        var command = new CreateCustomerCommand 
-        { 
-            DocumentType = type, 
+        var command = new CreateCustomerCommand
+        {
+            DocumentType = type,
             DocumentValue = value,
             LegalName = "Valid",
             PostalCode = "12345",

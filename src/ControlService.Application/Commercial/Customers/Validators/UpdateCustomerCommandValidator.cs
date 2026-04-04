@@ -11,8 +11,8 @@ public class UpdateCustomerCommandValidator : AbstractValidator<UpdateCustomerCo
             .NotEmpty().WithMessage("Identificador do cliente é obrigatório.");
 
         RuleFor(c => c.PostalCode)
-            .NotEmpty().WithMessage("CEP é obrigatório.")
-            .MaximumLength(10).WithMessage("CEP deve ter no máximo 10 caracteres.");
+            .MaximumLength(10).WithMessage("CEP deve ter no máximo 10 caracteres.")
+            .When(c => c.PostalCode != null);
 
         RuleFor(c => c.Street)
             .NotEmpty().WithMessage("Logradouro é obrigatório.")

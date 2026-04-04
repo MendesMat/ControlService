@@ -25,7 +25,7 @@ public class CreateCustomerCommand : IRequest<CustomerResponseDto>
     public DocumentType? DocumentType { get; set; }
 
     /// <summary> CEP do endereço. </summary>
-    public string PostalCode { get; set; } = string.Empty;
+    public string? PostalCode { get; set; }
 
     /// <summary> Nome da rua/logradouro. </summary>
     public string Street { get; set; } = string.Empty;

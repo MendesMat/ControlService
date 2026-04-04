@@ -70,7 +70,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         // OwnsOne for Address
         builder.OwnsOne(c => c.Address, address =>
         {
-            address.Property(a => a.PostalCode).HasColumnName("Address_PostalCode").HasMaxLength(10).IsRequired();
+            address.Property(a => a.PostalCode).HasColumnName("Address_PostalCode").HasMaxLength(10);
             address.Property(a => a.Street).HasColumnName("Address_Street").HasMaxLength(200).IsRequired();
             address.Property(a => a.Number).HasColumnName("Address_Number").HasMaxLength(50);
             address.Property(a => a.Complement).HasColumnName("Address_Complement").HasMaxLength(100);

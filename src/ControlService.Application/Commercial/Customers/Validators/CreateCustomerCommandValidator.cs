@@ -1,4 +1,3 @@
-using System.Linq;
 using FluentValidation;
 using ControlService.Application.Commercial.Customers.Commands;
 using ControlService.Domain.Commercial.Customers.Enums;
@@ -14,8 +13,8 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
             .MaximumLength(200).WithMessage("Nome deve ter no máximo 200 caracteres.");
 
         RuleFor(c => c.PostalCode)
-            .NotEmpty().WithMessage("CEP é obrigatório.")
-            .MaximumLength(10).WithMessage("CEP deve ter no máximo 10 caracteres.");
+            .MaximumLength(10).WithMessage("CEP deve ter no máximo 10 caracteres.")
+            .When(c => c.PostalCode != null);
 
         RuleFor(c => c.Street)
             .NotEmpty().WithMessage("Logradouro é obrigatório.")
@@ -42,7 +41,8 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
             .When(c => c.DocumentType.HasValue);
 
         RuleFor(c => c.DocumentValue)
-            .Must((cmd, value) => {
+            .Must((cmd, value) =>
+            {
                 if (string.IsNullOrWhiteSpace(value)) return true;
                 var rawValue = new string(value.Where(char.IsDigit).ToArray());
                 return cmd.DocumentType == DocumentType.CPF ? rawValue.Length == 11 : rawValue.Length == 14;

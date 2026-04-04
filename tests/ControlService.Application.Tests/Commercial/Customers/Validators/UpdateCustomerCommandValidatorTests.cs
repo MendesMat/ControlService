@@ -42,7 +42,6 @@ public class UpdateCustomerCommandValidatorTests
     }
 
     [Theory]
-    [InlineData("", "CEP é obrigatório.")]
     [InlineData("12345678901", "CEP deve ter no máximo 10 caracteres.")]
     public void Validate_InvalidPostalCode_ShouldHaveError(string postalCode, string expectedMessage)
     {
@@ -56,6 +55,22 @@ public class UpdateCustomerCommandValidatorTests
         // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.ErrorMessage == expectedMessage);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void Validate_NullOrEmptyPostalCode_ShouldNotHaveError(string? postalCode)
+    {
+        // Arrange
+        var command = CreateValidCommand();
+        command.PostalCode = postalCode;
+
+        // Act
+        var result = _validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().NotContain(e => e.PropertyName == nameof(UpdateCustomerCommand.PostalCode));
     }
 
     [Theory]
