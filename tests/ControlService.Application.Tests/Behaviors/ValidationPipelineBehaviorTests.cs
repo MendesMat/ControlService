@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using ControlService.Application.Behaviors;
 using FluentValidation;
 using MediatR;
@@ -36,7 +33,7 @@ public class ValidationPipelineBehaviorTests
         var validator = Substitute.For<IValidator<SampleRequest>>();
         var failure = new FluentValidation.Results.ValidationFailure("Prop", "Error");
         validator.Validate(Arg.Any<IValidationContext>()).Returns(new FluentValidation.Results.ValidationResult(new[] { failure }));
-        
+
         var validators = new[] { validator };
         var behavior = new ValidationPipelineBehavior<SampleRequest, string>(validators);
         var request = new SampleRequest();
