@@ -1,10 +1,8 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using ControlService.API.Exceptions;
 using ControlService.Application.Behaviors;
 using ControlService.Infrastructure;
-using ControlService.Domain.Commercial.Customers;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,12 +39,14 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference(options =>
+    app.MapScalarApiReference("/docs", options =>
     {
         options.WithTitle("ControlService API")
                .WithDownloadButton(true)
                .WithTheme(ScalarTheme.Moon);
     });
+
+    app.MapGet("/", () => Results.Redirect("/docs"));
 }
 
 app.UseHttpsRedirection();
