@@ -10,6 +10,8 @@ public class Email : ValueObject
     public EmailType Type { get; }
     public bool IsMainEmail { get; }
 
+    protected Email() { } // Para o EF Core
+
     private Email(string value, EmailType type, bool isMain)
     {
         Value = value;

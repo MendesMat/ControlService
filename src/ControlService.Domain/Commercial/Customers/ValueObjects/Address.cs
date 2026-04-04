@@ -13,6 +13,8 @@ public class Address : ValueObject
     public string City { get; }
     public string State { get; }
 
+    protected Address() { } // Para o EF Core
+
     private Address(string postalCode, string street, string? number, string? complement, string neighborhood, string city, string state)
     {
         PostalCode = postalCode;

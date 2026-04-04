@@ -5,6 +5,7 @@ using ControlService.API.Exceptions;
 using ControlService.Application.Behaviors;
 using ControlService.Infrastructure;
 using ControlService.Domain.Commercial.Customers;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ builder.Services.AddValidatorsFromAssembly(typeof(ControlService.Application.Beh
 // ── Infrastructure ─────────────────────────────────────────────────────────────
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// ── Swagger / OpenAPI ──────────────────────────────────────────────────────────
+// ── Scalar / OpenAPI (Scalar) ─────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
@@ -38,7 +39,15 @@ var app = builder.Build();
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
+{
     app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("ControlService API")
+               .WithDownloadButton(true)
+               .WithTheme(ScalarTheme.Moon);
+    });
+}
 
 app.UseHttpsRedirection();
 app.MapControllers();

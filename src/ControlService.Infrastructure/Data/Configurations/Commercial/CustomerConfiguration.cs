@@ -99,6 +99,10 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         });
 
         builder.Property(c => c.ContactPersons)
-            .HasColumnName("ContactPersons");
+            .HasColumnName("ContactPersons")
+            .HasConversion(
+                v => string.Join(',', v),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+            );
     }
 }

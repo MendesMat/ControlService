@@ -28,11 +28,7 @@ public class Customer : Entity, IAggregateRoot
     private readonly List<string> _contactPersons = new();
     public IReadOnlyCollection<string> ContactPersons => _contactPersons.AsReadOnly();
 
-    private Customer()
-    {
-        LegalName = null!;
-        Address = null!;
-    }
+    protected Customer() { } // Para o EF Core
 
     public Customer(CustomerType type, string legalName, string? tradeName, Document? document, Address address)
         : base()
