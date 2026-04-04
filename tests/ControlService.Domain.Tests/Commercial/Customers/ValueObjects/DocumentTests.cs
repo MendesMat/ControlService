@@ -8,10 +8,9 @@ namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 public class DocumentTests
 {
     [Theory]
-    [InlineData("123.456.789-00", DocumentType.CPF, "12345678900")]
-    [InlineData("12.345.678/0001-90", DocumentType.CNPJ, "12345678000190")]
-    [InlineData("A1B2C3.4D5E6.7F8G9-0H0I", DocumentType.CPF, "12345678900")]
-    public void Create_ValidDocument_ShouldReturnDocumentWithRawValue(string formattedValue, DocumentType type, string expectedRawValue)
+    [InlineData("19103190000", DocumentType.CPF, "19103190000")]
+    [InlineData("12.345.678/0001-95", DocumentType.CNPJ, "12345678000195")]
+    public void Create_ValidDocumentWithType_ShouldReturnDocumentWithRawValue(string formattedValue, DocumentType type, string expectedRawValue)
     {
         // Act
         var document = Document.Create(formattedValue, type);
@@ -19,6 +18,19 @@ public class DocumentTests
         // Assert
         document.Value.Should().Be(expectedRawValue);
         document.Type.Should().Be(type);
+    }
+
+    [Theory]
+    [InlineData("19103190000", DocumentType.CPF)]
+    [InlineData("12.345.678/0001-95", DocumentType.CNPJ)]
+    [InlineData("1A.2B3.4C5/0001-01", DocumentType.CNPJ)] // Novo padrão alfanumérico
+    public void Create_WithOnlyValue_ShouldInferType(string value, DocumentType expectedType)
+    {
+        // Act
+        var document = Document.Create(value);
+
+        // Assert
+        document.Type.Should().Be(expectedType);
     }
 
     [Fact]
@@ -40,41 +52,54 @@ public class DocumentTests
     [InlineData("123", DocumentType.CPF)]
     [InlineData("123456789012", DocumentType.CPF)]
     [InlineData("12345", DocumentType.CNPJ)]
-    [InlineData("123456780001901", DocumentType.CNPJ)]
+    [InlineData("123456780001951", DocumentType.CNPJ)]
     public void Create_InvalidLength_ShouldThrowDomainException(string invalidValue, DocumentType type)
     {
         // Act
         Action action = () => Document.Create(invalidValue, type);
 
         // Assert
+        action.Should().Throw<DomainException>();
+    }
+
+    [Theory]
+    [InlineData("11111111111")] // CPF inválido (Dígitos repetidos)
+    [InlineData("12345678901")] // CPF inválido (Dígitos verificadores errados)
+    [InlineData("12345678000100")] // CNPJ inválido
+    public void Create_InvalidCheckDigits_ShouldThrowDomainException(string invalidValue)
+    {
+        // Act
+        Action action = () => Document.Create(invalidValue);
+
+        // Assert
         action.Should().Throw<DomainException>()
-              .WithMessage($"Invalid length for {type} document.");
+              .WithMessage("*inválido*");
     }
 
     [Fact]
     public void GetFormattedValue_Cpf_ShouldReturnFormattedString()
     {
         // Arrange
-        var document = Document.Create("12345678900", DocumentType.CPF);
+        var document = Document.Create("19103190000", DocumentType.CPF);
 
         // Act
         var formattedValue = document.GetFormattedValue();
 
         // Assert
-        formattedValue.Should().Be("123.456.789-00");
+        formattedValue.Should().Be("191.031.900-00");
     }
 
     [Fact]
     public void GetFormattedValue_Cnpj_ShouldReturnFormattedString()
     {
         // Arrange
-        var document = Document.Create("12345678000190", DocumentType.CNPJ);
+        var document = Document.Create("12345678000195", DocumentType.CNPJ);
 
         // Act
         var formattedValue = document.GetFormattedValue();
 
         // Assert
-        formattedValue.Should().Be("12.345.678/0001-90");
+        formattedValue.Should().Be("12.345.678/0001-95");
     }
 
     [Fact]
@@ -88,28 +113,28 @@ public class DocumentTests
         var formattedValue = document.GetFormattedValue();
 
         // Assert
-        formattedValue.Should().Be("12345");
+        formattedValue.Should().Be("12345XYZ");
     }
 
     [Fact]
-    public void IsValid_ShouldReturnTrue()
+    public void IsValid_ShouldValidateCheckDigits()
     {
         // Arrange
-        var document = Document.Create("12345678900", DocumentType.CPF);
+        var validCpf = "19103190000";
+        var invalidCpf = "19103190001";
 
-        // Act
-        var isValid = document.IsValid();
-
-        // Assert
-        isValid.Should().BeTrue();
+        // Act / Assert
+        Document.Create(validCpf).Should().NotBeNull();
+        Action action = () => Document.Create(invalidCpf);
+        action.Should().Throw<DomainException>();
     }
 
     [Fact]
     public void Equals_DocumentsWithSameValues_ShouldBeEqual()
     {
         // Arrange
-        var documentFirst = Document.Create("12345678900", DocumentType.CPF);
-        var documentSecond = Document.Create("12345678900", DocumentType.CPF);
+        var documentFirst = Document.Create("19103190000", DocumentType.CPF);
+        var documentSecond = Document.Create("19103190000", DocumentType.CPF);
 
         // Act / Assert
         documentFirst.Equals(documentSecond).Should().BeTrue();
@@ -121,9 +146,9 @@ public class DocumentTests
     public void Equals_DocumentsWithDifferentValues_ShouldNotBeEqual()
     {
         // Arrange
-        var documentFirst = Document.Create("12345678900", DocumentType.CPF);
+        var documentFirst = Document.Create("19103190000", DocumentType.CPF);
         var documentSecond = Document.Create("09876543211", DocumentType.CPF);
-        var documentThird = Document.Create("12345678000190", DocumentType.CNPJ);
+        var documentThird = Document.Create("12345678000195", DocumentType.CNPJ);
 
         // Act / Assert
         documentFirst.Equals(documentSecond).Should().BeFalse();
@@ -136,8 +161,8 @@ public class DocumentTests
     public void GetHashCode_DocumentsWithSameValues_ShouldHaveSameHashCode()
     {
         // Arrange
-        var documentFirst = Document.Create("12345678000190", DocumentType.CNPJ);
-        var documentSecond = Document.Create("12345678000190", DocumentType.CNPJ);
+        var documentFirst = Document.Create("12345678000195", DocumentType.CNPJ);
+        var documentSecond = Document.Create("12345678000195", DocumentType.CNPJ);
 
         // Act
         var firstHashCode = documentFirst.GetHashCode();

@@ -20,11 +20,9 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
             request.PostalCode, request.Street, request.Number, request.Complement,
             request.Neighborhood, request.City, request.State);
 
-        Document? document = null;
-        if (!string.IsNullOrWhiteSpace(request.DocumentValue) && request.DocumentType.HasValue)
-        {
-            document = Document.Create(request.DocumentValue, request.DocumentType.Value);
-        }
+        Document? document = !string.IsNullOrWhiteSpace(request.DocumentValue) 
+            ? Document.Create(request.DocumentValue) 
+            : null;
 
         var customer = new Customer(
             request.Type,

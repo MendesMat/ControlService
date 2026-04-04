@@ -1,5 +1,4 @@
 using ControlService.Application.Commercial.Customers.Queries;
-using ControlService.Application.Commercial.Customers.DTOs;
 using ControlService.Domain.Commercial.Customers;
 using ControlService.Domain.Commercial.Customers.Enums;
 using ControlService.Domain.Commercial.Customers.ValueObjects;
@@ -57,10 +56,10 @@ public class GetAllCustomersQueryHandlerTests
     public async Task Handle_WhenCustomersExist_ShouldMapAllFieldsCorrectly()
     {
         // Arrange
-        var document = Document.Create("12345678901", DocumentType.CPF);
+        var document = Document.Create("19103190000", DocumentType.CPF);
         var address = Address.Create("01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP");
         var customer = new Customer(CustomerType.Business, "Legal Name", "Trade Name", document, address);
-        
+
         _repository.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Customer> { customer });
 
         var query = new GetAllCustomersQuery();

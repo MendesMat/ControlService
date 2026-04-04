@@ -1,7 +1,6 @@
 using ControlService.Application.Commercial.Customers.Commands;
 using ControlService.Application.Commercial.Customers.Validators;
 using ControlService.Domain.Commercial.Customers.Enums;
-using DocumentTypeEnum = ControlService.Domain.Commercial.Customers.Enums.DocumentType;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Validators;
 
@@ -46,7 +45,6 @@ public class CreateCustomerCommandValidatorTests
             LegalName = "Valid Corporation",
             TradeName = "Valid Trade",
             DocumentValue = "12.345.678/0001-90",
-            DocumentType = DocumentTypeEnum.CNPJ,
             PostalCode = "01310-200",
             Street = "Av. Paulista",
             Number = "1000",
@@ -158,47 +156,28 @@ public class CreateCustomerCommandValidatorTests
         result.Errors.Should().Contain(x => x.PropertyName == nameof(CreateCustomerCommand.State));
     }
 
-    [Fact]
-    public void Validate_DocumentValueProvidedWithoutType_HasError()
+    [Theory]
+    [InlineData("1234567890")] // 10 digits
+    [InlineData("123456789012")] // 12 digits
+    [InlineData("1234567890123")] // 13 digits
+    [InlineData("123456789012345")] // 15 digits
+    public void Validate_InvalidDocumentLength_HasError(string value)
     {
-        var command = new CreateCustomerCommand { DocumentValue = "123", DocumentType = null };
-        var result = _validator.Validate(command);
-        result.Errors.Should().Contain(x => x.PropertyName == nameof(CreateCustomerCommand.DocumentType));
-    }
-
-    [Fact]
-    public void Validate_DocumentTypeProvidedWithoutValue_HasError()
-    {
-        var command = new CreateCustomerCommand { DocumentType = DocumentTypeEnum.CPF, DocumentValue = null };
+        var command = new CreateCustomerCommand { DocumentValue = value };
         var result = _validator.Validate(command);
         result.Errors.Should().Contain(x => x.PropertyName == nameof(CreateCustomerCommand.DocumentValue));
     }
 
     [Theory]
-    [InlineData(DocumentTypeEnum.CPF, "1234567890")] // 10 decimal digits
-    [InlineData(DocumentTypeEnum.CPF, "123456789012")] // 12 decimal digits
-    [InlineData(DocumentTypeEnum.CNPJ, "1234567890123")] // 13 decimal digits
-    [InlineData(DocumentTypeEnum.CNPJ, "123456789012345")] // 15 decimal digits
-    public void Validate_InvalidDocumentLength_HasError(DocumentTypeEnum type, string value)
+    [InlineData("123.456.789-01")] // 11 digits
+    [InlineData("12.345.678/0001-90")] // 14 digits
+    public void Validate_ValidDocumentLengthWithFormatting_HasNoErrors(string value)
     {
-        var command = new CreateCustomerCommand { DocumentType = type, DocumentValue = value };
-        var result = _validator.Validate(command);
-        result.Errors.Should().Contain(x => x.PropertyName == nameof(CreateCustomerCommand.DocumentValue));
-    }
-
-    [Theory]
-    [InlineData(DocumentTypeEnum.CPF, "123.456.789-01")] // 11 decimal digits with formatting
-    [InlineData(DocumentTypeEnum.CNPJ, "12.345.678/0001-90")] // 14 decimal digits with formatting
-    public void Validate_ValidDocumentLengthWithFormatting_HasNoErrors(DocumentTypeEnum type, string value)
-    {
-
-
-        // Fix up the command to be otherwise valid
         var command = new CreateCustomerCommand
         {
-            DocumentType = type,
             DocumentValue = value,
             LegalName = "Valid",
+            Type = CustomerType.Business,
             PostalCode = "12345",
             Street = "Valid",
             Neighborhood = "Valid",
@@ -209,5 +188,3 @@ public class CreateCustomerCommandValidatorTests
         result.IsValid.Should().BeTrue();
     }
 }
-
-

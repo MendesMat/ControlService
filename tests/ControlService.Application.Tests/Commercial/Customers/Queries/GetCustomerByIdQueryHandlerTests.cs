@@ -1,12 +1,8 @@
 using ControlService.Application.Commercial.Customers.Queries;
-using ControlService.Application.Commercial.Customers.DTOs;
 using ControlService.Domain.Commercial.Customers;
 using ControlService.Domain.SeedWork;
 using ControlService.Domain.Commercial.Customers.Enums;
 using ControlService.Domain.Commercial.Customers.ValueObjects;
-using FluentAssertions;
-using Xunit;
-using NSubstitute;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Queries;
 
@@ -25,7 +21,7 @@ public class GetCustomerByIdQueryHandlerTests
     public async Task Handle_ExistingCustomer_ReturnsCustomerDto()
     {
         // Arrange
-        var customer = BuildCustomer(Guid.NewGuid(), Document.Create("12345678901", DocumentType.CPF));
+        var customer = BuildCustomer(Guid.NewGuid(), Document.Create("19103190000", DocumentType.CPF));
         var customerId = customer.Id;
         _repository.GetByIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(customer);
 

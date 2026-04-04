@@ -17,22 +17,49 @@ public class Document : ValueObject
         Type = type;
     }
 
-    public static Document Create(string value, DocumentType type)
+    /// <summary>
+    /// Cria um documento inferindo o tipo (CPF ou CNPJ) automaticamente.
+    /// </summary>
+    public static Document Create(string value)
     {
-        var rawValue = RemoveFormatting(value);
+        var cleanValue = CleanValue(value);
+        var type = InferType(cleanValue);
 
-        if (type == DocumentType.CPF && rawValue.Length != 11)
-            throw new DomainException($"Invalid length for {type} document.");
-
-        if (type == DocumentType.CNPJ && rawValue.Length != 14)
-            throw new DomainException($"Invalid length for {type} document.");
-
-        return new Document(rawValue, type);
+        return Create(cleanValue, type);
     }
 
-    private static string RemoveFormatting(string value)
+    /// <summary>
+    /// Cria um documento validando contra o tipo informado.
+    /// </summary>
+    public static Document Create(string value, DocumentType type)
     {
-        return Regex.Replace(value, "[^0-9]", "");
+        var cleanValue = CleanValue(value);
+
+        if (type == DocumentType.CPF && !CpfCnpjValidator.IsCpf(cleanValue))
+            throw new DomainException("CPF inválido.");
+
+        if (type == DocumentType.CNPJ && !CpfCnpjValidator.IsCnpj(cleanValue))
+            throw new DomainException("CNPJ inválido.");
+
+        return new Document(cleanValue, type);
+    }
+
+    private static string CleanValue(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            throw new DomainException("Documento não pode ser vazio.");
+
+        return Regex.Replace(value, "[^0-9a-zA-Z]", "").ToUpper();
+    }
+
+    private static DocumentType InferType(string cleanValue)
+    {
+        return cleanValue.Length switch
+        {
+            11 => DocumentType.CPF,
+            14 => DocumentType.CNPJ,
+            _ => throw new DomainException("Tamanho de documento inválido (deve ter 11 ou 14 caracteres).")
+        };
     }
 
     public string GetFormattedValue()

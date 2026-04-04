@@ -43,7 +43,7 @@ public class UpdateCustomerCommandHandlerTests
     public async Task Handle_WithExistingCustomer_ReturnsMappedDtoWithDocument()
     {
         // Arrange
-        var document = ControlService.Domain.Commercial.Customers.ValueObjects.Document.Create("12345678901", DocumentType.CPF);
+        var document = ControlService.Domain.Commercial.Customers.ValueObjects.Document.Create("19103190000", DocumentType.CPF);
         var customer = BuildCustomer(document: document);
         _repository.GetByIdAsync(customer.Id, Arg.Any<CancellationToken>()).Returns(customer);
         _unitOfWork.SaveEntitiesAsync(Arg.Any<CancellationToken>()).Returns(true);
@@ -54,7 +54,7 @@ public class UpdateCustomerCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Document.Should().Be("123.456.789-01");
+        result.Document.Should().Be("191.031.900-00");
         result.DocumentType.Should().Be(DocumentType.CPF.ToString());
         result.LegalName.Should().Be(customer.LegalName);
         result.TradeName.Should().Be(customer.TradeName);

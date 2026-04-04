@@ -1,6 +1,6 @@
 using FluentValidation;
 using ControlService.Application.Commercial.Customers.Commands;
-using ControlService.Domain.Commercial.Customers.Enums;
+using System.Text.RegularExpressions;
 
 namespace ControlService.Application.Commercial.Customers.Validators;
 
@@ -32,23 +32,15 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
             .NotEmpty().WithMessage("Estado é obrigatório.")
             .Length(2).WithMessage("Estado deve ser a sigla com 2 caracteres (ex: SP).");
 
-        RuleFor(c => c.DocumentType)
-            .NotNull().WithMessage("Tipo de documento é obrigatório quando o documento é informado.")
-            .When(c => !string.IsNullOrWhiteSpace(c.DocumentValue));
-
         RuleFor(c => c.DocumentValue)
-            .NotEmpty().WithMessage("Documento é obrigatório quando o tipo de documento é informado.")
-            .When(c => c.DocumentType.HasValue);
-
-        RuleFor(c => c.DocumentValue)
-            .Must((cmd, value) =>
+            .Must((value) =>
             {
                 if (string.IsNullOrWhiteSpace(value)) return true;
-                var rawValue = new string(value.Where(char.IsDigit).ToArray());
-                return cmd.DocumentType == DocumentType.CPF ? rawValue.Length == 11 : rawValue.Length == 14;
+                var cleanValue = Regex.Replace(value, "[^0-9a-zA-Z]", "");
+                return cleanValue.Length == 11 || cleanValue.Length == 14;
             })
-            .WithMessage(c => $"O documento deve ter {(c.DocumentType == DocumentType.CPF ? "11" : "14")} dígitos para o tipo {c.DocumentType}.")
-            .When(c => c.DocumentType.HasValue && !string.IsNullOrWhiteSpace(c.DocumentValue));
+            .WithMessage("O documento deve ter 11 (CPF) ou 14 (CNPJ) caracteres.")
+            .When(c => !string.IsNullOrWhiteSpace(c.DocumentValue));
     }
 }
 

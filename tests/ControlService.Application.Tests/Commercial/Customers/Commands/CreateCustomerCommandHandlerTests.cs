@@ -48,8 +48,7 @@ public class CreateCustomerCommandHandlerTests
         var command = BuildValidCommand();
         command.Type = CustomerType.Individual;
         command.LegalName = "John Doe";
-        command.DocumentValue = "123.456.789-00";
-        command.DocumentType = DocumentType.CPF;
+        command.DocumentValue = "19103190000"; // Valid CPF
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -57,7 +56,7 @@ public class CreateCustomerCommandHandlerTests
         // Assert
         result.LegalName.Should().Be("John Doe");
         result.Type.Should().Be(CustomerType.Individual.ToString());
-        result.Document.Should().Be("123.456.789-00");
+        result.Document.Should().Be("191.031.900-00");
         result.DocumentType.Should().Be(DocumentType.CPF.ToString());
     }
 
@@ -82,14 +81,13 @@ public class CreateCustomerCommandHandlerTests
         // Arrange
         var command = BuildValidCommand();
         command.DocumentValue = "123"; // Too short for any type
-        command.DocumentType = DocumentType.CPF;
 
         // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<DomainException>()
-            .WithMessage("Invalid length for CPF document.");
+            .WithMessage("*tamanho*");
     }
 
     [Fact]
@@ -100,7 +98,6 @@ public class CreateCustomerCommandHandlerTests
 
         var command = BuildValidCommand();
         command.DocumentValue = null;
-        command.DocumentType = null;
 
         // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
@@ -148,8 +145,7 @@ public class CreateCustomerCommandHandlerTests
         Type = CustomerType.Business,
         LegalName = "Acme Corp",
         TradeName = "Acme",
-        DocumentValue = "12.345.678/0001-99",
-        DocumentType = DocumentType.CNPJ,
+        DocumentValue = "12345678000195", // Valid CNPJ
         PostalCode = "01310-100",
         Street = "Av. Paulista",
         Number = "1000",

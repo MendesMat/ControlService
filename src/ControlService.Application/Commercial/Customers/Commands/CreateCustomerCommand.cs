@@ -21,9 +21,6 @@ public class CreateCustomerCommand : IRequest<CustomerResponseDto>
     /// <summary> Valor do número do documento (CPF/CNPJ). </summary>
     public string? DocumentValue { get; set; }
 
-    /// <summary> Tipo do documento informado. </summary>
-    public DocumentType? DocumentType { get; set; }
-
     /// <summary> CEP do endereço. </summary>
     public string? PostalCode { get; set; }
 
