@@ -2,20 +2,15 @@ using System.Text.RegularExpressions;
 
 namespace ControlService.Domain.SeedWork;
 
-/// <summary>
-/// Validador para documentos brasileiros (CPF e CNPJ).
-/// Suporta o novo padrão de CNPJ Alfanumérico (2026).
-/// </summary>
 public static class CpfCnpjValidator
 {
     public static bool IsCpf(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) return false;
-        
+
         var numbers = Regex.Replace(value, "[^0-9]", "");
         if (numbers.Length != 11) return false;
-        
-        // CPFs com todos os dígitos iguais são inválidos
+
         if (new string(numbers[0], 11) == numbers) return false;
 
         var weights1 = new[] { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
