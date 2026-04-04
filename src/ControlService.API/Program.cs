@@ -1,7 +1,5 @@
-using FluentValidation;
-using MediatR;
 using ControlService.API.Exceptions;
-using ControlService.Application.Behaviors;
+using ControlService.Application;
 using ControlService.Infrastructure;
 using Scalar.AspNetCore;
 
@@ -14,17 +12,10 @@ builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-// ── MediatR ────────────────────────────────────────────────────────────────────
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(ControlService.Application.Behaviors.ValidationPipelineBehavior<,>).Assembly);
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
-});
+// ── Application Layer ──────────────────────────────────────────────────────────
+builder.Services.AddApplication();
 
-// ── FluentValidation ───────────────────────────────────────────────────────────
-builder.Services.AddValidatorsFromAssembly(typeof(ControlService.Application.Behaviors.ValidationPipelineBehavior<,>).Assembly);
-
-// ── Infrastructure ─────────────────────────────────────────────────────────────
+// ── Infrastructure Layer ───────────────────────────────────────────────────────
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ── Scalar / OpenAPI (Scalar) ─────────────────────────────────────────────────
