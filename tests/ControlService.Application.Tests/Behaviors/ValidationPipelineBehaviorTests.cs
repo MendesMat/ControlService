@@ -6,7 +6,7 @@ namespace ControlService.Application.Tests.Behaviors;
 
 public class ValidationPipelineBehaviorTests
 {
-    public class SampleRequest : IRequest<string> { }
+    public record SampleRequest : IRequest<string>;
 
     [Fact]
     public async Task Handle_NoValidators_CallsNext()
@@ -32,7 +32,7 @@ public class ValidationPipelineBehaviorTests
         // Arrange
         var validator = Substitute.For<IValidator<SampleRequest>>();
         var failure = new FluentValidation.Results.ValidationFailure("Prop", "Error");
-        validator.Validate(Arg.Any<IValidationContext>()).Returns(new FluentValidation.Results.ValidationResult(new[] { failure }));
+        validator.Validate(Arg.Any<IValidationContext>()!).Returns(new FluentValidation.Results.ValidationResult(new[] { failure }));
 
         var validators = new[] { validator };
         var behavior = new ValidationPipelineBehavior<SampleRequest, string>(validators);
@@ -51,7 +51,7 @@ public class ValidationPipelineBehaviorTests
     {
         // Arrange
         var validator = Substitute.For<IValidator<SampleRequest>>();
-        validator.Validate(Arg.Any<IValidationContext>()).Returns(new FluentValidation.Results.ValidationResult());
+        validator.Validate(Arg.Any<IValidationContext>()!).Returns(new FluentValidation.Results.ValidationResult());
 
         var validators = new[] { validator };
         var behavior = new ValidationPipelineBehavior<SampleRequest, string>(validators);
@@ -73,11 +73,11 @@ public class ValidationPipelineBehaviorTests
         // Arrange
         var validatorSum = Substitute.For<IValidator<SampleRequest>>();
         var failure1 = new FluentValidation.Results.ValidationFailure("Prop1", "Error1");
-        validatorSum.Validate(Arg.Any<IValidationContext>()).Returns(new FluentValidation.Results.ValidationResult(new[] { failure1 }));
+        validatorSum.Validate(Arg.Any<IValidationContext>()!).Returns(new FluentValidation.Results.ValidationResult(new[] { failure1 }));
 
         var validatorAccount = Substitute.For<IValidator<SampleRequest>>();
         var failure2 = new FluentValidation.Results.ValidationFailure("Prop2", "Error2");
-        validatorAccount.Validate(Arg.Any<IValidationContext>()).Returns(new FluentValidation.Results.ValidationResult(new[] { failure2 }));
+        validatorAccount.Validate(Arg.Any<IValidationContext>()!).Returns(new FluentValidation.Results.ValidationResult(new[] { failure2 }));
 
         var validators = new[] { validatorSum, validatorAccount };
         var behavior = new ValidationPipelineBehavior<SampleRequest, string>(validators);
@@ -99,8 +99,8 @@ public class ValidationPipelineBehaviorTests
     {
         // Arrange
         var validator = Substitute.For<IValidator<SampleRequest>>();
-        var resultWithNull = new FluentValidation.Results.ValidationResult(new[] { (FluentValidation.Results.ValidationFailure)null });
-        validator.Validate(Arg.Any<IValidationContext>()).Returns(resultWithNull);
+        var resultWithNull = new FluentValidation.Results.ValidationResult(new[] { (FluentValidation.Results.ValidationFailure)null! });
+        validator.Validate(Arg.Any<IValidationContext>()!).Returns(resultWithNull);
 
         var validators = new[] { validator };
         var behavior = new ValidationPipelineBehavior<SampleRequest, string>(validators);
