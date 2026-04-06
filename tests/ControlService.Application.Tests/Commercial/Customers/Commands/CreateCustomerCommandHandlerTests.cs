@@ -48,7 +48,7 @@ public class CreateCustomerCommandHandlerTests
         var command = BuildValidCommand();
         command.Type = CustomerType.Individual;
         command.LegalName = "John Doe";
-        command.DocumentValue = "19103190000"; // Valid CPF
+        command.DocumentValue = "19103190072"; // CPF Valido
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -56,7 +56,7 @@ public class CreateCustomerCommandHandlerTests
         // Assert
         result.LegalName.Should().Be("John Doe");
         result.Type.Should().Be(CustomerType.Individual.ToString());
-        result.Document.Should().Be("191.031.900-00");
+        result.Document.Should().Be("191.031.900-72");
         result.DocumentType.Should().Be(DocumentType.CPF.ToString());
     }
 
@@ -145,7 +145,7 @@ public class CreateCustomerCommandHandlerTests
         Type = CustomerType.Business,
         LegalName = "Acme Corp",
         TradeName = "Acme",
-        DocumentValue = "12345678000195", // Valid CNPJ
+        DocumentValue = "12345678000197", // CNPJ Valido
         PostalCode = "01310-100",
         Street = "Av. Paulista",
         Number = "1000",

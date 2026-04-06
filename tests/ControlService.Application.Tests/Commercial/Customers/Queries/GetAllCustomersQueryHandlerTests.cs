@@ -56,7 +56,7 @@ public class GetAllCustomersQueryHandlerTests
     public async Task Handle_WhenCustomersExist_ShouldMapAllFieldsCorrectly()
     {
         // Arrange
-        var document = Document.Create("19103190000", DocumentType.CPF);
+        var document = Document.Create("19103190072", DocumentType.CPF);
         var address = Address.Create("01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP");
         var customer = new Customer(CustomerType.Business, "Legal Name", "Trade Name", document, address);
 

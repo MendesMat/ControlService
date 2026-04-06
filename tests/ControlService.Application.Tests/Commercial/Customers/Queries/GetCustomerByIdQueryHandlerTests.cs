@@ -21,7 +21,7 @@ public class GetCustomerByIdQueryHandlerTests
     public async Task Handle_ExistingCustomer_ReturnsCustomerDto()
     {
         // Arrange
-        var customer = BuildCustomer(Guid.NewGuid(), Document.Create("19103190000", DocumentType.CPF));
+        var customer = BuildCustomer(Guid.NewGuid(), Document.Create("19103190072", DocumentType.CPF));
         var customerId = customer.Id;
         _repository.GetByIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(customer);
 

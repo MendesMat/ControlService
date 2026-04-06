@@ -38,14 +38,13 @@ public class CustomerTests
         var address = CreateValidAddress();
 
         // Act
-        var customer = new Customer(CustomerType.Individual, "João da Silva", "Joãozinho", null, address);
+        var customer = new Customer(CustomerType.Individual, "João da Silva", null, null, address);
 
         // Assert
         customer.Should().BeEquivalentTo(new
         {
-            LegalName = "João da Silva",
-            TradeName = "Joãozinho",
             Type = CustomerType.Individual,
+            LegalName = "João da Silva",
             Status = CustomerStatus.Active,
             Address = address
         });

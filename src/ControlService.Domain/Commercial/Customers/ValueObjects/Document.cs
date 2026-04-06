@@ -73,8 +73,6 @@ public class Document : ValueObject
         return Value;
     }
 
-    public bool IsValid() => true;
-
     protected override IEnumerable<object> GetEqualityComponents()
     {
         yield return Value;
