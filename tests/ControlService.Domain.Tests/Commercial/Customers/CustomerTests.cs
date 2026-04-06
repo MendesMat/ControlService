@@ -55,7 +55,7 @@ public class CustomerTests
     {
         // Arrange
         var address = CreateValidAddress();
-        var document = Document.Create("12345678000195", DocumentType.CNPJ);
+        var document = Document.Create("12345678000195");
 
         // Act
         var customer = new Customer(CustomerType.Business, "Empresa Ltda", "Nome Fantasia", document, address);

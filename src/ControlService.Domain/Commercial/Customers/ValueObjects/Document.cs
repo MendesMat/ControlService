@@ -6,6 +6,10 @@ namespace ControlService.Domain.Commercial.Customers.ValueObjects;
 
 public class Document : ValueObject
 {
+    private const int CpfLength = 11;
+    private const int CnpjLength = 14;
+    private static readonly Regex OnlyAlphanumericRegex = new(@"[^0-9a-zA-Z]", RegexOptions.Compiled);
+
     public string Value { get; }
     public DocumentType Type { get; }
 
@@ -20,31 +24,27 @@ public class Document : ValueObject
         Type = type;
     }
 
-    /// <summary>
-    /// Cria um documento inferindo o tipo (CPF ou CNPJ) automaticamente.
-    /// </summary>
     public static Document Create(string value)
     {
         var cleanValue = CleanValue(value);
         var type = InferType(cleanValue);
 
-        return Create(cleanValue, type);
+        return CreateWithCleanValue(cleanValue, type);
     }
 
-    /// <summary>
-    /// Cria um documento validando contra o tipo informado.
-    /// </summary>
-    public static Document Create(string value, DocumentType type)
+    private static Document CreateWithCleanValue(string cleanValue, DocumentType type)
     {
-        var cleanValue = CleanValue(value);
+        Validate(cleanValue, type);
+        return new Document(cleanValue, type);
+    }
 
+    private static void Validate(string cleanValue, DocumentType type)
+    {
         if (type == DocumentType.CPF && !CpfCnpjValidator.IsCpf(cleanValue))
             throw new DomainException("CPF inválido.");
 
         if (type == DocumentType.CNPJ && !CpfCnpjValidator.IsCnpj(cleanValue))
             throw new DomainException("CNPJ inválido.");
-
-        return new Document(cleanValue, type);
     }
 
     private static string CleanValue(string value)
@@ -52,29 +52,34 @@ public class Document : ValueObject
         if (string.IsNullOrWhiteSpace(value))
             throw new DomainException("Documento não pode ser vazio.");
 
-        return Regex.Replace(value, "[^0-9a-zA-Z]", "").ToUpper();
+        return OnlyAlphanumericRegex.Replace(value, "").ToUpper();
     }
 
     private static DocumentType InferType(string cleanValue)
     {
         return cleanValue.Length switch
         {
-            11 => DocumentType.CPF,
-            14 => DocumentType.CNPJ,
-            _ => throw new DomainException("Tamanho de documento inválido (deve ter 11 ou 14 caracteres).")
+            CpfLength => DocumentType.CPF,
+            CnpjLength => DocumentType.CNPJ,
+            _ => throw new DomainException($"Tamanho de documento inválido (deve ter {CpfLength} ou {CnpjLength} caracteres).")
         };
     }
 
     public string GetFormattedValue()
     {
-        if (Type == DocumentType.CPF && Value.Length == 11)
-            return $"{Value.Substring(0, 3)}.{Value.Substring(3, 3)}.{Value.Substring(6, 3)}-{Value.Substring(9, 2)}";
-
-        if (Type == DocumentType.CNPJ && Value.Length == 14)
-            return $"{Value.Substring(0, 2)}.{Value.Substring(2, 3)}.{Value.Substring(5, 3)}/{Value.Substring(8, 4)}-{Value.Substring(12, 2)}";
-
-        return Value;
+        return Type switch
+        {
+            DocumentType.CPF when Value.Length == CpfLength => FormatAsCpf(),
+            DocumentType.CNPJ when Value.Length == CnpjLength => FormatAsCnpj(),
+            _ => Value
+        };
     }
+
+    private string FormatAsCpf() =>
+        $"{Value[..3]}.{Value[3..6]}.{Value[6..9]}-{Value[9..]}";
+
+    private string FormatAsCnpj() =>
+        $"{Value[..2]}.{Value[2..5]}.{Value[5..8]}/{Value[8..12]}-{Value[12..]}";
 
     protected override IEnumerable<object> GetEqualityComponents()
     {
