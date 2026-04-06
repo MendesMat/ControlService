@@ -10,7 +10,10 @@ public class Phone : ValueObject
     public PhoneType Type { get; }
     public bool IsMainNumber { get; }
 
-    protected Phone() { } // Para o EF Core
+    protected Phone()
+    {
+        Value = null!;
+    } // Para o EF Core
 
     private Phone(string value, PhoneType type, bool isMainNumber)
     {

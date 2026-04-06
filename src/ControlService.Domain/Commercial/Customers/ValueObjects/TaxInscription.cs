@@ -9,7 +9,10 @@ public class TaxInscription : ValueObject
     public string Value { get; }
     public TaxInscriptionType Type { get; }
 
-    protected TaxInscription() { } // Para o EF Core
+    protected TaxInscription()
+    {
+        Value = null!;
+    } // Para o EF Core
 
     private TaxInscription(string value, TaxInscriptionType type)
     {

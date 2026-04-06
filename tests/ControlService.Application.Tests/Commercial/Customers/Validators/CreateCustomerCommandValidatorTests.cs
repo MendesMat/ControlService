@@ -44,7 +44,7 @@ public class CreateCustomerCommandValidatorTests
             Type = CustomerType.Business,
             LegalName = "Valid Corporation",
             TradeName = "Valid Trade",
-            DocumentValue = "12.345.678/0001-90",
+            DocumentValue = "12.345.678/0001-95",
             PostalCode = "01310-200",
             Street = "Av. Paulista",
             Number = "1000",
@@ -169,8 +169,8 @@ public class CreateCustomerCommandValidatorTests
     }
 
     [Theory]
-    [InlineData("123.456.789-01")] // 11 digits
-    [InlineData("12.345.678/0001-90")] // 14 digits
+    [InlineData("191.031.900-72")] // 11 digits
+    [InlineData("12.345.678/0001-95")] // 14 digits
     public void Validate_ValidDocumentLengthWithFormatting_HasNoErrors(string value)
     {
         var command = new CreateCustomerCommand

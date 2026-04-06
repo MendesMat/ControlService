@@ -145,7 +145,7 @@ public class CreateCustomerCommandHandlerTests
         Type = CustomerType.Business,
         LegalName = "Acme Corp",
         TradeName = "Acme",
-        DocumentValue = "12345678000197", // CNPJ Valido
+        DocumentValue = "12345678000195", // CNPJ Valido
         PostalCode = "01310-100",
         Street = "Av. Paulista",
         Number = "1000",

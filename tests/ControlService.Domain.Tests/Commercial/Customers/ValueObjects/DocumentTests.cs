@@ -9,7 +9,7 @@ public class DocumentTests
 {
     [Theory]
     [InlineData("19103190072", DocumentType.CPF, "19103190072")]
-    [InlineData("12.345.678/0001-97", DocumentType.CNPJ, "12345678000197")]
+    [InlineData("12.345.678/0001-95", DocumentType.CNPJ, "12345678000195")]
     public void Create_ValidDocumentWithType_ShouldReturnDocumentWithRawValue(string formattedValue, DocumentType type, string expectedRawValue)
     {
         // Act
@@ -22,7 +22,7 @@ public class DocumentTests
 
     [Theory]
     [InlineData("19103190072", DocumentType.CPF)]
-    [InlineData("12.345.678/0001-97", DocumentType.CNPJ)]
+    [InlineData("12.345.678/0001-95", DocumentType.CNPJ)]
     [InlineData("1A.2B3.4C5/0001-27", DocumentType.CNPJ)] // Novo padrão alfanumérico
     public void Create_WithOnlyValue_ShouldInferType(string value, DocumentType expectedType)
     {
@@ -93,13 +93,13 @@ public class DocumentTests
     public void GetFormattedValue_Cnpj_ShouldReturnFormattedString()
     {
         // Arrange
-        var document = Document.Create("12345678000197", DocumentType.CNPJ);
+        var document = Document.Create("12345678000195", DocumentType.CNPJ);
 
         // Act
         var formattedValue = document.GetFormattedValue();
 
         // Assert
-        formattedValue.Should().Be("12.345.678/0001-97");
+        formattedValue.Should().Be("12.345.678/0001-95");
     }
 
     [Fact]
@@ -147,8 +147,8 @@ public class DocumentTests
     {
         // Arrange
         var documentFirst = Document.Create("19103190072", DocumentType.CPF);
-        var documentSecond = Document.Create("09876543210", DocumentType.CPF);
-        var documentThird = Document.Create("12345678000197", DocumentType.CNPJ);
+        var documentSecond = Document.Create("06412433082", DocumentType.CPF);
+        var documentThird = Document.Create("12345678000195", DocumentType.CNPJ);
 
         // Act / Assert
         documentFirst.Equals(documentSecond).Should().BeFalse();
@@ -161,8 +161,8 @@ public class DocumentTests
     public void GetHashCode_DocumentsWithSameValues_ShouldHaveSameHashCode()
     {
         // Arrange
-        var documentFirst = Document.Create("12345678000197", DocumentType.CNPJ);
-        var documentSecond = Document.Create("12345678000197", DocumentType.CNPJ);
+        var documentFirst = Document.Create("12345678000195", DocumentType.CNPJ);
+        var documentSecond = Document.Create("12345678000195", DocumentType.CNPJ);
 
         // Act
         var firstHashCode = documentFirst.GetHashCode();

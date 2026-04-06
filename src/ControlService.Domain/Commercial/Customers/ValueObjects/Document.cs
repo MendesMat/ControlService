@@ -9,7 +9,10 @@ public class Document : ValueObject
     public string Value { get; }
     public DocumentType Type { get; }
 
-    protected Document() { } // Para o EF Core
+    protected Document()
+    {
+        Value = null!;
+    } // Para o EF Core
 
     private Document(string value, DocumentType type)
     {
