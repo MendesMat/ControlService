@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using ControlService.Domain.Commercial.Customers.Enums;
 using ControlService.Domain.SeedWork;
 
@@ -8,8 +7,6 @@ public class Document : ValueObject
 {
     private const int CpfLength = 11;
     private const int CnpjLength = 14;
-    private static readonly Regex OnlyAlphanumericRegex = new(@"[^0-9a-zA-Z]", RegexOptions.Compiled);
-
     public string Value { get; }
     public DocumentType Type { get; }
 
@@ -52,7 +49,7 @@ public class Document : ValueObject
         if (string.IsNullOrWhiteSpace(value))
             throw new DomainException("Documento não pode ser vazio.");
 
-        return OnlyAlphanumericRegex.Replace(value, "").ToUpper();
+        return CpfCnpjValidator.Normalize(value);
     }
 
     private static DocumentType InferType(string cleanValue)

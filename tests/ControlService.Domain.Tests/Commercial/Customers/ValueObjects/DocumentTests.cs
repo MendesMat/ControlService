@@ -11,6 +11,7 @@ public class DocumentTests
     [InlineData("19103190072", DocumentType.CPF, "19103190072")]
     [InlineData("12.345.678/0001-95", DocumentType.CNPJ, "12345678000195")]
     [InlineData("1A.2B3.4C5/0001-27", DocumentType.CNPJ, "1A2B34C5000127")] // Novo padrão alfanumérico
+    [InlineData(" 1a.2b3.4c5/0001-27 ", DocumentType.CNPJ, "1A2B34C5000127")] // Triangulação: Minúsculas e espaços
     public void Create_WithValidValue_ShouldReturnCleanedDocumentWithType(string value, DocumentType expectedType, string expectedRawValue)
     {
         // Act

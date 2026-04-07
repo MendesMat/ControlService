@@ -21,10 +21,7 @@ public static class CpfCnpjValidator
 
     public static bool IsCnpj(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return false;
-
-        // Mantém letras e números (Suporte Alfanumérico 2026)
-        var cleanValue = Regex.Replace(value, "[^0-9a-zA-Z]", "").ToUpper();
+        var cleanValue = Normalize(value);
         if (cleanValue.Length != 14) return false;
 
         // Pesos conforme regra da Receita Federal
@@ -33,6 +30,13 @@ public static class CpfCnpjValidator
 
         return ValidateCheckDigits(cleanValue, weights1, weights2);
     }
+
+    public static string Normalize(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        return Regex.Replace(value, "[^0-9a-zA-Z]", "").ToUpper();
+    }
+
 
     private static bool ValidateCheckDigits(string value, int[] weights1, int[] weights2)
     {
