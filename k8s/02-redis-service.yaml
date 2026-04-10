@@ -1,0 +1,26 @@
+# =============================================================================
+# 02-redis-service.yaml
+# Service interno para o Redis (ClusterIP)
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  labels:
+    app: redis
+    tier: cache
+    project: controlservice
+spec:
+  # ClusterIP: IP virtual interno. O Redis NUNCA é exposto externamente.
+  # A aplicação referencia este serviço pelo nome DNS: `redis-service:6379`.
+  type: ClusterIP
+  selector:
+    # Este seletor conecta o Service aos Pods com label `app: redis`
+    # definidos no 01-redis-deployment.yaml (acoplamento fraco via labels).
+    app: redis
+  ports:
+    - name: redis-port
+      protocol: TCP
+      port: 6379       # Porta exposta no ClusterIP (interna ao cluster)
+      targetPort: 6379 # Porta do contêiner Redis (redis-port do Deployment)

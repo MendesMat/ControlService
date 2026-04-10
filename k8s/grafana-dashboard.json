@@ -1,0 +1,493 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "Datasource Prometheus — URL: http://prometheus-service:9090",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0" },
+    { "type": "panel", "id": "timeseries", "name": "Time series", "version": "" },
+    { "type": "panel", "id": "gauge", "name": "Gauge", "version": "" },
+    { "type": "panel", "id": "stat", "name": "Stat", "version": "" }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Dashboard de Observabilidade — ControlService API | Métricas: Memória (RAM), CPU e RED (Rate, Errors, Duration)",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Visão Geral",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Taxa atual de requisições HTTP por segundo (média 5 min) em todas as réplicas.\nPromQL: rate() aplicado ANTES de sum() — regra obrigatória da skill Prometheus.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 200 }
+            ]
+          },
+          "unit": "reqps",
+          "mappings": []
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum(rate(http_requests_received_total{job=\"controlservice-api\"}[5m]))",
+          "legendFormat": "Req/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Requisições / segundo",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Taxa de erros HTTP (status 4xx + 5xx) nos últimos 5 minutos.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.01 },
+              { "color": "red", "value": 0.05 }
+            ]
+          },
+          "unit": "percentunit",
+          "mappings": []
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(sum(rate(http_requests_received_total{job=\"controlservice-api\", code=~\"[45]..\"}[5m])) or vector(0)) / sum(rate(http_requests_received_total{job=\"controlservice-api\"}[5m]))",
+          "legendFormat": "Taxa de Erros",
+          "refId": "A"
+        }
+      ],
+      "title": "Taxa de Erros (4xx + 5xx)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Memória RAM em uso passivo pela aplicação .NET (Working Set, bytes).\nMétrica: process_working_set_bytes (Gauge) — exposta pela prometheus-net.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 314572800 },
+              { "color": "red", "value": 471859200 }
+            ]
+          },
+          "unit": "bytes",
+          "mappings": []
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum(process_working_set_bytes{job=\"controlservice-api\"})",
+          "legendFormat": "RAM Total",
+          "refId": "A"
+        }
+      ],
+      "title": "Memória RAM em Uso (Working Set)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Latência P99: 99% das requisições respondem abaixo deste valor.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "red", "value": 1.0 }
+            ]
+          },
+          "unit": "s",
+          "mappings": []
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "histogram_quantile(0.99, sum by(le) (rate(http_request_duration_seconds_bucket{job=\"controlservice-api\"}[5m])))",
+          "legendFormat": "P99",
+          "refId": "A"
+        }
+      ],
+      "title": "Latência P99",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "title": "Memória RAM",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Consumo passivo de memória RAM (Working Set) ao longo do tempo.\nMétrica tipo Gauge — exposta nativamente pela prometheus-net.AspNetCore.\nUnidades em bytes (unidades base, conforme skill § 3).",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": false
+          },
+          "unit": "bytes",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 471859200 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 10,
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max", "last"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "process_working_set_bytes{job=\"controlservice-api\"}",
+          "legendFormat": "RAM Working Set — Pod {{instance}}",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "dotnet_gc_heap_size_bytes{job=\"controlservice-api\"}",
+          "legendFormat": "GC Heap Size — Pod {{instance}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Consumo de Memória RAM por Réplica",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Coleções do Garbage Collector .NET por geração (rate/min).\nCounter com sufixo _total — regra obrigatória § 2 Prometheus skill.\nPromQL: rate() aplicado antes de sum().",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 11,
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(rate(dotnet_collection_count_total{job=\"controlservice-api\", gc_generation=\"0\"}[5m]) or vector(0))",
+          "legendFormat": "GC Gen 0 (minor)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(rate(dotnet_collection_count_total{job=\"controlservice-api\", gc_generation=\"1\"}[5m]) or vector(0))",
+          "legendFormat": "GC Gen 1",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(rate(dotnet_collection_count_total{job=\"controlservice-api\", gc_generation=\"2\"}[5m]) or vector(0))",
+          "legendFormat": "GC Gen 2 (major — custo alto)",
+          "refId": "C"
+        }
+      ],
+      "title": "Coleções do GC .NET por Geração",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 102,
+      "title": "CPU",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Consumo acumulado de CPU via rate() das requisições por hardware alocado.\nPromQL CORRETO: rate() ANTES de sum() (skill § 4 — Ordem de Operações).\nUsamos `without(instance)` ao invés de `by()` para preservar labels de infra.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 20
+          },
+          "unit": "short",
+          "decimals": 3
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "id": 20,
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max", "last"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "rate(process_cpu_seconds_total{job=\"controlservice-api\"}[5m])",
+          "legendFormat": "CPU segundos/s — Pod {{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo de CPU por Réplica (rate 5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "CPU total acumulado por TODAS as réplicas da aplicação.\nAgregação com `without(instance)` para preservar labels de infra (skill § 4).\nMostra o impacto total da aplicação no nó.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "red", "value": 1.5 }
+            ]
+          },
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "id": 21,
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "horizontal",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "minVizWidth": 75,
+        "minVizHeight": 75
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum without(instance) (rate(process_cpu_seconds_total{job=\"controlservice-api\"}[5m]))",
+          "legendFormat": "CPU Total (4 réplicas)",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Total das 4 Réplicas (Gauge)",
+      "type": "gauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 103,
+      "title": "Métricas RED — Tráfego HTTP (Rate · Errors · Duration)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Rate (R): Taxa de requisições HTTP por segundo em todas as réplicas.\nPromQL: rate() antes de sum() — regra obrigatória (skill § 4).\nDesagregado por código de status HTTP para identificar anomalias.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+      "id": 30,
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum by(code) (rate(http_requests_received_total{job=\"controlservice-api\"}[5m]))",
+          "legendFormat": "HTTP {{code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "R — Taxa de Requisições por Status HTTP",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Errors (E): Taxa de erros HTTP (4xx + 5xx) nos últimos 5 minutos.\nAlerta sobre SINTOMAS, não causas (skill § 6 — Prometheus).\nLinha vermelha em 5% de taxa de erros.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 25
+          },
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.05 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Taxa de Erros" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
+      "id": 31,
+      "options": {
+        "tooltip": { "mode": "single", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(sum(rate(http_requests_received_total{job=\"controlservice-api\", code=~\"[45]..\"}[5m])) or vector(0)) / sum(rate(http_requests_received_total{job=\"controlservice-api\"}[5m]))",
+          "legendFormat": "Taxa de Erros",
+          "refId": "A"
+        }
+      ],
+      "title": "E — Taxa de Erros HTTP (4xx + 5xx)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Duration (D): Latência das requisições HTTP calculada via histogram_quantile.\nUsamos Histogram (not Summary) para poder agregar entre réplicas (skill § 2).\nP50 = mediana | P95 = experiência 95% dos usuários | P99 = cauda longa.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 5 },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
+      "id": 32,
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max", "last"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "histogram_quantile(0.50, sum by(le) (rate(http_request_duration_seconds_bucket{job=\"controlservice-api\"}[5m])))",
+          "legendFormat": "P50 (mediana)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket{job=\"controlservice-api\"}[5m])))",
+          "legendFormat": "P95",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "histogram_quantile(0.99, sum by(le) (rate(http_request_duration_seconds_bucket{job=\"controlservice-api\"}[5m])))",
+          "legendFormat": "P99 (cauda longa)",
+          "refId": "C"
+        }
+      ],
+      "title": "D — Latência HTTP (P50 · P95 · P99)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["controlservice", "dotnet", "prometheus", "kubernetes", "pos-graduacao"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "America/Sao_Paulo",
+  "title": "ControlService — Observabilidade (Memória · CPU · RED)",
+  "uid": "controlservice-obs-v1",
+  "version": 1
+}

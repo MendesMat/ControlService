@@ -1,0 +1,98 @@
+# =============================================================================
+# 03-app-deployment.yaml
+# Deployment da Aplicação ControlService API
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controlservice-deployment
+  labels:
+    app: controlservice
+    tier: api
+    project: controlservice
+  annotations:
+    kubernetes.io/change-cause: "Implantação inicial"
+spec:
+  # ── Réplicas (requisito do plano: exatamente 4) ───────────────────────────
+  replicas: 4
+
+  selector:
+    matchLabels:
+      app: controlservice
+
+  # ── Estratégia de Rollout ──────────────────────────────────────────────────
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  progressDeadlineSeconds: 120
+
+  template:
+    metadata:
+      labels:
+        app: controlservice
+        tier: api
+        project: controlservice
+    spec:
+      # ── Graceful Shutdown ────────────────────────────────────────────────────
+      terminationGracePeriodSeconds: 30
+
+      containers:
+        - name: controlservice-api
+          # ── Imagem ─────────────────────────────────────────────────────────────
+          image: mendesmat/controlservice:1.0.0
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9090
+              name: metrics
+              # Nota: prometheus-net.AspNetCore expõe /metrics na mesma porta da app
+              # por padrão (8080). A porta 9090 aqui é reservada para configuração
+              # futura de MetricServer em porta dedicada se necessário.
+
+          # ── Configuração (Ambiente) ──────────────────────────────────────────
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            # Porta padrão do runtime .NET 8+ para contêineres non-root
+            - name: ASPNETCORE_HTTP_PORTS
+              value: "8080"
+            # Flag para desabilitar o banco in-memory e usar Redis em produção
+            - name: UseInMemoryDatabase
+              value: "true"
+            # Endereço do Redis via DNS interno do cluster (§ 3 — Service Discovery)
+            # "redis-service" resolve para o ClusterIP de 02-redis-service.yaml
+            - name: ConnectionStrings__Redis
+              value: "redis-service:6379"
+
+          # ── Probes de Saúde ──────────────────────────────────────────────────
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+
+          # ── Recursos (CPU/Memory) ───────────────────────────────────────────
+          resources:
+            requests:
+              cpu: "250m"     # 0,25 vCPU por réplica
+              memory: "256Mi" # 256 MB por réplica
+            limits:
+              cpu: "500m"     # 0,5 vCPU por réplica (burst durante pico)
+              memory: "512Mi" # 512 MB por réplica (teto conservador para API .NET)

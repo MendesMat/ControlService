@@ -1,0 +1,78 @@
+# =============================================================================
+# 07-prometheus-deployment.yaml
+# Deployment do Servidor Prometheus
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+  labels:
+    app: prometheus
+    tier: monitoring
+    project: controlservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  strategy:
+    # Recreate é necessário aqui: o PVC é ReadWriteOnce.
+    # Dois Pods de Prometheus não podem escrever no mesmo volume simultaneamente.
+    # O Pod antigo DEVE ser terminado antes do novo ser criado.
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        tier: monitoring
+        project: controlservice
+    spec:
+      securityContext:
+        fsGroup: 65534
+        runAsUser: 65534
+        runAsNonRoot: true
+
+      containers:
+        - name: prometheus
+          # Imagem oficial pinned na versão major 2 para estabilidade.
+          image: prom/prometheus:v2.51.0
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/data"
+            - "--storage.tsdb.retention.time=15d"
+            - "--web.enable-lifecycle"
+
+          ports:
+            - containerPort: 9090
+              name: prometheus-port
+
+          # ── Volumes ──────────────────────────────────────────────────────
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+              readOnly: true
+
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/data
+
+          # ── Recursos (§ 2 K8s) ──────────────────────────────────────────
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+
+      # ── Definição dos Volumes no Nível do Pod ────────────────────────────
+      volumes:
+        # Volume 1: ConfigMap → arquivo prometheus.yml
+        - name: prometheus-config-volume
+          configMap:
+            name: prometheus-config   # Referencia 06-prometheus-configmap.yaml
+
+        # Volume 2: PVC → TSDB do Prometheus
+        - name: prometheus-storage-volume
+          persistentVolumeClaim:
+            claimName: prometheus-pvc # Referencia 05-prometheus-pvc.yaml

@@ -1,0 +1,45 @@
+# =============================================================================
+# 01-redis-deployment.yaml
+# Deployment do Redis (Cache volátil)
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: redis
+    tier: cache
+    project: controlservice
+spec:
+  # Cache sem estado persistente: 1 réplica é suficiente e evita a
+  # complexidade de sincronização de estado entre múltiplas instâncias.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+        tier: cache
+        project: controlservice
+    spec:
+      containers:
+        - name: redis
+          # Imagem mínima e oficial sem ferramentas desnecessárias (Alpine).
+          # Pinned na versão major 7 para estabilidade — evitar "latest" mutável.
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              name: redis-port
+          # ── Recursos (§ 2 — Requests e Limits) ──────────────────────────────
+          # requests: mínimo garantido pelo scheduler para alocar no nó correto.
+          # limits:   teto máximo; ultrapassar memory limit resulta em OOMKill.
+          resources:
+            requests:
+              cpu: "100m"     # 0,1 vCPU — custo base de idle do Redis
+              memory: "64Mi"  # 64 MB — footprint de RAM em idle
+            limits:
+              cpu: "250m"     # 0,25 vCPU — pico aceitável para um cache simples
+              memory: "128Mi" # 128 MB — teto conservador; Redis é extremamente leve

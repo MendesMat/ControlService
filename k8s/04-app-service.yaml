@@ -1,0 +1,31 @@
+# =============================================================================
+# 04-app-service.yaml
+# Service de Exposição Externa (NodePort)
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: controlservice-service
+  labels:
+    app: controlservice
+    tier: api
+    project: controlservice
+spec:
+  # NodePort: cada nó do cluster escuta na porta estática 30080.
+  # Tráfego recebido em qualquer nó na porta 30080 é balanceado entre
+  # as 4 réplicas do Deployment via kube-proxy (round-robin interno).
+  type: NodePort
+  selector:
+    # Seletor que vincula este Service às 4 réplicas do 03-app-deployment.yaml.
+    # Qualquer Pod com label `app: controlservice` entra automaticamente no pool.
+    app: controlservice
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80          # Porta do ClusterIP interno (outros Services usam esta)
+      targetPort: 8080  # Porta do contêiner .NET (ASPNETCORE_HTTP_PORTS=8080)
+      # nodePort: 30080 → Porta estática exposta em CADA NÓ do cluster.
+      # Intervalo válido: 30000–32767 (padrão K8s para NodePort).
+      # 30080 = convenção legível (espelha a porta HTTP 80 externamente).
+      nodePort: 30080

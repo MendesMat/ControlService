@@ -1,0 +1,139 @@
+// =============================================================================
+// Jenkinsfile — Pipeline de Entrega Contínua (CI/CD)
+// =============================================================================
+
+pipeline {
+    agent any
+
+    environment {
+        // Configuração de variáveis de ambiente
+        REGISTRY    = "docker.io"
+        REPOSITORY  = "mendesmat/controlservice"
+        // Versão semântica gerada a partir do ID da build para imutabilidade da imagem Docker
+        IMAGE_TAG   = "1.0.${env.BUILD_NUMBER}"
+        IMAGE       = "${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
+    }
+
+    stages {
+        // =====================================================================
+        // STAGE 1: Checkout 
+        // =====================================================================
+        stage('Checkout') {
+            steps {
+                echo "Baixando código fonte do repositório..."
+                checkout scm
+            }
+        }
+
+        // =====================================================================
+        // STAGE 2: Test & Build
+        // =====================================================================
+        stage('Test & Build') {
+            steps {
+                echo "Executando Testes de Unidade..."
+                
+                // sh (Linux) — Para instâncias Jenkins Linux
+                sh '''
+                    # Restaurando pacotes otimizados
+                    dotnet restore ControlService.slnx
+                    
+                    # Testes rígidos em release (no-restore economiza IO local)
+                    dotnet test tests/ControlService.Domain.Tests/ControlService.Domain.Tests.csproj --no-restore -c Release
+                    dotnet test tests/ControlService.Application.Tests/ControlService.Application.Tests.csproj --no-restore -c Release
+                    
+                    # Se todos os testes passarem, compila a API em binários estáticos
+                    dotnet publish src/ControlService.API/ControlService.API.csproj --no-restore -c Release -o ./publish /p:UseAppHost=false
+                '''
+            }
+        }
+
+        // =====================================================================
+        // STAGE 3: Docker Build & Push
+        // =====================================================================
+        stage('Docker Build & Push') {
+            steps {
+                echo "Construindo imagem Imutável: ${IMAGE}"
+                
+                // Utilizando credentials binding strict
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
+                                                  passwordVariable: 'DOCKER_PASSWORD', 
+                                                  usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh """
+                        # Login na registry
+                        echo "\$DOCKER_PASSWORD" | docker login -u "\$DOCKER_USERNAME" --password-stdin
+                        
+                        # Utilizamos o script existente que aplica as lógicas de labels e cache
+                        # Importante: chamando o bash gerado na Fase 1.3
+                        chmod +x docker/build-and-push.sh
+                        ./docker/build-and-push.sh ${IMAGE_TAG}
+                        
+                        # Limpa evidências locais (Security check)
+                        docker logout
+                    """
+                }
+            }
+        }
+
+        // =====================================================================
+        // STAGE 4: Deploy to Production K8S
+        // =====================================================================
+        stage('Deploy to Production K8S') {
+            steps {
+                echo "Aplicando rollout para K8s - Imagem Tag: ${IMAGE_TAG}"
+                
+                withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
+                    sh """
+                        export KUBECONFIG=\$KUBECONFIG
+                        
+                        # Aplicar os Deployments / Services K8s
+                        chmod +x k8s/deploy.sh
+                        ./k8s/deploy.sh
+                        
+                        # Forçando a imagem exata neste update (Imutabilidade garantida)
+                        kubectl set image deployment/controlservice-deployment controlservice-api=${IMAGE}
+                        
+                        # Monitora a saúde do Rollout ativamente antes de dar como "sucesso"
+                        kubectl rollout status deployment/controlservice-deployment --timeout=120s
+                    """
+                }
+            }
+        }
+
+        // =====================================================================
+        // STAGE 5: Capacity & Performance Test
+        // =====================================================================
+        stage('Capacity & Performance Test') {
+            steps {
+                echo "Iniciando estresse nativo com k6 contra o cluster em produção..."
+                
+                withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
+                    sh """
+                        export KUBECONFIG=\$KUBECONFIG
+                        
+                        # Chama o pipeline wrapper shell do k6 que encontra automaticamente o Nó IP do K8s 
+                        # ou do Minikube sem envolver a interação manual (agora atualizada).
+                        chmod +x stress/run-stress-test.sh
+                        ./stress/run-stress-test.sh
+                    """
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // POST: Pós-processamento
+    // =========================================================================
+    post {
+        always {
+            echo "Limpando o workspace temporário local para preservar disco..."
+            cleanWs()
+        }
+        success {
+            echo "Pipeline concluído com SUCESSO na Build ${env.BUILD_NUMBER}!"
+            // Se fossem aplicados emails: mail to: 'devs@domain', subject: "Release OK"
+        }
+        failure {
+            echo "Pipeline FALHOU na Build ${env.BUILD_NUMBER}. Verifique os relatórios de teste ou erros do Docker!"
+        }
+    }
+}

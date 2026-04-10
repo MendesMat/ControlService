@@ -1,0 +1,24 @@
+# =============================================================================
+# 08-prometheus-service.yaml
+# Service interno para o Prometheus (ClusterIP)
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  labels:
+    app: prometheus
+    tier: monitoring
+    project: controlservice
+spec:
+  # ClusterIP: apenas componentes internos do cluster (ex: Grafana) acessam.
+  # O Grafana se conecta via: http://prometheus-service:9090
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+    - name: prometheus-port
+      protocol: TCP
+      port: 9090       # Porta interna do ClusterIP
+      targetPort: 9090 # containerPort do Prometheus em 07-prometheus-deployment.yaml

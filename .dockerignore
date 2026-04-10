@@ -1,0 +1,52 @@
+# =============================================================================
+# .dockerignore — ControlService
+# Exclui arquivos do contexto de build enviado ao Docker daemon.
+# Reduz o tamanho do contexto, acelera o build e previne vazamento
+# de segredos locais (como User Secrets e arquivos .env) para a imagem.
+# =============================================================================
+
+# ── Controle de versão ─────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── IDEs e ferramentas de desenvolvimento ─────────────────────────────────────
+.vs
+.vscode
+.idea
+*.user
+
+# ── Artefatos de build e intermediários ───────────────────────────────────────
+**/bin/
+**/obj/
+
+# ── Testes e cobertura (não vão para a imagem final pelo multi-stage) ──────────
+# Os projetos de teste SÃO copiados no estágio build para rodar `dotnet test`,
+# mas a pasta de resultados locais não precisa ser enviada ao contexto.
+**/TestResults/
+coverage/
+
+# ── Frontend (não faz parte da imagem da API .NET) ────────────────────────────
+frontend/
+frontend/node_modules/
+
+# ── Segredos e configurações locais ───────────────────────────────────────────
+# User Secrets do .NET — NUNCA devem entrar na imagem.
+**/secrets.json
+**/*.pfx
+**/*.pem
+**/*.key
+.env
+.env.*
+!.env.example
+
+# ── Documentação e agentes ────────────────────────────────────────────────────
+.agents/
+docs/
+*.md
+LICENSE.txt
+
+# ── Docker e Kubernetes (não precisam estar dentro da imagem) ─────────────────
+docker/
+k8s/
+ci/

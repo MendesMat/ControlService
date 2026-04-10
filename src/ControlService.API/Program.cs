@@ -1,5 +1,6 @@
 using ControlService.API.Exceptions;
 using ControlService.Application;
+using Prometheus;
 using ControlService.Infrastructure;
 using Scalar.AspNetCore;
 
@@ -25,7 +26,15 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // ── Pipeline ───────────────────────────────────────────────────────────────────
+app.UseHttpMetrics();
+app.MapMetrics();
+
 app.UseExceptionHandler();
+
+// ── Health Check (Liveness Probe) ──────────────────────────────────────────────
+app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }))
+   .WithTags("Health")
+   .ExcludeFromDescription();
 
 if (app.Environment.IsDevelopment())
 {

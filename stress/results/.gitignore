@@ -1,0 +1,3 @@
+# Resultados brutos do k6 (gerados automaticamente — não versionar)
+*.log
+*.json

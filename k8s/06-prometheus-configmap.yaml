@@ -1,0 +1,62 @@
+# =============================================================================
+# 06-prometheus-configmap.yaml
+# Configuração do Prometheus (prometheus.yml)
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  labels:
+    app: prometheus
+    tier: monitoring
+    project: controlservice
+data:
+  # O valor desta chave será montado como arquivo em /etc/prometheus/prometheus.yml
+  prometheus.yml: |
+    # ── Configuração Global ─────────────────────────────────────────────────
+    global:
+      scrape_interval: 15s
+
+      evaluation_interval: 15s
+
+      external_labels:
+        cluster: "controlservice-k8s"
+        env: "production"
+
+    # ── Jobs de Scraping ────────────────────────────────────────────────────
+    scrape_configs:
+
+      # ── Target 1: ControlService API (as 4 réplicas) ─────────────────────
+      # O Prometheus raspa o endpoint /metrics da aplicação .NET via o
+      # Service ClusterIP criado em 04-app-service.yaml.
+      #
+      # Uso do Service ClusterIP (porta 80 → containerPort 8080):
+      #   - O kube-proxy faz round-robin automático entre as 4 réplicas.
+      #   - Não precisamos de service discovery dinâmico de Pods aqui,
+      #     pois usamos o Service como ponto de entrada único.
+      #
+      # A biblioteca prometheus-net.AspNetCore expõe automaticamente:
+      #   • http_requests_total (Counter) — total de requisições HTTP
+      #   • http_request_duration_seconds (Histogram) — latência das requisições
+      #   • process_* (Gauge) — memória, threads, handles
+      #   • dotnet_* (Gauge/Counter) — GC collections, heap size
+      - job_name: "controlservice-api"
+        static_configs:
+          - targets:
+              # "controlservice-service" resolve via DNS interno do cluster K8s
+              # para o ClusterIP do Service em 04-app-service.yaml.
+              # Porta 80 é a `port` do Service (não a nodePort 30080).
+              - "controlservice-service:80"
+            labels:
+              app: "controlservice"
+              tier: "api"
+
+      # ── Target 2: Prometheus (auto-monitoramento) ─────────────────────────
+      # O Prometheus raspa suas próprias métricas em localhost:9090.
+      # Permite monitorar a saúde do próprio servidor de monitoramento:
+      # latência de scraping, uso de memória do TSDB, alertas pendentes.
+      - job_name: "prometheus"
+        static_configs:
+          - targets:
+              - "localhost:9090"

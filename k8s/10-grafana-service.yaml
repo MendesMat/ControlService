@@ -1,0 +1,26 @@
+# =============================================================================
+# 10-grafana-service.yaml
+# Service de Exposição Externa do Grafana (NodePort)
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-service
+  labels:
+    app: grafana
+    tier: monitoring
+    project: controlservice
+spec:
+  # NodePort: expõe o Grafana externamente para acesso ao dashboard visual.
+  type: NodePort
+  selector:
+    app: grafana
+  ports:
+    - name: grafana-port
+      protocol: TCP
+      port: 3000        # Porta interna do ClusterIP
+      targetPort: 3000  # containerPort do Grafana em 09-grafana-deployment.yaml
+      # nodePort: 30030 → Porta estática exposta em cada nó do cluster.
+      # 30030 = convenção legível para Grafana (3000 → 30030 via NodePort range)
+      nodePort: 30030
