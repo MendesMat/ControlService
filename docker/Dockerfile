@@ -11,8 +11,6 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /repo
 
 # ── Restauração de dependências (camada estável) ───────────────────────────────
-# Copiamos apenas os arquivos de projeto primeiro para maximizar o cache Docker.
-# Se o código-fonte mudar mas o .csproj não mudar, o `dotnet restore` é cacheado.
 COPY ControlService.slnx                                                              ./
 COPY src/ControlService.API/ControlService.API.csproj                                 ./src/ControlService.API/
 COPY src/ControlService.Application/ControlService.Application.csproj                 ./src/ControlService.Application/
@@ -24,7 +22,6 @@ COPY tests/ControlService.Application.Tests/ControlService.Application.Tests.csp
 RUN dotnet restore
 
 # ── Cópia do código-fonte (camada instável) ────────────────────────────────────
-# Copiado após o restore para que mudanças no src não invalidem o cache do NuGet.
 COPY src/   ./src/
 COPY tests/ ./tests/
 
@@ -54,10 +51,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 
 # ── Metadados OCI ────────────────────────────────────────────────────────────
 LABEL org.opencontainers.image.title="ControlService API" \
-      org.opencontainers.image.description="API de Gerenciamento de Controle de Serviços — Projeto de Pós-Graduação" \
-      org.opencontainers.image.vendor="MendesMat" \
-      org.opencontainers.image.source="https://github.com/MendesMat/ControlService" \
-      org.opencontainers.image.licenses="MIT"
+        org.opencontainers.image.description="API de Gerenciamento de Controle de Serviços — Projeto de Pós-Graduação" \
+        org.opencontainers.image.vendor="MendesMat" \
+        org.opencontainers.image.source="https://github.com/MendesMat/ControlService" \
+        org.opencontainers.image.licenses="MIT"
 
 WORKDIR /app
 

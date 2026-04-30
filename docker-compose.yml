@@ -1,0 +1,36 @@
+services:
+  controlservice-api:
+    container_name: controlservice-api
+    image: mendesmat/controlservice:1.0.0
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - UseInMemoryDatabase=true
+      - ConnectionStrings__Redis=redis:6379
+    volumes:
+      - ./logs:/app/logs
+      - ./src/ControlService.API/appsettings.json:/app/appsettings.json
+    depends_on:
+      - redis
+    networks:
+      - controlservice-net
+
+  redis:
+    container_name: controlservice-redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - controlservice-net
+
+networks:
+  controlservice-net:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local

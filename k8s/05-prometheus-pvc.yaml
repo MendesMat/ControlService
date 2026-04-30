@@ -12,12 +12,8 @@ metadata:
     tier: monitoring
     project: controlservice
 spec:
-  # ReadWriteOnce: o volume pode ser montado por exatamente 1 Pod por vez.
-  # Adequado para o Prometheus, que é Single-Writer por natureza (TSDB local).
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      # 5 Gi: margem conservadora para retenção de 15 dias (padrão Prometheus)
-      # com as métricas da aplicação + métricas de infra do cluster.
       storage: 5Gi
