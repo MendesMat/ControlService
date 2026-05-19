@@ -1,12 +1,21 @@
 # ADR 06: Adoção do PostgreSQL como Banco de Dados Relacional
 
-- **Status:** Aceito
-- **Contexto:** O sistema precisa de um banco de dados relacional robusto para sustentar o isolamento lógico de múltiplos CNPJs via `tenant_id`, além de operações transacionais (faturamento, ordens de serviço) e leituras analíticas (relatórios RAAE). A stack .NET tem forte tradição de uso com SQL Server, que foi considerado inicialmente.
-- **Decisão:** Tomei a decisão de adotar o **PostgreSQL** como banco de dados do sistema. As razões que me levaram a isso foram: ser open-source e gratuito (eliminando possibilidades de custos de licenciamento do SQL Server), ter suporte de primeira classe no **EF Core 10** via provedor `Npgsql`, e oferecer funcionalidades avançadas (como índices parciais e tipos JSON nativos) que podem ser úteis em cenários futuros sem custo adicional. A familiaridade crescente da comunidade .NET com o PostgreSQL também reduziu minha preocupação com suporte e documentação.
-- **Alternativas consideradas:**
-  - *SQL Server (Express ou licenciado):* Opção natural para projetos .NET. Descartei o SQL Server licenciado pelo custo de OPEX recorrente incompatível com o orçamento de um sistema interno. O Express foi descartado pelo limite de 10GB por banco e pela ausência de recursos como o SQL Agent, que podem ser necessários para rotinas futuras de manutenção e agendamento.
-  - *SQLite:* Descartei para o servidor central por não ser adequado para múltiplas conexões concorrentes (escritório + sincronizações do app mobile simultâneas). Mantive o SQLite apenas no dispositivo do operador de campo, dentro do App Mobile.
-- **Trade-offs, Riscos e Impactos:**
-  - *Impacto positivo:* Eliminação total de custos de licenciamento do banco de dados, sem abrir mão de maturidade, confiabilidade e suporte transacional completo (ACID). O EF Core 10 abstrai as diferenças de dialeto SQL, tornando a migração de queries praticamente transparente.
-  - *Impacto negativo (Risco):* A ferramenta nativa de administração visual (pgAdmin) é menos polida que o SQL Server Management Studio (SSMS), ao qual tenho mais familiaridade. Mitigado pelo uso do **DBeaver** ou do próprio SSMS com driver ODBC, e pela confiança no EF Core para o dia a dia de migrations.
-- **Compliance:** As migrations serão gerenciadas exclusivamente via **EF Core Migrations** (`dotnet ef migrations`), garantindo rastreabilidade e reversibilidade de todas as mudanças de schema em controle de versão.
+## Status:
+Aceito
+
+## Contexto:
+O sistema precisa de um banco de dados relacional robusto para sustentar o isolamento lógico de múltiplos CNPJs via `tenant_id`, além de operações transacionais (faturamento, ordens de serviço) e leituras analíticas (relatórios RAAE). A stack .NET tem forte tradição de uso com SQL Server, que foi considerado inicialmente.
+
+## Decisão:
+Tomei a decisão de adotar o **PostgreSQL** como banco de dados do sistema. As razões que me levaram a isso foram: ser open-source e gratuito (eliminando possibilidades de custos de licenciamento do SQL Server), ter suporte de primeira classe no **EF Core 10** via provedor `Npgsql`, e oferecer funcionalidades avançadas (como índices parciais e tipos JSON nativos) que podem ser úteis em cenários futuros sem custo adicional. A familiaridade crescente da comunidade .NET com o PostgreSQL também reduziu minha preocupação com suporte e documentação.
+
+## Alternativas consideradas:
+- SQL Server (Express ou licenciado): Opção natural para projetos .NET. Descartei o SQL Server licenciado pelo custo de OPEX recorrente incompatível com o orçamento de um sistema interno. O Express foi descartado pelo limite de 10GB por banco e pela ausência de recursos como o SQL Agent, que podem ser necessários para rotinas futuras de manutenção e agendamento.
+- SQLite: Descartei para o servidor central por não ser adequado para múltiplas conexões concorrentes (escritório + sincronizações do app mobile simultâneas). Mantive o SQLite apenas no dispositivo do operador de campo, dentro do App Mobile.
+
+## Trade-offs, Riscos e Impactos:
+- Impacto positivo: Eliminação total de custos de licenciamento do banco de dados, sem abrir mão de maturidade, confiabilidade e suporte transacional completo (ACID). O EF Core 10 abstrai as diferenças de dialeto SQL, tornando a migração de queries praticamente transparente.
+- Impacto negativo: A ferramenta nativa de administração visual (pgAdmin) é menos polida que o SQL Server Management Studio (SSMS), ao qual tenho mais familiaridade. Mitigado pelo uso do **DBeaver** ou do próprio SSMS com driver ODBC, e pela confiança no EF Core para o dia a dia de migrations.
+
+## Compliance:
+As migrations serão gerenciadas exclusivamente via **EF Core Migrations** (`dotnet ef migrations`), garantindo rastreabilidade e reversibilidade de todas as mudanças de schema em controle de versão.
