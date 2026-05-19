@@ -58,5 +58,4 @@ nunit-*.xml
 *.user
 *.userosscache
 /.vscode
-/docs
 /.agents
