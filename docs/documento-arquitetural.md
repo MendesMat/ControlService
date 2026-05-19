@@ -55,8 +55,6 @@ O **Monólito Modular** me permite dividir o sistema em fatias orientadas ao neg
   - Centralizei as regras puras de negócio (como os cálculos e validações do INEA) no centro ("*Core*"). Detalhes como o *Entity Framework* ou os conectores de notas fiscais terceirizadas são injetados de fora para dentro (*Dependency Inversion Principle*).
   - Essa abstração me salva um tempo enorme para testar o *core* de faturamento, onde apenas simulo (mock) a API de notas e valido a matemática da regra com segurança.
 
-
-
 ---
 
 ## 5. APIs e Sistemas Distribuídos (Considerações Futuras)

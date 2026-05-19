@@ -10,7 +10,7 @@ O projeto abarca os módulos Financeiro, Comercial, Relatórios e Operacional do
 Tomei a decisão de que a arquitetura do Backend será um Monólito Modular, utilizando *Particionamento por Domínio*. Todos os módulos rodarão num processo único e conversarão via *Conascência Estática* Síncrona, agrupados por domínio (e não por função técnica como na Arquitetura em Camadas clássica).
 
 ## Alternativas consideradas:
-Microsserviços: Descartei violentamente essa opção devido à complexidade introduzida (transações compensatórias para comunicação inter-banco, deploy segmentado, latência e observabilidade distribuída). É uma abordagem injustificável e inatingível para mim, atuando sozinho no escopo da nossa empresa.
+Microsserviços: Descartei essa opção devido à complexidade introduzida (transações compensatórias para comunicação inter-banco, deploy segmentado, latência e observabilidade distribuída). É uma abordagem injustificável e inatingível para um único desenvolvedor.
 
 ## Trade-offs, Riscos e Impactos: 
 Ganho simplicidade, facilidade de implantação e garantias transacionais locais (ACID). O *trade-off* deste design é a impossibilidade de eu dar elasticidade aos módulos separadamente (se o financeiro cair sob alta carga, o comercial cai também).
