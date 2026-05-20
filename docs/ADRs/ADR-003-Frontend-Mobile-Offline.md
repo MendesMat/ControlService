@@ -9,7 +9,11 @@ Os operadores de campo executam os serviços diretamente nos endereços dos clie
 ## Decisão:
 Decidi desmembrar a interface em dois clientes distintos (compartilhando minha API via internet):
 1. SPA (Web App): Para o uso administrativo no escritório.
-2. App Mobile: Para os operadores de campo. Projetei este aplicativo sob a arquitetura *Offline-First*. O operador utiliza a internet da base apenas para sincronizar e receber a sua rota de serviços do dia. Feito isso, atua de forma totalmente offline no cliente e, ao finalizar seus atendimentos, usa novamente a conexão com a internet para atualizar o ERP, dando baixa (confirmando) nos serviços executados de sua lista.
+2. App Mobile: Para os operadores de campo. Projetei este aplicativo sob a arquitetura *Offline-First* e com base em um modelo de sincronização explícita:
+   - **Obtenção do Roteiro:** O operador utiliza a internet para sincronizar e carregar em seu dispositivo a rota de serviços agendada pelo Módulo Comercial. 
+   - **Atualizações de Rota:** Se o roteiro sofrer alterações administrativas posteriores na retaguarda, os operadores afetados devem sincronizar o aplicativo novamente para atualizar sua lista de tarefas local.
+   - **Execução Offline:** Com a rota sincronizada, o operador realiza o trabalho em campo de forma totalmente offline, registrando as baixas dos serviços (insumos utilizados, fotos, não conformidades e status da execução).
+   - **Sincronização de Retorno:** Ao concluir um serviço ou toda a rota, o operador realiza uma sincronização online para enviar ao ERP as baixas dadas nos serviços executados (concluídos) ou não executados (cancelados/pendentes).
 
 ## Alternativas consideradas:
 PWA Responsivo Online: Descartei de pronto, pois isso impossibilitaria as atividades operacionais dos técnicos dentro de subsolos ou condomínios remotos (sem rede), travando totalmente o faturamento diário.
