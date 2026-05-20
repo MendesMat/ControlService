@@ -1,6 +1,8 @@
-# ControlService
+# ControlService (Monorepo)
 
-ControlService é uma API RESTful desenvolvida com **.NET 10** para gestão de clientes, projetada com arquitetura **Clean Architecture** em camadas e infraestrutura **Cloud-Native** completa. O projeto contempla conteinerização, orquestração Kubernetes, observabilidade com Prometheus e Grafana, pipeline de entrega contínua via Jenkins e testes de capacidade com k6 e Locust.
+O **ControlService** é um ecossistema completo para gestão de clientes. O projeto está estruturado no modelo **Monorepo**, contendo a API C# (`backend/`), a interface web (`frontend-web/`) e o aplicativo móvel (`mobile-app/`).
+
+O backend foi desenvolvido com **.NET 10** seguindo a **Clean Architecture** em camadas e uma infraestrutura **Cloud-Native** completa. O projeto contempla conteinerização, orquestração Kubernetes, observabilidade com Prometheus e Grafana, pipeline de entrega contínua via Jenkins e testes de capacidade com k6 e Locust.
 
 ---
 
@@ -60,7 +62,7 @@ Para desenvolvimento local, o `docker-compose.yml` orquestra a API e o Redis com
 
 - **Volume nomeado** (`redis-data:/data`): persiste os dados do Redis entre reinicializações do container.
 - **Bind Mount** (`./logs:/app/logs`): expõe os logs da aplicação diretamente no sistema de arquivos do host.
-- **Bind Mount** (`./src/ControlService.API/appsettings.json:/app/appsettings.json`): permite alterar configurações sem reconstruir a imagem.
+- **Bind Mount** (`./backend/src/ControlService.API/appsettings.json:/app/appsettings.json`): permite alterar configurações sem reconstruir a imagem.
 
 ```bash
 docker-compose up -d

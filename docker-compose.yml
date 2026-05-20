@@ -11,7 +11,7 @@ services:
       - ConnectionStrings__Redis=redis:6379
     volumes:
       - ./logs:/app/logs
-      - ./src/ControlService.API/appsettings.json:/app/appsettings.json
+      - ./backend/src/ControlService.API/appsettings.json:/app/appsettings.json
     depends_on:
       - redis
     networks:

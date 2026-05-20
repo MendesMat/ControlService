@@ -35,14 +35,14 @@ pipeline {
                 // sh (Linux) — Para instâncias Jenkins Linux
                 sh '''
                     # Restaurando pacotes otimizados
-                    dotnet restore ControlService.slnx
+                    dotnet restore backend/ControlService.slnx
                     
                     # Testes rígidos em release (no-restore economiza IO local)
-                    dotnet test tests/ControlService.Domain.Tests/ControlService.Domain.Tests.csproj --no-restore -c Release
-                    dotnet test tests/ControlService.Application.Tests/ControlService.Application.Tests.csproj --no-restore -c Release
+                    dotnet test backend/tests/ControlService.Domain.Tests/ControlService.Domain.Tests.csproj --no-restore -c Release
+                    dotnet test backend/tests/ControlService.Application.Tests/ControlService.Application.Tests.csproj --no-restore -c Release
                     
                     # Se todos os testes passarem, compila a API em binários estáticos
-                    dotnet publish src/ControlService.API/ControlService.API.csproj --no-restore -c Release -o ./publish /p:UseAppHost=false
+                    dotnet publish backend/src/ControlService.API/ControlService.API.csproj --no-restore -c Release -o ./publish /p:UseAppHost=false
                 '''
             }
         }
