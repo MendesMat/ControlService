@@ -1,8 +1,8 @@
 using FluentAssertions;
-using ControlService.Domain.Commercial.Customers;
-using ControlService.Domain.Commercial.Customers.Enums;
-using ControlService.Domain.Commercial.Customers.ValueObjects;
-using ControlService.Domain.SeedWork;
+using ControlService.Commercial.Domain.Customers;
+using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.Commercial.Domain.Customers.ValueObjects;
+using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.Domain.Tests.Commercial.Customers;
 

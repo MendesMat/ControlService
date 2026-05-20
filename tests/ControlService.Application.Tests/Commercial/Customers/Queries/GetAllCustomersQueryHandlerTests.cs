@@ -1,7 +1,7 @@
-using ControlService.Application.Commercial.Customers.Queries;
-using ControlService.Domain.Commercial.Customers;
-using ControlService.Domain.Commercial.Customers.Enums;
-using ControlService.Domain.Commercial.Customers.ValueObjects;
+using ControlService.Commercial.Application.Customers.Queries;
+using ControlService.Commercial.Domain.Customers;
+using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.Commercial.Domain.Customers.ValueObjects;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Queries;
 

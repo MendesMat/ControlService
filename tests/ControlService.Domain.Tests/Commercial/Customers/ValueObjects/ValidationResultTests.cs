@@ -1,5 +1,5 @@
 using FluentAssertions;
-using ControlService.Domain.Commercial.Customers.ValueObjects;
+using ControlService.Commercial.Domain.Customers.ValueObjects;
 
 namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 

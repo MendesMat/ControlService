@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ControlService.Domain.SeedWork;
+using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.API.Exceptions;
 

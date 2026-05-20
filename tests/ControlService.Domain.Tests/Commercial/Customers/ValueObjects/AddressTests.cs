@@ -1,6 +1,6 @@
 using FluentAssertions;
-using ControlService.Domain.Commercial.Customers.ValueObjects;
-using ControlService.Domain.SeedWork;
+using ControlService.Commercial.Domain.Customers.ValueObjects;
+using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 

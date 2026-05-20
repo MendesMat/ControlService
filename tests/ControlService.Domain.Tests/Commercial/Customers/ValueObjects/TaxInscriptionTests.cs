@@ -1,6 +1,6 @@
 using FluentAssertions;
-using ControlService.Domain.Commercial.Customers.Enums;
-using ControlService.Domain.Commercial.Customers.ValueObjects;
+using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.Commercial.Domain.Customers.ValueObjects;
 
 namespace ControlService.Domain.Tests.Commercial.Customers.ValueObjects;
 

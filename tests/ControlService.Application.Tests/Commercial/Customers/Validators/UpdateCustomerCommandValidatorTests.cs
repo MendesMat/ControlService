@@ -1,5 +1,5 @@
-using ControlService.Application.Commercial.Customers.Commands;
-using ControlService.Application.Commercial.Customers.Validators;
+using ControlService.Commercial.Application.Customers.Commands;
+using ControlService.Commercial.Application.Customers.Validators;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Validators;
 

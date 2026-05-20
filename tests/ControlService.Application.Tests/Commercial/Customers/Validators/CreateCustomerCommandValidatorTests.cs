@@ -1,6 +1,6 @@
-using ControlService.Application.Commercial.Customers.Commands;
-using ControlService.Application.Commercial.Customers.Validators;
-using ControlService.Domain.Commercial.Customers.Enums;
+using ControlService.Commercial.Application.Customers.Commands;
+using ControlService.Commercial.Application.Customers.Validators;
+using ControlService.Commercial.Domain.Customers.Enums;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Validators;
 

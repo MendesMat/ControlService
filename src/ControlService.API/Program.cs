@@ -1,8 +1,16 @@
 using ControlService.API.Exceptions;
-using ControlService.Application;
 using Prometheus;
-using ControlService.Infrastructure;
 using Scalar.AspNetCore;
+using ControlService.Commercial.Application;
+using ControlService.Commercial.Infrastructure;
+using ControlService.Management.Application;
+using ControlService.Management.Infrastructure;
+using ControlService.Operational.Application;
+using ControlService.Operational.Infrastructure;
+using ControlService.Financial.Application;
+using ControlService.Financial.Infrastructure;
+using ControlService.Reporting.Application;
+using ControlService.Reporting.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +22,18 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // ── Application Layer ──────────────────────────────────────────────────────────
-builder.Services.AddApplication();
+builder.Services.AddCommercialApplication();
+builder.Services.AddManagementApplication();
+builder.Services.AddOperationalApplication();
+builder.Services.AddFinancialApplication();
+builder.Services.AddReportingApplication();
 
 // ── Infrastructure Layer ───────────────────────────────────────────────────────
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddCommercialInfrastructure(builder.Configuration);
+builder.Services.AddManagementInfrastructure(builder.Configuration);
+builder.Services.AddOperationalInfrastructure(builder.Configuration);
+builder.Services.AddFinancialInfrastructure(builder.Configuration);
+builder.Services.AddReportingInfrastructure(builder.Configuration);
 
 // ── Scalar / OpenAPI (Scalar) ─────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();

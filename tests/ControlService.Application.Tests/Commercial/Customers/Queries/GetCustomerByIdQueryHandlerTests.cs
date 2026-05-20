@@ -1,8 +1,8 @@
-using ControlService.Application.Commercial.Customers.Queries;
-using ControlService.Domain.Commercial.Customers;
-using ControlService.Domain.SeedWork;
-using ControlService.Domain.Commercial.Customers.Enums;
-using ControlService.Domain.Commercial.Customers.ValueObjects;
+using ControlService.Commercial.Application.Customers.Queries;
+using ControlService.Commercial.Domain.Customers;
+using ControlService.SharedKernel.SeedWork;
+using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.Commercial.Domain.Customers.ValueObjects;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Queries;
 
@@ -81,6 +81,6 @@ public class GetCustomerByIdQueryHandlerTests
 
     private static Customer BuildCustomer(Guid id, Document? document = null) =>
         new(CustomerType.Business, "Acme Corp", "Acme", document,
-            ControlService.Domain.Commercial.Customers.ValueObjects.Address.Create(
+            ControlService.Commercial.Domain.Customers.ValueObjects.Address.Create(
                 "01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP"));
 }

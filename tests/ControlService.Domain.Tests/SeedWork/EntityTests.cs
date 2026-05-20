@@ -1,6 +1,6 @@
 using FluentAssertions;
 using System;
-using ControlService.Domain.SeedWork;
+using ControlService.SharedKernel.SeedWork;
 using Xunit;
 
 namespace ControlService.Domain.Tests.SeedWork;

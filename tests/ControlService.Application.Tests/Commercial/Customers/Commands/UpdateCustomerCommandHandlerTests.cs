@@ -1,7 +1,7 @@
-using ControlService.Application.Commercial.Customers.Commands;
-using ControlService.Domain.Commercial.Customers;
-using ControlService.Domain.Commercial.Customers.Enums;
-using ControlService.Domain.SeedWork;
+using ControlService.Commercial.Application.Customers.Commands;
+using ControlService.Commercial.Domain.Customers;
+using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Commands;
 
@@ -43,7 +43,7 @@ public class UpdateCustomerCommandHandlerTests
     public async Task Handle_WithExistingCustomer_ReturnsMappedDtoWithDocument()
     {
         // Arrange
-        var document = ControlService.Domain.Commercial.Customers.ValueObjects.Document.Create("19103190072");
+        var document = ControlService.Commercial.Domain.Customers.ValueObjects.Document.Create("19103190072");
         var customer = BuildCustomer(document: document);
         _repository.GetByIdAsync(customer.Id, Arg.Any<CancellationToken>()).Returns(customer);
         _unitOfWork.SaveEntitiesAsync(Arg.Any<CancellationToken>()).Returns(true);
@@ -179,9 +179,9 @@ public class UpdateCustomerCommandHandlerTests
         await _unitOfWork.Received(1).SaveEntitiesAsync(Arg.Any<CancellationToken>());
     }
 
-    private static Customer BuildCustomer(ControlService.Domain.Commercial.Customers.ValueObjects.Document? document = null) =>
+    private static Customer BuildCustomer(ControlService.Commercial.Domain.Customers.ValueObjects.Document? document = null) =>
         new(CustomerType.Business, "Acme Corp", "Acme", document,
-            ControlService.Domain.Commercial.Customers.ValueObjects.Address.Create(
+            ControlService.Commercial.Domain.Customers.ValueObjects.Address.Create(
                 "01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP"));
 
     private static UpdateCustomerCommand BuildCommandFor(Guid id, string city = "São Paulo", string state = "SP") => new()

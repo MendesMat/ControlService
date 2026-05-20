@@ -10,16 +10,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.*" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.*-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.0.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ControlService.Application\ControlService.Application.csproj" />
-    <ProjectReference Include="..\ControlService.Infrastructure\ControlService.Infrastructure.csproj" />
+    <ProjectReference Include="..\ControlService.Commercial\ControlService.Commercial.Application\ControlService.Commercial.Application.csproj" />
+    <ProjectReference Include="..\ControlService.Commercial\ControlService.Commercial.Infrastructure\ControlService.Commercial.Infrastructure.csproj" />
+    <ProjectReference Include="..\ControlService.Management\ControlService.Management.Application\ControlService.Management.Application.csproj" />
+    <ProjectReference Include="..\ControlService.Management\ControlService.Management.Infrastructure\ControlService.Management.Infrastructure.csproj" />
+    <ProjectReference Include="..\ControlService.Operational\ControlService.Operational.Application\ControlService.Operational.Application.csproj" />
+    <ProjectReference Include="..\ControlService.Operational\ControlService.Operational.Infrastructure\ControlService.Operational.Infrastructure.csproj" />
+    <ProjectReference Include="..\ControlService.Financial\ControlService.Financial.Application\ControlService.Financial.Application.csproj" />
+    <ProjectReference Include="..\ControlService.Financial\ControlService.Financial.Infrastructure\ControlService.Financial.Infrastructure.csproj" />
+    <ProjectReference Include="..\ControlService.Reporting\ControlService.Reporting.Application\ControlService.Reporting.Application.csproj" />
+    <ProjectReference Include="..\ControlService.Reporting\ControlService.Reporting.Infrastructure\ControlService.Reporting.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

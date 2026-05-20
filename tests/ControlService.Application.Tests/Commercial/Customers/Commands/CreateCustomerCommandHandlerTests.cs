@@ -1,7 +1,7 @@
-using ControlService.Application.Commercial.Customers.Commands;
-using ControlService.Domain.Commercial.Customers;
-using ControlService.Domain.Commercial.Customers.Enums;
-using ControlService.Domain.SeedWork;
+using ControlService.Commercial.Application.Customers.Commands;
+using ControlService.Commercial.Domain.Customers;
+using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Commands;
 

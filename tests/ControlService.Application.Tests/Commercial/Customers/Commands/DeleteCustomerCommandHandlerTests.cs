@@ -1,7 +1,7 @@
-using ControlService.Application.Commercial.Customers.Commands;
-using ControlService.Domain.Commercial.Customers;
-using ControlService.Domain.Commercial.Customers.Enums;
-using ControlService.Domain.SeedWork;
+using ControlService.Commercial.Application.Customers.Commands;
+using ControlService.Commercial.Domain.Customers;
+using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Commands;
 
@@ -111,6 +111,6 @@ public class DeleteCustomerCommandHandlerTests
 
     private static Customer BuildCustomer() =>
         new(CustomerType.Individual, "João Silva", null, null,
-            ControlService.Domain.Commercial.Customers.ValueObjects.Address.Create(
+            ControlService.Commercial.Domain.Customers.ValueObjects.Address.Create(
                 "01310-100", "Av. Paulista", "1000", null, "Bela Vista", "São Paulo", "SP"));
 }

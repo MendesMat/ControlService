@@ -1,4 +1,4 @@
-using ControlService.Application.Behaviors;
+using ControlService.SharedKernel.Behaviors;
 using FluentValidation;
 using MediatR;
 

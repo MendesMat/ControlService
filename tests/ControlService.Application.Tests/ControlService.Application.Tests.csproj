@@ -24,7 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ControlService.Application\ControlService.Application.csproj" />
+    <ProjectReference Include="..\..\src\ControlService.SharedKernel\ControlService.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\ControlService.Commercial\ControlService.Commercial.Domain\ControlService.Commercial.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ControlService.Commercial\ControlService.Commercial.Application\ControlService.Commercial.Application.csproj" />
   </ItemGroup>
 
 </Project>
