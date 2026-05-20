@@ -62,10 +62,9 @@ pipeline {
                         # Login na registry
                         echo "\$DOCKER_PASSWORD" | docker login -u "\$DOCKER_USERNAME" --password-stdin
                         
-                        # Utilizamos o script existente que aplica as lógicas de labels e cache
-                        # Importante: chamando o bash gerado na Fase 1.3
-                        chmod +x docker/build-and-push.sh
-                        ./docker/build-and-push.sh ${IMAGE_TAG}
+                        # Build auto-contido: contexto é a pasta backend/ (Dockerfile e fontes juntos)
+                        chmod +x backend/build-and-push.sh
+                        ./backend/build-and-push.sh ${IMAGE_TAG}
                         
                         # Limpa evidências locais (Security check)
                         docker logout
@@ -85,9 +84,9 @@ pipeline {
                     sh """
                         export KUBECONFIG=\$KUBECONFIG
                         
-                        # Aplicar os Deployments / Services K8s
-                        chmod +x k8s/deploy.sh
-                        ./k8s/deploy.sh
+                        # Deploy global: infra-shared + backend em sequência
+                        chmod +x deploy.sh
+                        ./deploy.sh
                         
                         # Forçando a imagem exata neste update (Imutabilidade garantida)
                         kubectl set image deployment/controlservice-deployment controlservice-api=${IMAGE}
@@ -110,10 +109,9 @@ pipeline {
                     sh """
                         export KUBECONFIG=\$KUBECONFIG
                         
-                        # Chama o pipeline wrapper shell do k6 que encontra automaticamente o Nó IP do K8s 
-                        # ou do Minikube sem envolver a interação manual (agora atualizada).
-                        chmod +x stress/run-stress-test.sh
-                        ./stress/run-stress-test.sh
+                        # Script de estresse pertence ao backend (testa endpoints da API)
+                        chmod +x backend/stress/run-stress-test.sh
+                        ./backend/stress/run-stress-test.sh
                     """
                 }
             }

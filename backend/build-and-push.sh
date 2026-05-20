@@ -2,8 +2,11 @@
 # =============================================================================
 # build-and-push.sh — Script para build e publicação da imagem Docker
 #
+# Deve ser executado a partir da RAIZ do repositório ou de dentro de backend/.
+# O contexto de build é sempre a pasta backend/ (self-contained).
+#
 # Uso:
-#   ./docker/build-and-push.sh [TAG]
+#   ./backend/build-and-push.sh [TAG]
 # =============================================================================
 set -euo pipefail
 
@@ -14,10 +17,11 @@ TAG="${1:-latest}"
 IMAGE="${REGISTRY}/${REPOSITORY}:${TAG}"
 IMAGE_LATEST="${REGISTRY}/${REPOSITORY}:latest"
 
-# Resolve o contexto de build para a raiz do repositório
+# Resolve o diretório backend/ independente de onde o script é chamado
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 DOCKERFILE="${SCRIPT_DIR}/Dockerfile"
+# Contexto de build: a pasta backend/ é auto-contida
+BUILD_CONTEXT="${SCRIPT_DIR}"
 
 echo "============================================================"
 echo "  ControlService — Build & Push"
@@ -26,7 +30,7 @@ echo "  Repositório : ${REPOSITORY}"
 echo "  Tag         : ${TAG}"
 echo "  Imagem      : ${IMAGE}"
 echo "  Dockerfile  : ${DOCKERFILE}"
-echo "  Contexto    : ${REPO_ROOT}"
+echo "  Contexto    : ${BUILD_CONTEXT}"
 echo "============================================================"
 
 # ── Verificação de pré-requisitos ─────────────────────────────────────────────
@@ -36,8 +40,7 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # ── Build Multi-Stage ──────────────────────────────────────────────────────────
-# Usa BuildKit para builds paralelas, cache avançado e saída limpa.
-# O contexto é a raiz do repositório para que o Dockerfile acesse /src e /tests.
+# Contexto é a pasta backend/ — o Dockerfile acessa src/ e tests/ relativos a ela.
 echo ""
 echo "[1/2] Iniciando build (Multi-Stage)..."
 echo ""
@@ -48,15 +51,13 @@ DOCKER_BUILDKIT=1 docker build \
     --tag   "${IMAGE_LATEST}" \
     --label "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     --label "org.opencontainers.image.version=${TAG}" \
-    --label "org.opencontainers.image.revision=$(git -C "${REPO_ROOT}" rev-parse --short HEAD 2>/dev/null || echo 'unknown')" \
-    "${REPO_ROOT}"
+    --label "org.opencontainers.image.revision=$(git -C "${SCRIPT_DIR}" rev-parse --short HEAD 2>/dev/null || echo 'unknown')" \
+    "${BUILD_CONTEXT}"
 
 echo ""
 echo "[1/2] Build concluído com sucesso: ${IMAGE}"
 
 # ── Push para o Docker Hub ─────────────────────────────────────────────────────
-# Realiza push da tag semântica E da tag "latest" de forma atômica.
-# Camadas já existentes no registry são reutilizadas (sem re-upload).
 echo ""
 echo "[2/2] Publicando imagem no Docker Hub..."
 echo ""
