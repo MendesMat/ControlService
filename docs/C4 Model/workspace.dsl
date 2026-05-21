@@ -57,17 +57,25 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // RELACIONAMENTOS - NIVEL 2 (Containers)
         // =============================================
-        erp.spa -> erp.api "Le e grava dados administrativos" "REST / JSON"
-        erp.mobile -> erp.api "Sincroniza lotes de execucoes e insumos" "REST / JSON"
+        erp.spa -> erp.api "Consome APIs administrativas e financeiras" "REST / JSON"
+        erp.mobile -> erp.api "Sincroniza dados da O.S. e insumos" "REST / JSON"
         erp.api -> erp.db "Leitura e escrita de todos os modulos" "Entity Framework Core / Dapper"
 
         // =============================================
         // RELACIONAMENTOS - NIVEL 3 (Componentes internos da API)
         // =============================================
+        // Conexoes dos Clientes (Containers) para os Componentes especificos da API (Nivel 3)
+        erp.spa -> erp.api.c_gerenciamento "Realiza login, gerencia tenants e templates" "HTTPS / REST / JSON"
+        erp.spa -> erp.api.c_comercial "Gerencia clientes, contratos e roteiros diarios" "HTTPS / REST / JSON"
+        erp.spa -> erp.api.c_financeiro "Monitora fluxo de caixa e dispara faturamento" "HTTPS / REST / JSON"
+        erp.spa -> erp.api.c_relatorios "Busca relatorios gerenciais e RAAE" "HTTPS / REST / JSON"
+
+        erp.mobile -> erp.api.c_operacional "Busca roteiro offline e envia baixas de servicos" "HTTPS / REST / JSON"
+
+        // Comunicacao entre Componentes da API (Acoplamento fraco e regras de negocio)
         erp.api.c_gerenciamento -> erp.api.c_comercial "Injeta claims de perfil e tenant_id"
-        erp.api.c_comercial -> erp.api.c_operacional "Determina roteiros para sincronizacao"
-        erp.api.c_operacional -> erp.api.c_financeiro "Autoriza fechamento (Pronto para Faturar)"
-        erp.api.c_operacional -> erp.api.c_relatorios "Fornece dados de insumos quimicos aplicados"
+        erp.api.c_operacional -> erp.api.c_comercial "Consulta agendamentos e envia relatos de baixas para consolidacao"
+        erp.api.c_financeiro -> erp.api.c_comercial "Consulta pedidos e contratos consolidados para faturamento manual"
         erp.api.c_financeiro -> nf_api "Delega a burocracia de emissao fiscal" "HTTPS"
 
         erp.api.c_gerenciamento -> erp.db "CRUD de configuracoes e templates" "EF Core"
