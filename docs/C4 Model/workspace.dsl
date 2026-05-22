@@ -6,7 +6,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // PERSONAS
         // =============================================
-        admin = person "Backoffice / Admin" "Realiza gestao operacional, agenda roteiros e monitora faturamento."
+        admin = person "Backoffice / Administrador" "Realiza gestao operacional, agenda roteiros e monitora faturamento."
         operador = person "Operador de Campo" "Recebe rotas, atende no cliente de forma offline e sincroniza a baixa dos servicos."
 
         // =============================================
@@ -19,15 +19,15 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         erp = softwareSystem "Control Service ERP" "Centraliza clientes, contratos, financas e regras INEA. Opera sob multiplos CNPJs com isolamento logico via tenant_id." {
 
-            spa = container "SPA Admin Web" "Aplicacao web principal para o time de escritorio. Acesso a todos os modulos gerenciais." "React 18 (LTS) / TypeScript" {
+            spa = container "SPA Web Administrativo" "Aplicacao web principal para o time de escritorio. Acesso a todos os modulos gerenciais." "React 18 (LTS) / TypeScript" {
                 tags "Web Browser"
             }
 
-            mobile = container "App Mobile Field" "App offline-first para operadores de campo. Armazena rotas do dia localmente e sincroniza execucoes ao reconectar." "React Native / Expo" {
+            mobile = container "App Móvel de Campo" "App offline-first para operadores de campo. Armazena rotas do dia localmente e sincroniza execucoes ao reconectar." "React Native / Expo" {
                 tags "Mobile App"
             }
 
-            mobile_db = container "Banco de Dados Local (Mobile)" "Armazena o roteiro do dia e as baixas de servico coletadas offline, antes da sincronizacao com o backend." "SQLite" {
+            mobile_db = container "Banco de Dados Local (Móvel)" "Armazena o roteiro do dia e as baixas de servico coletadas offline, antes da sincronizacao com o backend." "SQLite" {
                 tags "Database"
             }
 
@@ -41,7 +41,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
 
                 c_comercial = component "Modulo Comercial" "Gerencia clientes, contratos e roteiros de servico. Agrupa propostas e gera fluxos de servicos pendentes." "ASP.NET Core 10 / EF Core 10"
 
-                c_operacional = component "Modulo Operacional" "Processa ordens de servico e a sincronizacao offline do app mobile. Registra uso de insumos quimicos." "ASP.NET Core 10 / EF Core 10"
+                c_operacional = component "Modulo Operacional" "Processa ordens de servico e a sincronizacao offline do aplicativo móvel. Registra uso de insumos quimicos." "ASP.NET Core 10 / EF Core 10"
 
                 c_financeiro = component "Modulo Financeiro" "Gerencia faturamento, comissoes e dispara a emissao de NF via API terceira apos fechamento de O.S." "ASP.NET Core 10 / EF Core 10"
 
@@ -54,10 +54,10 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // RELACIONAMENTOS - NIVEL 1 (Contexto)
         // Declarados no nivel de sistema para que o systemContext view funcione corretamente.
-        // Implied relationships propagam para os niveis inferiores automaticamente.
+        // Relacionamentos implícitos se propagam para os níveis inferiores automaticamente.
         // =============================================
         admin -> erp "Acessa a interface de gestao" "HTTPS"
-        operador -> erp "Consulta rotas e registra execucoes" "HTTPS (sync)"
+        operador -> erp "Consulta rotas e registra execucoes" "HTTPS (sincronização)"
         erp -> nf_api "Delega emissao de NFS-e com aliquotas do perfil CNPJ" "HTTPS / REST"
 
         // =============================================
@@ -98,7 +98,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // NIVEL 1 - Diagrama de Contexto
         // =============================================
-        systemContext erp "SystemContext" {
+        systemContext erp "Contexto" "Diagrama de Contexto de Sistema" {
             include *
             autolayout lr
         }
@@ -106,7 +106,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // NIVEL 2 - Diagrama de Containers
         // =============================================
-        container erp "Containers" {
+        container erp "Conteineres" "Diagrama de Contêineres" {
             include *
             autolayout lr
         }
@@ -114,7 +114,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // NIVEL 3 - Diagrama de Componentes (API)
         // =============================================
-        component erp.api "Components" {
+        component erp.api "Componentes" "Diagrama de Componentes" {
             include *
             autolayout lr
         }
