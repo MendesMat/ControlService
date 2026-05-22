@@ -6,7 +6,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // PERSONAS
         // =============================================
-        admin = person "Backoffice / Administrador" "Realiza gestao operacional, agenda roteiros e monitora faturamento."
+        admin = person "Escritório / Administrador" "Realiza gestao operacional, agenda roteiros e monitora faturamento."
         operador = person "Operador de Campo" "Recebe rotas, atende no cliente de forma offline e sincroniza a baixa dos servicos."
 
         // =============================================
