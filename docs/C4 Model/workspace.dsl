@@ -23,8 +23,12 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
                 tags "Web Browser"
             }
 
-            mobile = container "App Mobile Field" "App offline-first para operadores de campo. Armazena rotas do dia localmente e sincroniza execucoes ao reconectar." "React Native / Expo / SQLite" {
+            mobile = container "App Mobile Field" "App offline-first para operadores de campo. Armazena rotas do dia localmente e sincroniza execucoes ao reconectar." "React Native / Expo" {
                 tags "Mobile App"
+            }
+
+            mobile_db = container "Banco de Dados Local (Mobile)" "Armazena o roteiro do dia e as baixas de servico coletadas offline, antes da sincronizacao com o backend." "SQLite" {
+                tags "Database"
             }
 
             db = container "Banco de Dados Unificado" "Repositorio central particionado por tenant_id. Isola dados fiscais e operacionais por perfil CNPJ." "PostgreSQL" {
@@ -41,7 +45,9 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
 
                 c_financeiro = component "Modulo Financeiro" "Gerencia faturamento, comissoes e dispara a emissao de NF via API terceira apos fechamento de O.S." "ASP.NET Core 10 / EF Core 10"
 
-                c_relatorios = component "Modulo de Relatorios" "Gera contratos e certificados em PDF a partir de templates dinamicos. Consolida dados para o relatorio RAAE do INEA." "ASP.NET Core 10 / Dapper"
+                c_relatorios = component "Modulo de Relatorios" "Consolida dados analiticos para o relatorio RAAE do INEA, balanco de comissoes e relatorio de vendas. Delega a geracao de PDF ao motor de templates." "ASP.NET Core 10 / Dapper"
+
+                c_templates = component "Motor de Templates" "Adaptador de infraestrutura que le templates do banco de dados, substitui variaveis dinamicas e renderiza o PDF final. Implementa interface do dominio (IDocumentRenderer)." "QuestPDF / Parser interno"
             }
         }
 
@@ -59,6 +65,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         erp.spa -> erp.api "Consome APIs administrativas e financeiras" "REST / JSON"
         erp.mobile -> erp.api "Sincroniza dados da O.S. e insumos" "REST / JSON"
+        erp.mobile -> erp.mobile_db "Persiste roteiro e baixas offline" "SQLite"
         erp.api -> erp.db "Leitura e escrita de todos os modulos" "Entity Framework Core / Dapper"
 
         // =============================================
@@ -77,8 +84,10 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         erp.api.c_operacional -> erp.api.c_comercial "Consulta agendamentos e envia relatos de baixas para consolidacao"
         erp.api.c_financeiro -> erp.api.c_comercial "Consulta pedidos e contratos consolidados para faturamento manual"
         erp.api.c_financeiro -> nf_api "Delega a burocracia de emissao fiscal" "HTTPS"
+        erp.api.c_relatorios -> erp.api.c_comercial "Consulta O.S. consolidadas e comissoes para geracao do RAAE e relatorios gerenciais"
+        erp.api.c_relatorios -> erp.api.c_templates "Solicita renderizacao de contratos e certificados em PDF"
 
-        erp.api.c_gerenciamento -> erp.db "CRUD de configuracoes e templates" "EF Core"
+        erp.api.c_gerenciamento -> erp.db "CRUD de configuracoes, templates de documentos e perfis CNPJ" "EF Core"
         erp.api.c_comercial -> erp.db "CRUD de clientes e contratos" "EF Core"
         erp.api.c_operacional -> erp.db "CRUD de ordens de servico e insumos" "EF Core"
         erp.api.c_financeiro -> erp.db "CRUD de faturamento e comissoes" "EF Core"
