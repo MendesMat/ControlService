@@ -8,30 +8,29 @@
 ## 🎬 BLOCO 1 — O Sistema e Seus Drivers de Negócio
 **⏱ Tempo estimado: 50 segundos**
 
-> O sistema que vou apresentar é o **Control Service ERP**: uma plataforma de gestão para empresas prestadoras de serviços especializados — dedetização, higienização de reservatórios e impermeabilização. Pode parecer um domínio simples, mas esconde três forças que condicionaram cada decisão arquitetural que tomei.
+> O sistema que vou apresentar é o **Control Service ERP**: uma plataforma de gestão para empresas prestadoras de serviços especializados — dedetização, higienização de reservatórios e impermeabilização. Pode parecer um domínio simples, mas esconde três drivers que condicionaram cada decisão arquitetural que tomei.
 >
-> **Primeiro driver: conformidade regulatória.** A empresa é auditada pelo INEA — o Instituto Estadual do Ambiente — e precisa gerar mensalmente o relatório RAAE. Qualquer inconsistência nos dados de insumos químicos e execução de serviços é um risco jurídico real.
+> **Primeiro driver: conformidade regulatória.** A empresa é regulamentada pelo INEA e precisa gerar mensalmente o relatório RAAE (Relatório de Acompanhamento das Atividades de Empresas). Qualquer inconsistência nos dados de insumos químicos e execução de serviços é um risco jurídico real.
 >
-> **Segundo driver: múltiplos CNPJs.** A empresa opera como uma entidade única de gestão, mas juridicamente se fragmenta em dois CNPJs por razões fiscais e regulatórias. Isso parece um detalhe administrativo, mas vou mostrar que ele dita o design do banco de dados, da autenticação e dos documentos gerados.
+> **Segundo driver: administração de múltiplos CNPJs.** A empresa precisa operar como uma entidade única, mas juridicamente se fragmenta em dois CNPJs por razões fiscais e regulatórias. Isso parece um detalhe administrativo, mas vou mostrar que ele dita o design do banco de dados e dos documentos que o sistema precisa gerar.
 >
-> **Terceiro driver: equipe de um.** Sou o único desenvolvedor. Isso não é uma limitação menor — é o driver mais determinístico de todas as decisões que vou apresentar. Qualquer arquitetura que eu adote precisa ser operável por uma pessoa.
+> **Terceiro driver: equipe de um.** Sou o único desenvolvedor. E esse é o driver mais determinístico de todas as decisões que vou apresentar. Qualquer arquitetura que eu adote precisa ser operável por uma pessoa.
 
 ---
 
 ## 🎬 BLOCO 2 — Atributos de Qualidade e o Trade-off Real
 **⏱ Tempo estimado: 65 segundos**
 
-> Com esses drivers em mente, priorizei três atributos de qualidade. **Confiabilidade** — os dados coletados no campo nunca podem se perder. **Conformidade Legal** — as regras do INEA precisam estar embutidas na estrutura de dados, não ser validadas só na UI. E **Manutenibilidade** — precisa ser operável por uma pessoa.
+> Com esses drivers em mente, priorizei três atributos de qualidade: 
+**Confiabilidade** — os dados coletados pelos operadores de campo nunca podem se perder;
+**Conformidade Legal** — as regras do INEA precisam estar embutidas na estrutura de dados, não serem validadas só na UI e principalmente;
+**Manutenibilidade** — a solução precisa ser operável por uma pessoa.
 >
-> Mas esses atributos entram em conflito. Vou falar do trade-off mais honesto que enfrentei.
+> Mas esses 3 atributos entram em conflito. Vou falar do trade-off mais honesto que enfrentei.
 >
-> A existência dos múltiplos perfis CNPJs exige isolamento rigoroso de dados: contratos, alíquotas tributárias e relatórios RAAE pertencem a um CNPJ específico e não podem vazar para outro. A solução mais segura seria um banco de dados separado por CNPJ. Isso me daria isolamento físico total.
+> A existência dos múltiplos perfis CNPJs exige isolamento rigoroso de dados: contratos, alíquotas tributárias e relatórios RAAE pertencem a um CNPJ específico e os dados não podem vazar para outro CNPJ. A solução mais segura seria ter um banco de dados separado por CNPJ. Isso me daria isolamento físico total, só que eu teria que gerenciar múltiplas pipelines de migração e múltiplos backups — e os relatórios consolidados da empresa inteira se tornariam consultas entre bancos de dados distintos. Para um desenvolvedor solo, isso é inviável.
 >
-> O problema: eu teria que gerenciar múltiplos pipelines de migração e múltiplos backups — e relatórios consolidados da empresa inteira se tornariam consultas entre bancos de dados distintos. Para um desenvolvedor solo, isso é inviável.
->
-> A resolução foi o **isolamento lógico**: um banco de dados único, com uma chave `tenant_id` em todo documento que exige segregação. Assim ganho uma operação simples e documentos consolidados. O risco é claro: se alguma consulta ao banco de dados esquecer de perguntar "para qual CNPJ estou buscando?", os dados de um CNPJ apareceriam misturados com os do outro. Para eliminar esse risco humano, configurei um filtro global e obrigatório — toda consulta já sai com esse critério aplicado automaticamente, sem depender da memória do desenvolvedor.
->
-> Esse é o trade-off real: segurança de infraestrutura trocada por disciplina de código. E aceitei com segurança.
+> A resolução foi o **isolamento lógico**: um banco de dados único, mas com uma chave `tenant_id` em todos os documentos que exigem segregação por CNPJ. Assim ganho uma operação simples e documentos consolidados. O risco é: se alguma consulta ao banco de dados esquecer de perguntar "para qual CNPJ estou buscando?", os dados de um CNPJ apareceriam misturados com os do outro. Para eliminar esse risco humano, será configurado um filtro global e obrigatório — toda consulta já sai com esse critério aplicado automaticamente, sem depender da memória do desenvolvedor.
 
 ---
 
@@ -40,19 +39,19 @@
 
 > Agora quero apresentar a decisão arquitetural que considero a mais impactante no design do sistema: a estratégia do aplicativo móvel para os operadores de campo.
 >
-> **Contexto:** Os técnicos executam serviços em subsolos de condomínios, reservatórios industriais, áreas rurais — locais onde o sinal de celular é muito instável. E é exatamente nesses locais que eles precisam registrar os insumos químicos utilizados, fotografar o ambiente, e dar baixa no serviço.
+> **Contexto:** Os operadores de campo executam serviços em subsolos de condomínios, reservatórios industriais, áreas rurais — locais onde o sinal de celular é muito instável. E é exatamente nesses locais que eles precisam registrar os insumos químicos utilizados, fotografar o ambiente, e dar baixa no serviço.
 >
-> Se a execução do trabalho depender de internet, o fluxo de trabalho trava.
+> Se a execução do trabalho deles depender de internet, o fluxo trava.
 >
-> A decisão foi projetar um aplicativo sob arquitetura **Offline-First** com sincronização explícita e bidirecional, em três fases claras:
+> A decisão foi projetar um aplicativo sob arquitetura **Offline-First** com sincronização explícita, que dividi em três fases:
 >
-> — Na **Fase 1**, com internet disponível no início do turno, o operador sincroniza e baixa o roteiro do dia. A partir daí, não precisa mais de rede.
+> — Na **Fase 1**, em um local com internet estável, no início do turno, o operador sincroniza e baixa todo o roteiro do dia no seu app. A partir daí, não precisa mais de rede.
 >
-> — Na **Fase 2**, todo o trabalho acontece offline: insumos, fotos, não conformidades, status de cada serviço — tudo persistido localmente em SQLite no dispositivo.
+> — Na **Fase 2**, todo o trabalho acontece offline: insumos utilizados, fotos e os status de cada serviço — tudo persistido localmente em SQLite no dispositivo do operador.
 >
-> — Na **Fase 3**, ao retornar a uma área com sinal, o operador sincroniza de volta. O backend processa as baixas, gera as Ordens de Serviço e os devidos relatórios.
+> — Na **Fase 3**, ao retornar a uma área com sinal estável, o operador sincroniza de volta. O backend processa as baixas, gera as Ordens de Serviço e os devidos relatórios.
 >
-> O custo dessa decisão é real: lógica de sincronização bidirecional, resolução de conflitos e dois ciclos de deploy independentes. Mas a alternativa seria travar o fluxo de trabalho DIÁRIO dos operadores por ausência de sinal, o que seria impraticável.
+> O custo dessa decisão é: lógica de sincronização bidirecional, resolução de conflitos e dois ciclos de deploy independentes. Mas a alternativa seria travar o fluxo de trabalho DIÁRIO dos operadores por ausência de sinal, o que seria impraticável.
 
 ---
 
