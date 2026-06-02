@@ -1,3 +1,4 @@
+using ControlService.Commercial.Domain.Customers.ValueObjects;
 using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.Commercial.Domain.Customers;
@@ -9,4 +10,9 @@ public interface ICustomerRepository : IRepository<Customer>
     Task AddAsync(Customer customer, CancellationToken cancellationToken = default);
     void Update(Customer customer);
     void Remove(Customer customer);
+
+    Task<bool> ExistsByDocumentAsync(
+        Document document,
+        Guid? excludedCustomerId = null,
+        CancellationToken cancellationToken = default);
 }

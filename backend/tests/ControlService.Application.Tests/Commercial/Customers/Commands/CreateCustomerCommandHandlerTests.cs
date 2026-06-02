@@ -1,6 +1,8 @@
 using ControlService.Commercial.Application.Customers.Commands;
 using ControlService.Commercial.Domain.Customers;
 using ControlService.Commercial.Domain.Customers.Enums;
+using ControlService.Commercial.Domain.Customers.Services;
+using ControlService.Commercial.Domain.Customers.ValueObjects;
 using ControlService.SharedKernel.SeedWork;
 
 namespace ControlService.Application.Tests.Commercial.Customers.Commands;
@@ -9,6 +11,7 @@ public class CreateCustomerCommandHandlerTests
 {
     private readonly ICustomerRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly CustomerDocumentUniquenessService _documentUniquenessService;
     private readonly CreateCustomerCommandHandler _handler;
 
     public CreateCustomerCommandHandlerTests()
@@ -17,7 +20,9 @@ public class CreateCustomerCommandHandlerTests
         _repository = Substitute.For<ICustomerRepository>();
         _repository.UnitOfWork.Returns(_unitOfWork);
 
-        _handler = new CreateCustomerCommandHandler(_repository);
+        _documentUniquenessService = new CustomerDocumentUniquenessService(_repository);
+
+        _handler = new CreateCustomerCommandHandler(_repository, _documentUniquenessService);
     }
 
     [Fact]
@@ -138,6 +143,24 @@ public class CreateCustomerCommandHandlerTests
         // Assert
         await _repository.Received(1).AddAsync(Arg.Any<Customer>(), Arg.Any<CancellationToken>());
         await _unitOfWork.Received(1).SaveEntitiesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_WhenDocumentAlreadyExists_ThrowsDomainException()
+    {
+        // Arrange
+        _repository
+            .ExistsByDocumentAsync(Arg.Any<Document>(), Arg.Any<Guid?>(), Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        var command = BuildValidCommand();
+
+        // Act
+        var act = async () => await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<DomainException>()
+            .WithMessage("*já existe um cliente*");
     }
 
     private static CreateCustomerCommand BuildValidCommand() => new()

@@ -106,8 +106,23 @@ A modelagem tática do nosso Core Domain gira em torno de duas Raízes de Agrega
 **Repositórios:**
 O modelo isola a persistência através do padrão *Repository*, utilizando a interface genérica `IRepository<T>` em conjunto com o `SharedKernel`. O domínio define interfaces restritas (ex: `ICustomerRepository`), enquanto a camada de Infraestrutura as implementa acoplando-se ao Entity Framework Core. Isso garante que a camada de Domínio permaneça pura, sem vazamento de detalhes de tabelas ou SQL.
 
-**Domain Services:**
-*(A preencher com a implementação do comportamento que cruza os agregados)*
+**Padrão Specification (`ISpecification<T>`):**
+Implementei a interface genérica `ISpecification<T>` no `SharedKernel/SeedWork`, que estabelece o contrato `IsSatisfiedBy(T entity)` como base reutilizável para qualquer regra de elegibilidade futura. A primeira implementação concreta é a `CustomerEligibleForServiceSpecification`, que encapsula o critério de elegibilidade de um `Customer` para ter um serviço agendado:
+
+1. O `Customer` deve ter um `Document` (CPF/CNPJ) válido cadastrado.
+2. O `Customer` deve ter um `LegalName` (Nome ou Razão Social) preenchido.
+3. O `Customer` deve possuir um `Address` (Endereço) cadastrado.
+
+A separação da regra em uma *Specification* permite que ela seja testada de forma unitária e isolada, e reutilizada por diferentes *Application Services* (ex: criação de Order, validação de proposta) sem duplicar a lógica de validação nos agregados.
+
+**Domain Service (`CustomerDocumentUniquenessService`):**
+Criamos o serviço de domínio `CustomerDocumentUniquenessService` para resolver uma regra de negócio que nenhum Aggregate consegue cumprir sozinho: a garantia de unicidade do `Document` (CPF/CNPJ) na base de clientes do *tenant* corrente. Um `Aggregate` não pode injetar repositórios — essa é uma invariante de DDD. O Domain Service resolve essa lacuna:
+
+- É **stateless** (sem estado): toda informação necessária é recebida como parâmetro.
+- Depende exclusivamente da porta `ICustomerRepository` via inversão de dependência (DIP), sem acoplamento com nenhum detalhe de infraestrutura.
+- Expõe o método `EnforceUniquenessAsync(document, excludedCustomerId?)`: se o documento já existir em outro `Customer`, lança uma `DomainException` com mensagem descritiva — em vez de retornar um código de erro ou `null`.
+- O parâmetro opcional `excludedCustomerId` suporta cenários futuros de atualização, onde o próprio cliente não deve ser considerado duplicado.
+- É invocado pelo `CreateCustomerCommandHandler` (camada de Application) antes da persistência, respeitando o fluxo: *Application orquestra, Domain Service contém a regra, Aggregate encapsula o estado*.
 
 ---
 
@@ -133,3 +148,179 @@ Para evitar a quebra do isolamento e o antipadrão *Big Ball of Mud*, foram toma
 - **Anti-Corruption Layer (ACL):** Integrações instáveis de terceiros, como a emissão de Nota Fiscal via SaaS, foram isoladas usando portas e adaptadores (`INotaFiscalGateway`), protegendo o Bounded Context Financeiro das oscilações de APIs de prefeituras e garantindo uma linguagem uniforme dentro do domínio.
 
 Caso o escalonamento da equipe exija uma migração futura para serviços independentes, o *Strangler Fig Pattern* poderá ser aplicado facilmente, extraindo-se um dos Bounded Contexts coesos e substituindo as invocações locais por Sagas assíncronas baseadas em eventos de domínio.
+
+---
+
+## 9. Tradução do Modelo para Código
+
+Um dos objetivos centrais do DDD é garantir que o modelo conceitual seja rastreável diretamente no código-fonte. Nesta seção, demonstro como cada elemento da Linguagem Ubíqua e das decisões táticas descritas ao longo deste relatório se materializaram em estruturas concretas de C#.
+
+### 9.1 Diagrama de Classes do Core Domain
+
+O diagrama abaixo representa a estrutura de classes implementada no `Bounded Context Comercial`. Ele evidencia a coerência entre o modelo conceitual, a Linguagem Ubíqua e o código produzido:
+
+```mermaid
+classDiagram
+    direction TB
+
+    %% ── SharedKernel (SeedWork) ──────────────────────────────────────
+    namespace SharedKernel {
+        class Entity {
+            <<abstract>>
+            +Guid Id
+            +DateTime CreatedAt
+            +DateTime UpdatedAt
+            +bool IsTransient()
+        }
+
+        class ValueObject {
+            <<abstract>>
+            #IEnumerable~object~ GetEqualityComponents()*
+        }
+
+        class IAggregateRoot {
+            <<interface>>
+        }
+
+        class IRepository~T~ {
+            <<interface>>
+        }
+
+        class ISpecification~T~ {
+            <<interface>>
+            +bool IsSatisfiedBy(T entity)
+        }
+    }
+
+    %% ── Aggregate Root: Customer ─────────────────────────────────────
+    namespace CommercialDomain {
+        class Customer {
+            <<AggregateRoot>>
+            +CustomerType Type
+            +string LegalName
+            +string? TradeName
+            +Document? Document
+            +TaxInscription? MunicipalInscription
+            +TaxInscription? StateInscription
+            +Address Address
+            +CustomerStatus Status
+            +IReadOnlyCollection~Phone~ Phones
+            +IReadOnlyCollection~Email~ Emails
+            +AddGeneralPhone(Phone)
+            +AddGeneralEmail(Email)
+            +SetMunicipalInscription(TaxInscription)
+            +UpdateAddress(Address)
+            +SetStatus(CustomerStatus)
+        }
+
+        %% ── Value Objects ────────────────────────────────────────────
+        class Document {
+            <<ValueObject>>
+            +string Value
+            +DocumentType Type
+            +Create(string)$ Document
+            +GetFormattedValue() string
+        }
+
+        class Address {
+            <<ValueObject>>
+            +string Street
+            +string Number
+            +string? Complement
+            +string Neighborhood
+            +string City
+            +string State
+            +string ZipCode
+        }
+
+        class Email {
+            <<ValueObject>>
+            +string Value
+        }
+
+        class Phone {
+            <<ValueObject>>
+            +string Number
+            +PhoneType Type
+        }
+
+        class TaxInscription {
+            <<ValueObject>>
+            +string Value
+        }
+
+        %% ── Repository Port ──────────────────────────────────────────
+        class ICustomerRepository {
+            <<interface>>
+            +GetByIdAsync(Guid) Customer?
+            +GetAllAsync() IEnumerable~Customer~
+            +AddAsync(Customer)
+            +Update(Customer)
+            +Remove(Customer)
+            +ExistsByDocumentAsync(Document, Guid?) bool
+        }
+
+        %% ── Specification ────────────────────────────────────────────
+        class CustomerEligibleForServiceSpecification {
+            <<Specification>>
+            +bool IsSatisfiedBy(Customer customer)
+        }
+
+        %% ── Domain Service ───────────────────────────────────────────
+        class CustomerDocumentUniquenessService {
+            <<DomainService>>
+            -ICustomerRepository _customerRepository
+            +EnforceUniquenessAsync(Document, Guid?)
+        }
+    }
+
+    %% ── Relacionamentos de Herança e Implementação ───────────────────
+    Entity <|-- Customer
+    IAggregateRoot <|.. Customer
+    ValueObject <|-- Document
+    ValueObject <|-- Address
+    ValueObject <|-- Email
+    ValueObject <|-- Phone
+    ValueObject <|-- TaxInscription
+    IRepository~T~ <|-- ICustomerRepository
+    ISpecification~T~ <|.. CustomerEligibleForServiceSpecification
+
+    %% ── Relacionamentos de Composição e Dependência ──────────────────
+    Customer "1" *-- "0..1" Document : possui
+    Customer "1" *-- "1" Address : possui
+    Customer "1" *-- "0..*" Email : possui
+    Customer "1" *-- "0..*" Phone : possui
+    Customer "1" *-- "0..1" TaxInscription : MunicipalInscription
+    Customer "1" *-- "0..1" TaxInscription : StateInscription
+
+    CustomerEligibleForServiceSpecification ..> Customer : avalia
+    CustomerDocumentUniquenessService ..> ICustomerRepository : depende de
+    CustomerDocumentUniquenessService ..> Document : recebe como parâmetro
+```
+
+### 9.2 Rastreabilidade entre Linguagem Ubíqua e Código
+
+A tabela a seguir mapeia cada conceito da Linguagem Ubíqua definida na Seção 2 à sua representação direta no código C# produzido:
+
+| Conceito (Linguagem Ubíqua) | Artefato de Código | Namespace / Camada |
+|---|---|---|
+| `Customer` (Aggregate Root) | `class Customer : Entity, IAggregateRoot` | `Commercial.Domain.Customers` |
+| `Document` (CPF/CNPJ) | `class Document : ValueObject` | `Commercial.Domain.Customers.ValueObjects` |
+| `Address` (Endereço) | `class Address : ValueObject` | `Commercial.Domain.Customers.ValueObjects` |
+| `Email` | `class Email : ValueObject` | `Commercial.Domain.Customers.ValueObjects` |
+| `Phone` | `class Phone : ValueObject` | `Commercial.Domain.Customers.ValueObjects` |
+| Regra de elegibilidade para `Service` | `CustomerEligibleForServiceSpecification : ISpecification<Customer>` | `Commercial.Domain.Customers.Specifications` |
+| Unicidade de documento por tenant | `CustomerDocumentUniquenessService` | `Commercial.Domain.Customers.Services` |
+| Porta de persistência do `Customer` | `ICustomerRepository : IRepository<Customer>` | `Commercial.Domain.Customers` |
+
+### 9.3 Decisões de Implementação Relevantes
+
+As principais decisões de implementação que evidenciam a tradução fiel do modelo para o código são:
+
+**Imutabilidade dos Value Objects:** Todos os Value Objects (`Document`, `Address`, `Email`, `Phone`, `TaxInscription`) herdam de `ValueObject` e expõem suas propriedades apenas como getters (`{ get; }`). Sua criação é controlada por construtores privados ou factory methods estáticos (ex: `Document.Create(string)`), que realizam toda a validação de domínio na instanciação — garantindo que um objeto inválido jamais seja criado.
+
+**Invariantes encapsuladas no Aggregate Root:** A classe `Customer` mantém suas propriedades com `private set`, de modo que o único caminho para alterar o estado do agregado é por meio dos seus métodos de domínio explícitos (`UpdateAddress`, `SetStatus`, `AddGeneralEmail`, etc.). Isso impede que qualquer código externo ao agregado quebre suas invariantes.
+
+**Specification como regra explícita e testável:** A `CustomerEligibleForServiceSpecification` implementa a interface genérica `ISpecification<T>` definida no `SharedKernel`. Ela encapsula a regra de que um `Customer` deve possuir um `Document` válido, um `LegalName` e um `Address` cadastrados para ser elegível ao agendamento de serviços. Por ser uma classe isolada, ela é testada unitariamente de forma trivial e pode ser reutilizada por múltiplos Application Services.
+
+**Domain Service como orquestrador stateless:** O `CustomerDocumentUniquenessService` é a prova concreta de um comportamento que não pertence a nenhum agregado isolado: a verificação de unicidade de CPF/CNPJ requer consultar o repositório, o que um `Aggregate Root` — por princípio — não pode fazer. O serviço é `stateless`, depende exclusivamente da porta `ICustomerRepository` via injeção de construtor, e sua invocação ocorre na camada de Application (`CreateCustomerCommandHandler`), mantendo a separação de responsabilidades intacta.
