@@ -48,7 +48,7 @@ O painel web gerencia 4 dos 5 setores funcionais do ERP:
 ### 2. Setor Comercial
 *   **CRM e Clientes:** CRUD completo de clientes com histórico centralizado de ordens de serviço.
 *   **Renovação Proativa:** Painel mensal de vencimentos de garantias baseado nos objetos de serviço configurados.
-*   **Roteiro Diário de Serviços:** Painel com filtros avançados (Bairro, Operador, Objeto, Status) para acompanhamento em tempo real da agenda da empresa.
+*   **Itinerário Diário de Serviços:** Painel com filtros avançados (Bairro, Operador, Objeto, Status) para acompanhamento em tempo real da agenda da empresa.
 
 ### 3. Setor Financeiro
 *   **Contas a Receber:** Gestão de faturamento agrupado mensalmente para serviços com status "Pronto para Faturar".

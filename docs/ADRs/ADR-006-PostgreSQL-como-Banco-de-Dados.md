@@ -10,7 +10,7 @@
 
 O Control Service ERP exige um banco de dados relacional capaz de sustentar simultaneamente três classes de carga distintas:
 
-1. **Transações OLTP de alta integridade:** Faturamento, emissão de Ordens de Serviço, lançamento de contas a receber/pagar e registro de roteiros são operações que exigem garantias ACID completas. Uma nota fiscal emitida deve estar atômica e consistentemente associada ao pedido que a gerou — sem estados parciais.
+1. **Transações OLTP de alta integridade:** Faturamento, emissão de Ordens de Serviço, lançamento de contas a receber/pagar e registro de itinerários são operações que exigem garantias ACID completas. Uma nota fiscal emitida deve estar atômica e consistentemente associada ao pedido que a gerou — sem estados parciais.
 
 2. **Isolamento lógico de múltiplos CNPJs (Multitenancy):** Conforme definido na ADR-002, o isolamento entre perfis CNPJ é implementado via `tenant_id`. Isso exige suporte robusto a índices compostos (incluindo o `tenant_id`) e, idealmente, suporte a **índices parciais** para otimizar queries de um tenant específico sem varrer toda a tabela.
 

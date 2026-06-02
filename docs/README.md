@@ -23,7 +23,7 @@ O sistema é composto por **três contêineres independentes**: uma **SPA Web** 
 ### 1.3 Restrições Organizacionais e Técnicas
 
 - **Equipe de Um:** Desenvolvedor único. Inviabiliza infraestrutura distribuída complexa e direciona a terceirização de integrações caóticas (como a emissão de notas fiscais).  
-- **Operação Offline de Campo:** Os operadores de campo atuam em subsolos, reservatórios e áreas rurais, com sinal instável de rede móvel. O App Móvel adota arquitetura “*Offline-First*” com sincronização explícita em três fases (ver ADR-003): **Fase 1** — download do roteiro no início do turno (SQLite local); **Fase 2** — execução totalmente offline com persistência local de insumos, fotos e status; **Fase 3** — upload das baixas ao retornar a área com sinal, com confirmação de recebimento antes de qualquer exclusão local.
+- **Operação Offline de Campo:** Os operadores de campo atuam em subsolos, reservatórios e áreas rurais, com sinal instável de rede móvel. O App Móvel adota arquitetura “*Offline-First*” com sincronização explícita em três fases (ver ADR-003): **Fase 1** — download do itinerário no início do turno (SQLite local); **Fase 2** — execução totalmente offline com persistência local de insumos, fotos e status; **Fase 3** — upload das baixas ao retornar a área com sinal, com confirmação de recebimento antes de qualquer exclusão local.
 
 ---
 
@@ -133,7 +133,7 @@ A arquitetura é comunicada em três níveis do Modelo C4 ([link do modelo C4](h
 
 **Nível 1 \- Contexto:** O Control Service ERP de forma ampla, com dois atores externos (Escritório/Admin e Operador de Campo) e um sistema externo (API de Notas Fiscais SaaS). Evidencia a fronteira entre o sistema e o mundo externo.
 
-**Nível 2 \- Contêineres:** Abre o sistema nos três contêineres independentes: SPA Web, App Móvel e API Backend. Os dois clientes consomem a API via REST/JSON. A API acessa o PostgreSQL unificado. O App Móvel persiste o roteiro e as baixas no SQLite.
+**Nível 2 \- Contêineres:** Abre o sistema nos três contêineres independentes: SPA Web, App Móvel e API Backend. Os dois clientes consomem a API via REST/JSON. A API acessa o PostgreSQL unificado. O App Móvel persiste o itinerário e as baixas no SQLite.
 
 **Nível 3 — Componentes (API Backend):** Detalha os cinco módulos de domínio e o Motor de Templates como componentes internos. Evidencia as regras de comunicação: o App Móvel conecta exclusivamente ao Módulo Operacional; a SPA conecta aos módulos Gerenciamento, Comercial, Financeiro e Relatórios; o Módulo Financeiro é o único que acessa o SaaS externo de notas fiscais. Os três níveis são consistentes entre si, o que aparece como "API Backend" no Nível 2 é exatamente o que está decomposto como cinco módulos no Nível 3\.
 

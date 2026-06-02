@@ -6,8 +6,8 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // PERSONAS
         // =============================================
-        admin = person "Escritório / Administrador" "Realiza gestao operacional, agenda roteiros e monitora faturamento."
-        operador = person "Operador de Campo" "Recebe rotas, atende no cliente de forma offline e sincroniza a baixa dos servicos."
+        admin = person "Escritório / Administrador" "Realiza gestao operacional, agenda itinerários e monitora faturamento."
+        operador = person "Operador de Campo" "Recebe itinerários, atende no cliente de forma offline e sincroniza a baixa dos servicos."
 
         // =============================================
         // SISTEMAS EXTERNOS
@@ -23,11 +23,11 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
                 tags "Web Browser"
             }
 
-            mobile = container "App Móvel de Campo" "App offline-first para operadores de campo. Armazena rotas do dia localmente e sincroniza execucoes ao reconectar." "React Native / Expo" {
+            mobile = container "App Móvel de Campo" "App offline-first para operadores de campo. Armazena itinerários do dia localmente e sincroniza execucoes ao reconectar." "React Native / Expo" {
                 tags "Mobile App"
             }
 
-            mobile_db = container "Banco de Dados Local (Móvel)" "Armazena o roteiro do dia e as baixas de servico coletadas offline, antes da sincronizacao com o backend." "SQLite" {
+            mobile_db = container "Banco de Dados Local (Móvel)" "Armazena o itinerário do dia e as baixas de servico coletadas offline, antes da sincronizacao com o backend." "SQLite" {
                 tags "Database"
             }
 
@@ -39,7 +39,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
 
                 c_gerenciamento = component "Modulo de Gerenciamento" "Gerencia configuracoes de tenant, perfis CNPJ, aliquotas de NF e templates de documentos. Autentica via JWT e injeta tenant_id nas requisicoes." "ASP.NET Core 10 / EF Core 10"
 
-                c_comercial = component "Modulo Comercial" "Gerencia clientes, contratos e roteiros de servico. Agrupa propostas e gera fluxos de servicos pendentes." "ASP.NET Core 10 / EF Core 10"
+                c_comercial = component "Modulo Comercial" "Gerencia clientes, contratos e itinerários de servico. Agrupa propostas e gera fluxos de servicos pendentes." "ASP.NET Core 10 / EF Core 10"
 
                 c_operacional = component "Modulo Operacional" "Processa ordens de servico e a sincronizacao offline do aplicativo móvel. Registra uso de insumos quimicos." "ASP.NET Core 10 / EF Core 10"
 
@@ -57,7 +57,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // Relacionamentos implícitos se propagam para os níveis inferiores automaticamente.
         // =============================================
         admin -> erp "Acessa a interface de gestao" "HTTPS"
-        operador -> erp "Consulta rotas e registra execucoes" "HTTPS (sincronização)"
+        operador -> erp "Consulta itinerários e registra execucoes" "HTTPS (sincronização)"
         erp -> nf_api "Delega emissao de NFS-e com aliquotas do perfil CNPJ" "HTTPS / REST"
 
         // =============================================
@@ -65,7 +65,7 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         erp.spa -> erp.api "Consome APIs administrativas e financeiras" "REST / JSON"
         erp.mobile -> erp.api "Sincroniza dados da O.S. e insumos" "REST / JSON"
-        erp.mobile -> erp.mobile_db "Persiste roteiro e baixas offline" "SQLite"
+        erp.mobile -> erp.mobile_db "Persiste itinerário e baixas offline" "SQLite"
         erp.api -> erp.db "Leitura e escrita de todos os modulos" "Entity Framework Core / Dapper"
 
         // =============================================
@@ -73,11 +73,11 @@ workspace "Control Service ERP" "Arquitetura do sistema de gestao integrado para
         // =============================================
         // Conexoes dos Clientes (Containers) para os Componentes especificos da API (Nivel 3)
         erp.spa -> erp.api.c_gerenciamento "Realiza login, gerencia tenants e templates" "HTTPS / REST / JSON"
-        erp.spa -> erp.api.c_comercial "Gerencia clientes, contratos e roteiros diarios" "HTTPS / REST / JSON"
+        erp.spa -> erp.api.c_comercial "Gerencia clientes, contratos e itinerários diarios" "HTTPS / REST / JSON"
         erp.spa -> erp.api.c_financeiro "Monitora fluxo de caixa e dispara faturamento" "HTTPS / REST / JSON"
         erp.spa -> erp.api.c_relatorios "Busca relatorios gerenciais e RAAE" "HTTPS / REST / JSON"
 
-        erp.mobile -> erp.api.c_operacional "Busca roteiro offline e envia baixas de servicos" "HTTPS / REST / JSON"
+        erp.mobile -> erp.api.c_operacional "Busca itinerário offline e envia baixas de servicos" "HTTPS / REST / JSON"
 
         // Comunicacao entre Componentes da API (Acoplamento fraco e regras de negocio)
         erp.api.c_gerenciamento -> erp.api.c_comercial "Injeta claims de perfil e tenant_id"

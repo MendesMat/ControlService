@@ -22,7 +22,7 @@ O sistema foi estruturado em **cinco setores funcionais** independentes, organiz
 
 1. **Gerenciamento** \- Configuração e controle centralizado  
 2. **Comercial** \- Operações de vendas e relacionamento com clientes  
-3. **Operacional** \- Execução de roteiros e serviços  
+3. **Operacional** \- Execução de itinerários e serviços  
 4. **Financeiro** \- Fluxo de caixa e obrigações  
 5. **Relatórios** \- Conformidade regulatória e análise de desempenho
 
@@ -73,7 +73,7 @@ Usuários com escopo limitado ao aplicativo móvel/de campo.
 **Funcionalidades:**
 
 * Gerenciamento exclusivo via aplicativo operacional  
-* Registros de consumo de produtos/serviços em roteiros
+* Registros de consumo de produtos/serviços em itinerários
 
 ### 1.5 Naturezas de Serviço e Objetos
 
@@ -116,7 +116,7 @@ Templates dinâmicos de documentos por natureza de serviço e CNPJ.
 
 ## 2\. Setor Comercial
 
-Gerenciamento de clientes, propostas e roteiros operacionais.
+Gerenciamento de clientes, propostas e itinerários operacionais.
 
 ### 2.1 Gerenciamento de Clientes
 
@@ -140,7 +140,7 @@ Visualização prospectiva de vencimentos de garantia.
 * Agenda mensal de términos de garantias  
 * Facilita renovação proativa de serviços
 
-### 2.3 Roteiro de Serviços
+### 2.3 Itinerário de Serviços
 
 Núcleo operacional do sistema com visualização diária de serviços agendados.
 
@@ -154,7 +154,7 @@ Núcleo operacional do sistema com visualização diária de serviços agendados
   * Operador de campo  
   * Bairro/localização  
   * Horário  
-  * Identificadores: pedido, roteiro, ordem de serviço  
+  * Identificadores: pedido, itinerário, ordem de serviço  
 * Visualização de status de execução  
 * Geração de documentação pertinente
 
@@ -239,7 +239,7 @@ Serviço Criado (Comercial)
 
     ↓
 
-Agendado em Roteiro (Comercial)
+Agendado em Itinerário (Comercial)
 
     ↓
 
@@ -281,9 +281,9 @@ Relatórios & Análise (Relatórios)
 **Descrição:** Diferença clara entre usuários (acesso web) e operadores (acesso via aplicativo). Garante que operadores de campo não acessem dados comerciais sensíveis. Além da hierarquia de funções entre perfis dos usuários web.  
 Influencia o controle de acesso granular baseado em papéis.
 
-**Execução de Roteiros**  
+**Execução de Itinerários**  
 **Atributo:** Confiabilidade | **Categoria:** Operacional  
-**Descrição:** Essencial na execução de roteiros de campo para garantir a integridade dos dados coletados pelos operadores. Influência de estratégias de persistência offline/sincronização.
+**Descrição:** Essencial na execução de itinerários de campo para garantir a integridade dos dados coletados pelos operadores. Influência de estratégias de persistência offline/sincronização.
 
 ---
 
