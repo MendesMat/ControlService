@@ -1,313 +1,423 @@
-# ControlService (Monorepo)
+# ControlService — Projeto de Pós-Graduação
 
-O **ControlService** é um ecossistema completo para gestão de clientes. O projeto está estruturado no modelo **Monorepo**, contendo a API C# (`backend/`), a interface web (`frontend-web/`) e o aplicativo móvel (`mobile-app/`).
-
-O backend foi desenvolvido com **.NET 10** seguindo a **Clean Architecture** em camadas e uma infraestrutura **Cloud-Native** completa. O projeto contempla conteinerização, orquestração Kubernetes, observabilidade com Prometheus e Grafana, pipeline de entrega contínua via Jenkins e testes de capacidade com k6 e Locust.
-
----
-
-## Stack de Tecnologias
-
-| Camada | Tecnologia |
-|---|---|
-| **API** | .NET 10, ASP.NET Core, Scalar (OpenAPI) |
-| **Cache** | Redis 7 Alpine |
-| **Conteinerização** | Docker 29 (Multi-Stage Build, Alpine Linux) |
-| **Orquestração** | Kubernetes (Docker Desktop / Minikube) |
-| **Observabilidade** | Prometheus, Grafana 10, `prometheus-net.AspNetCore` |
-| **CI/CD** | Jenkins 2 (Pipeline Declarativo) |
-| **Stress Testing** | k6 (headless/CLI), Locust (interface gráfica) |
-| **Arquitetura** | Clean Architecture, CQRS, MediatR |
+**Disciplina:** Integração Contínua, DevOps e Computação em Nuvem [26E1_3]  
+**Aluno:** Matheus Mendes  
+**Imagem Docker Hub:** [`mendesmat/controlservice:1.0.0`](https://hub.docker.com/r/mendesmat/controlservice)
 
 ---
 
-## Pré-Requisitos
+## 🚀 Início Rápido
 
-| Dependência | Verificação | Obrigatório |
+> Execute **um único script** para implantar tudo e receber as instruções:
+
+```powershell
+# 1. Abra o PowerShell na raiz do projeto
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+# 2. Execute o setup completo (deploy + dashboard Grafana + guia)
+./setup-projeto.ps1
+```
+
+O script faz automaticamente:
+- ✅ Valida pré-requisitos (kubectl, python, docker)
+- ✅ Aplica todos os manifests Kubernetes (Redis, API, Prometheus, Grafana)
+- ✅ Aguarda todos os pods ficarem `Running`
+- ✅ Verifica o health check da API
+- ✅ Importa o dashboard no Grafana
+- ✅ Exibe as URLs e comandos para avaliar cada critério
+
+**Pré-requisito mínimo:** Docker Desktop com Kubernetes ativado (Settings → Kubernetes → Enable Kubernetes).
+
+---
+
+## Pré-Requisitos para Avaliação
+
+| Dependência | Verificação | Necessário para |
 |---|---|---|
-| Docker Desktop (com K8s ativado) | `kubectl get nodes` | ✅ Sim |
-| Autenticação Docker Hub | `docker login` | ✅ Sim |
-| k6 | `k6 version` | ⚠️ Stress test CLI |
-| Python 3 + Locust | `locust --version` | ⚠️ Stress test UI |
+| kubectl configurado | `kubectl get nodes` | Verificar K8s |
+| Docker Desktop | `docker info` | Build/Compose local |
+| Python 3 | `python --version` | Importar dashboard Grafana |
+| k6 | `k6 version` | Stress test via script |
+| Locust | `locust --version` | Stress test via interface gráfica |
 
----
-
-## Workflow de Implantação
-
-O projeto é estruturado em 5 fases sequenciais que refletem um ciclo de entrega profissional real: do código-fonte ao sistema monitorado em produção.
-
-```
-[Código-Fonte] → [Imagem Docker] → [Cluster K8s] → [Observabilidade] → [Testes de Carga]
-      │                │                  │                  │                   │
-  Dockerfile     DockerHub         4 réplicas        Prometheus            k6 / Locust
-  Unit Tests     build-and-push    RollingUpdate      Grafana               thresholds
-```
-
----
-
-## Fase 1 — Conteinerização
-
-A aplicação é empacotada como uma imagem Docker imutável usando **Multi-Stage Build**: o estágio de build (`sdk:10.0-alpine`) executa os testes de unidade e compila a aplicação; apenas o artefato publicado é copiado para o estágio de runtime (`aspnet:10.0-alpine`), mantendo a imagem final enxuta e sem ferramentas de desenvolvimento.
-
-**Imagem publicada:** [`mendesmat/controlservice:1.0.0`](https://hub.docker.com/r/mendesmat/controlservice)
-
+**Instalar k6 (Windows):**
 ```bash
-# Construir e publicar uma nova versão
+winget install k6 --source winget
+```
+
+**Instalar Locust:**
+```bash
+pip install locust
+```
+
+---
+
+## Critério 1 — Docker: Imagem personalizada + Docker Hub
+
+A aplicação é empacotada como imagem Docker com **Multi-Stage Build**:
+- **Estágio 1 (builder):** SDK Alpine → restaura pacotes, executa testes unitários, publica o binário
+- **Estágio 2 (runtime):** ASP.NET Alpine → copia apenas o binário publicado (sem SDK, sem código-fonte)
+
+**Imagem publicada no Docker Hub:**
+```bash
+docker pull mendesmat/controlservice:1.0.0
+docker inspect mendesmat/controlservice:1.0.0 | findstr "Labels"
+```
+
+**Reconstruir e publicar (opcional):**
+```bash
 ./backend/build-and-push.sh 1.0.0
 ```
 
-### Ambiente Local com Docker Compose
+---
 
-Para desenvolvimento local, o `docker-compose.yml` orquestra a API e o Redis com recursos de armazenamento explícitos:
+## Critério 2 — Docker: Volumes e Binds
 
-- **Volume nomeado** (`redis-data:/data`): persiste os dados do Redis entre reinicializações do container.
-- **Bind Mount** (`./logs:/app/logs`): expõe os logs da aplicação diretamente no sistema de arquivos do host.
-- **Bind Mount** (`./backend/src/ControlService.API/appsettings.json:/app/appsettings.json`): permite alterar configurações sem reconstruir a imagem.
+O `docker-compose.yml` demonstra ambos os tipos de armazenamento Docker:
 
+| Tipo | Declaração | Finalidade |
+|---|---|---|
+| **Bind Mount** | `./logs:/app/logs` | Logs da API acessíveis no host |
+| **Bind Mount** | `./backend/src/.../appsettings.json:/app/appsettings.json` | Configuração sem rebuild |
+| **Named Volume** | `redis-data:/data` | Persistência do Redis entre reinicializações |
+
+**Rodar localmente com Docker Compose:**
 ```bash
 docker-compose up -d
 ```
 
-| Serviço | URL Local |
+| Serviço | URL |
 |---|---|
 | API REST | `http://localhost:8080/api/customers` |
 | Health Check | `http://localhost:8080/healthz` |
 | Métricas | `http://localhost:8080/metrics` |
-| Documentação (Scalar) | `http://localhost:8080/docs` |
+| Documentação OpenAPI | `http://localhost:8080/docs` |
 
 ---
 
-## Fase 2 — Orquestração com Kubernetes
+## Critério 3 — Kubernetes: Deployment com 4 Réplicas
 
-Os manifestos declarativos constroem a infraestrutura completa do cluster na ordem correta via script de deploy, agora divididos em `infra-shared/k8s/` e `backend/k8s/`.
-
+**Verificar estado atual do cluster:**
 ```bash
-# Deploy completo (Windows)
-./deploy-all.ps1
+kubectl get deployments
+kubectl get pods -l app=controlservice
+```
 
-# Deploy via script Bash (Linux/macOS/WSL)
+**Resultado esperado:**
+```
+NAME                             READY   UP-TO-DATE   AVAILABLE
+controlservice-deployment        4/4     4            4
+```
+
+**Deploy completo (caso necessário recriar do zero):**
+```bash
+# Windows (PowerShell)
+./setup-projeto.ps1
+
+# Linux / macOS / WSL
 ./deploy.sh
-
-# Validação sem aplicar (dry-run)
-./deploy.sh --dry-run
 ```
 
-### Recursos Kubernetes Utilizados
-
-| Recurso | Manifesto | Descrição |
-|---|---|---|
-| `Deployment` | `infra-shared/k8s/01-redis-deployment.yaml` | Pod do Redis com resource limits |
-| `Service` (ClusterIP) | `infra-shared/k8s/02-redis-service.yaml` | DNS interno `redis-service:6379` |
-| `Deployment` | `backend/k8s/03-app-deployment.yaml` | 4 réplicas da API com RollingUpdate |
-| `Service` (NodePort) | `backend/k8s/04-app-service.yaml` | Exposição externa na porta `30080` |
-| `PersistentVolumeClaim` | `infra-shared/k8s/05-prometheus-pvc.yaml` | Volume de 5Gi para o banco TSDB do Prometheus |
-| `ConfigMap` | `infra-shared/k8s/06-prometheus-configmap.yaml` | Configuração de scraping do Prometheus |
-| `Deployment` | `infra-shared/k8s/07-prometheus-deployment.yaml` | Pod do Prometheus |
-| `Service` (ClusterIP) | `infra-shared/k8s/08-prometheus-service.yaml` | DNS interno `prometheus-service:9090` |
-| `Deployment` | `infra-shared/k8s/09-grafana-deployment.yaml` | Pod do Grafana |
-| `Service` (NodePort) | `infra-shared/k8s/10-grafana-service.yaml` | Dashboard exposto na porta `30030` |
-
-### Alta Disponibilidade
-
-A API opera com **4 réplicas** sob estratégia `RollingUpdate`. Durante uma atualização, o Kubernetes substitui os Pods um a um (`maxUnavailable: 1`, `maxSurge: 1`), garantindo disponibilidade contínua do serviço. O kube-proxy distribui o tráfego entre as réplicas via round-robin interno.
-
-### Health Checks (Probes)
-
-Ambas as probes consultam o endpoint `/healthz` e são fundamentais para a resiliência automática do cluster:
-
-**Readiness Probe** — controla o ingresso de tráfego. Um Pod só entra no pool de balanceamento do Service após retornar `HTTP 200` neste endpoint. Durante a inicialização do runtime .NET, nenhuma requisição externa é roteada para o Pod.
-
-```yaml
-readinessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
-  initialDelaySeconds: 10
-  periodSeconds: 10
-  failureThreshold: 3
-```
-
-**Liveness Probe** — monitora a saúde contínua. Se a aplicação entrar em deadlock ou parar de responder (ex.: esgotamento de threads), o Kubernetes reinicia o Pod automaticamente após 3 falhas consecutivas, sem intervenção manual.
-
-```yaml
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
-  initialDelaySeconds: 15
-  periodSeconds: 20
-  failureThreshold: 3
-```
-
-### Estado do Cluster (Produção)
-
-```
-NAME                                         READY   STATUS    AGE
-controlservice-deployment-7c6b66778c-gk8qm   1/1     Running   19d
-controlservice-deployment-7c6b66778c-rwqsm   1/1     Running   19d
-controlservice-deployment-7c6b66778c-sghwt   1/1     Running   19d
-controlservice-deployment-7c6b66778c-zs2p2   1/1     Running   19d
-grafana-deployment-576f7f4958-x6rlp          1/1     Running   19d
-prometheus-deployment-5dcfc86d88-tpz78       1/1     Running   20d
-redis-deployment-5fb684db45-9dl2r            1/1     Running   20d
-```
+O deploy aplica os manifests em ordem numérica: Redis → API → Prometheus → Grafana.
 
 ---
 
-## Fase 3 — Observabilidade
-
-A stack de monitoramento implementa o padrão **RED** (Rate, Errors, Duration) com coleta no modelo *pull* e visualização em tempo real.
-
-### Exportação de Métricas
-
-A API exporta métricas nativamente no formato Prometheus via `prometheus-net.AspNetCore`. A instrumentação é configurada em `Program.cs`:
-
-```csharp
-app.UseHttpMetrics(); // Instrumenta todas as rotas HTTP automaticamente
-app.MapMetrics();     // Expõe as métricas em GET /metrics
-```
-
-As métricas geradas incluem histogramas de latência por rota e método (`http_request_duration_seconds`), contadores de requisições por código de status e métricas de processo .NET (`process_*`, `dotnet_*`).
-
-### Prometheus — Scraping
-
-O Prometheus coleta métricas da API a cada 15 segundos via DNS interno do cluster. A configuração está em [`infra-shared/k8s/06-prometheus-configmap.yaml`](infra-shared/k8s/06-prometheus-configmap.yaml):
-
-```yaml
-scrape_configs:
-  - job_name: "controlservice-api"
-    static_configs:
-      - targets: ["controlservice-service:80"]
-```
-
-O banco de dados TSDB é persistido em um `PersistentVolume` de 5Gi, garantindo que o histórico de métricas não seja perdido em caso de reinicialização do Pod.
+## Critério 4 — Kubernetes: NodePort e ClusterIP
 
 ```bash
-# Acessar a interface do Prometheus
-kubectl port-forward service/prometheus-service 9090:9090
-# http://localhost:9090 → Status → Targets → "controlservice-api" deve estar UP
+kubectl get services
 ```
 
-### Grafana — Dashboard
-
-O Grafana está disponível na porta `30030` com datasource do Prometheus provisionado automaticamente via ConfigMap ([`infra-shared/k8s/11-grafana-datasource-config.yaml`](infra-shared/k8s/11-grafana-datasource-config.yaml)).
-
-| Acesso | URL | Credenciais |
-|---|---|---|
-| NodePort (Docker Desktop) | `http://localhost:30030` | `admin` / `admin` |
-| Port-forward | `kubectl port-forward service/grafana-service 3000:3000` → `http://localhost:3000` | `admin` / `admin` |
-
-**Dashboard pré-configurado** ([`infra-shared/k8s/grafana-dashboard.json`](infra-shared/k8s/grafana-dashboard.json)):
-
-| Painel | Métrica | Formato |
-|---|---|---|
-| Taxa de Requisições por Status HTTP | `http_request_duration_seconds_count` | Time Series |
-| Latência HTTP — P50 · P95 · P99 | `http_request_duration_seconds` (histogram) | Time Series |
-| Taxa de Erros (%) | `http_requests_total` | Gauge |
-| Memória RAM por Réplica | `process_working_set_bytes` | Time Series |
-| CPU Total das 4 Réplicas | `process_cpu_seconds_total` | Gauge |
-
-Para importar: **Dashboards → Import → Upload JSON file** → selecione `infra-shared/k8s/grafana-dashboard.json`.
-
----
-
-## Fase 4 — Entrega Contínua
-
-O pipeline declarativo em [`ci/Jenkinsfile`](ci/Jenkinsfile) automatiza o ciclo completo:
-
-```
-Build → Unit Tests → Docker Push → K8s Deploy → Stress Test (Quality Gate)
-```
-
-O estágio de stress test atua como **Quality Gate**: se os thresholds de performance falharem (P95 > 1s ou erros > 5%), o pipeline retorna `exit 1` e bloqueia a entrega, implementando o princípio *Stop the Line* de Continuous Delivery.
-
----
-
-## Fase 5 — Testes de Capacidade
-
-Os testes de stress validam o comportamento do sistema sob carga real, usando duas ferramentas complementares.
-
-### k6 — Teste via Script (Headless)
-
-Ferramenta CLI escrita em Go, integrada ao pipeline Jenkins para execução autônoma.
-
-**Cenário de carga (`backend/stress/k6-stress-test.js`):**
-
-| Stage | Duração | Usuários (VUs) | Objetivo |
+| Service | Tipo | Porta | Finalidade |
 |---|---|---|---|
-| Ramp-Up | 1 min | 0 → 50 | Aquecimento do JIT .NET |
-| Baseline | 3 min | 50 | Comportamento em steady-state |
-| Spike | 30s | 50 → 500 | Simular pico abrupto de tráfego |
-| Pico | 3 min | 500 | Evidenciar gargalo e limites |
-| Ramp-Down | 1 min | 500 → 0 | Validar resiliência pós-carga |
+| `controlservice-service` | **NodePort** | `30080` | API acessível externamente |
+| `redis-service` | **ClusterIP** | `6379` | Redis interno ao cluster |
+| `prometheus-service` | **ClusterIP** | `9090` | Prometheus interno ao cluster |
+| `grafana-service` | **NodePort** | `30030` | Grafana acessível externamente |
 
-**Thresholds configurados:**
-- `http_req_duration` P95 < 1000ms
+**Testar acesso externo à API:**
+```bash
+kubectl port-forward service/controlservice-service 8080:80
+# Em outro terminal:
+curl http://localhost:8080/healthz
+# Resposta esperada: {"status":"healthy"}
+```
+
+---
+
+## Critério 5 — Kubernetes: Liveness e Readiness Probes
+
+```bash
+kubectl describe deployment controlservice-deployment | findstr -i "liveness\|readiness"
+```
+
+**Resultado esperado:**
+```
+Liveness:   http-get http://:8080/healthz delay=15s timeout=5s period=20s #failure=3
+Readiness:  http-get http://:8080/healthz delay=10s timeout=5s period=10s #failure=3
+```
+
+Ambas as probes consultam `/healthz`. A **Readiness** impede que tráfego chegue ao Pod antes do runtime .NET inicializar. A **Liveness** reinicia o Pod automaticamente em caso de deadlock.
+
+---
+
+## Critério 6 — Prometheus: Exportação e Scrape de Métricas
+
+A API exporta métricas no formato Prometheus via `prometheus-net.AspNetCore`:
+
+```bash
+kubectl port-forward service/controlservice-service 8080:80
+curl http://localhost:8080/metrics
+# Retorna centenas de métricas: process_*, dotnet_gc_*, http_request_duration_seconds, etc.
+```
+
+**Verificar scrape ativo no Prometheus:**
+```bash
+kubectl port-forward service/prometheus-service 9090:9090
+```
+Acesse `http://localhost:9090/targets` → o target `controlservice-api` deve estar **UP**.
+
+---
+
+## Critério 7 — Prometheus: PVC para Persistência
+
+```bash
+kubectl get pvc
+```
+
+**Resultado esperado:**
+```
+NAME              STATUS   CAPACITY   ACCESS MODES
+prometheus-pvc    Bound    5Gi        RWO
+```
+
+O TSDB do Prometheus é persistido em 5Gi, garantindo histórico de métricas mesmo após reinicialização do Pod.
+
+---
+
+## Critério 8 — Grafana: Acesso externo, Datasource e Dashboard
+
+### Acessar o Grafana
+
+```bash
+kubectl port-forward service/grafana-service 3000:3000
+```
+
+Acesse: **`http://localhost:3000`** | Login: `admin` / `admin`
+
+> **Alternativa (se docker-desktop):** `http://localhost:30030`
+
+### Verificar Datasource
+
+O datasource Prometheus é provisionado automaticamente via ConfigMap (`11-grafana-datasource-config.yaml`).
+
+**Verificar via terminal:**
+```bash
+kubectl port-forward service/grafana-service 3000:3000
+# Em outro terminal:
+python -c "import urllib.request,base64,json; h={'Authorization':'Basic '+base64.b64encode(b'admin:admin').decode()}; r=urllib.request.Request('http://localhost:3000/api/datasources',headers=h); print(urllib.request.urlopen(r).read().decode())"
+```
+
+### Importar / Restaurar o Dashboard
+
+O dashboard com 11 painéis (RAM, CPU, RED) está em `infra-shared/k8s/grafana-dashboard.json`.
+
+**Para importar via script (recomendado):**
+```bash
+# Com port-forward ativo na porta 3000:
+kubectl port-forward service/grafana-service 3000:3000
+
+# Em outro terminal, a partir da raiz do projeto:
+cd infra-shared
+python ../push_pro_dash.py
+```
+
+Resposta esperada:
+```json
+{"status":"success","uid":"controlservice-obs-v1","url":"/d/controlservice-obs-v1/..."}
+```
+
+**Alternativa (importação manual via UI):**  
+Grafana → Dashboards → Import → Upload JSON → selecione `infra-shared/k8s/grafana-dashboard.json`
+
+### Painéis disponíveis
+
+| Seção | Painel | Métrica |
+|---|---|---|
+| Visão Geral | Requisições/s | `rate(http_requests_received_total[5m])` |
+| Visão Geral | Taxa de Erros (4xx+5xx) | por status code |
+| **Memória RAM** | **Consumo por Réplica** | `process_working_set_bytes` |
+| Memória RAM | Coleções do GC .NET | `dotnet_collection_count_total` |
+| **CPU** | **Consumo por Réplica** | `rate(process_cpu_seconds_total[5m])` |
+| **CPU** | **CPU Total (Gauge)** | soma das 4 réplicas |
+| RED | Taxa de requisições | por código HTTP |
+| RED | Latência P50/P95/P99 | `histogram_quantile` |
+
+---
+
+## Critério 9 — Pipeline Jenkins CI/CD
+
+O pipeline declarativo em [`ci/Jenkinsfile`](ci/Jenkinsfile) implementa 5 stages:
+
+```
+Checkout → Test & Build → Docker Build & Push → Deploy K8s → Stress Test (Quality Gate)
+```
+
+| Stage | Descrição |
+|---|---|
+| **Checkout** | `checkout scm` |
+| **Test & Build** | `dotnet test` nas 2 suites + `dotnet publish` |
+| **Docker Build & Push** | Build imutável + push para Docker Hub com credenciais protegidas |
+| **Deploy to Production K8s** | `kubectl set image` + `kubectl rollout status` |
+| **Capacity & Performance Test** | k6 como Quality Gate — bloqueia a entrega se P95 > 1s |
+
+O pipeline usa `post { always { cleanWs() } }` para limpeza de workspace e implementa *Stop the Line*: falhas no stress test impedem a entrega.
+
+---
+
+## Critério 10 — Stress Test
+
+### Via Script — k6 (headless, integrado ao Jenkins)
+
+**Pré-requisito:** porta `8080` disponível via port-forward.
+
+```bash
+# Terminal 1 — manter o port-forward ativo
+kubectl port-forward service/controlservice-service 8080:80
+
+# Terminal 2 — executar o teste
+k6 run --env BASE_URL=http://localhost:8080 backend/stress/k6-stress-test.js
+```
+
+**Cenário de carga:**
+
+| Stage | Duração | VUs | Objetivo |
+|---|---|---|---|
+| Ramp-Up | 1 min | 0 → 50 | Aquecimento JIT .NET |
+| Baseline | 3 min | 50 | Comportamento steady-state |
+| Spike | 30s | 50 → 500 | Pico abrupto de tráfego |
+| Pico Máximo | 3 min | 500 | **← capturar prints do Grafana aqui** |
+| Ramp-Down | 1 min | 500 → 0 | Resiliência pós-carga |
+
+**Duração total:** ~8 minutos 30 segundos
+
+**Thresholds:**
+- `http_req_duration` P95 < 1.000ms
 - `http_req_failed` < 5%
 
-```bash
-# Execução completa automatizada (detecta a URL do cluster)
-./backend/stress/run-stress-test.sh
-
-# Execução direta com URL explícita
-k6 run --env BASE_URL=http://localhost:30080 backend/stress/k6-stress-test.js
-
-# Com exportação de resultados para análise
-k6 run \
-  --env BASE_URL=http://localhost:30080 \
-  --out json=backend/stress/results/raw.json \
-  --summary-export=backend/stress/results/summary.json \
-  backend/stress/k6-stress-test.js
-```
-
-### Locust — Teste via Interface Gráfica
-
-Ferramenta Python com dashboard Web nativo para controle interativo de carga.
+### Via Interface Gráfica — Locust
 
 ```bash
+# Terminal 1 — port-forward
+kubectl port-forward service/controlservice-service 8080:80
+
+# Terminal 2 — Locust
 pip install locust
-locust -f backend/stress/locustfile.py
-# Acessar: http://localhost:8089
-# Host: http://localhost:30080
+locust -f backend/stress/locustfile.py --host http://localhost:8080
 ```
 
-A interface do Locust permite ajustar dinamicamente o número de usuários e a taxa de criação (*spawn rate*), exibindo gráficos de requisições por segundo, latência e falhas em tempo real.
+Acesse: **`http://localhost:8089`** → defina usuários e spawn rate → Start
 
 ---
 
-## Endpoints da API
+## Verificação Completa — Checklist Rápido
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/healthz` | Health check (usado pelas Probes K8s) |
-| `GET` | `/metrics` | Métricas no formato Prometheus |
-| `GET` | `/api/customers` | Listar todos os clientes |
-| `POST` | `/api/customers` | Criar novo cliente |
-| `GET` | `/api/customers/{id}` | Buscar cliente por ID |
-| `PUT` | `/api/customers/{id}` | Atualizar cliente |
-| `DELETE` | `/api/customers/{id}` | Remover cliente |
-| `GET` | `/docs` | Documentação interativa (Scalar/OpenAPI) |
+```bash
+# 1. Cluster saudável
+kubectl get all
+
+# 2. 4 réplicas rodando
+kubectl get pods -l app=controlservice
+
+# 3. Serviços expostos corretamente
+kubectl get services
+
+# 4. PVC do Prometheus vinculado
+kubectl get pvc
+
+# 5. Probes ativas
+kubectl describe deployment controlservice-deployment | findstr -i "liveness\|readiness"
+
+# 6. API respondendo
+kubectl port-forward service/controlservice-service 8080:80
+curl http://localhost:8080/healthz
+
+# 7. Métricas exportadas
+curl http://localhost:8080/metrics | findstr "process_working_set"
+
+# 8. Prometheus com scrape ativo
+kubectl port-forward service/prometheus-service 9090:9090
+# → http://localhost:9090/targets → controlservice-api = UP
+
+# 9. Grafana acessível
+kubectl port-forward service/grafana-service 3000:3000
+# → http://localhost:3000 (admin/admin)
+```
 
 ---
 
 ## Solução de Problemas
 
-**Grafana sem dados nos gráficos:**
-Verifique se o Prometheus está coletando:
+**Dashboard sem painéis no Grafana:**
+```bash
+# Re-importar o dashboard
+kubectl port-forward service/grafana-service 3000:3000
+cd infra-shared && python ../push_pro_dash.py
+```
+
+**Prometheus sem dados:**
 ```bash
 kubectl port-forward service/prometheus-service 9090:9090
-# http://localhost:9090 → Status → Targets → "controlservice-api" deve estar UP
+# Acesse http://localhost:9090/targets
+# O target "controlservice-api" deve estar UP
+# Se DOWN, verificar se a API está running:
+kubectl get pods -l app=controlservice
 ```
-O Prometheus aguarda até 15s entre coletas. Após o primeiro scrape, os dados aparecem automaticamente.
 
-**Pods em `CrashLoopBackOff`:**
+**Pod em CrashLoopBackOff:**
 ```bash
 kubectl logs -l app=controlservice --previous
 ```
 
-**Porta já em uso:**
+**Recriar toda a infraestrutura do zero:**
 ```bash
-kubectl port-forward service/grafana-service 3001:3000
+kubectl delete -f backend/k8s/ -f infra-shared/k8s/
+./setup-projeto.ps1   # Windows
+# ou: ./deploy.sh  # Linux/WSL
+```
+
+---
+
+## Estrutura do Repositório
+
+```
+ControlService/
+├── backend/
+│   ├── Dockerfile                    ← Multi-stage build (testes + publicação)
+│   ├── k8s/
+│   │   ├── 03-app-deployment.yaml    ← 4 réplicas, Liveness + Readiness probes
+│   │   └── 04-app-service.yaml       ← NodePort 30080
+│   └── stress/
+│       ├── k6-stress-test.js         ← Stress test via script (CLI/headless)
+│       └── locustfile.py             ← Stress test via interface gráfica
+├── infra-shared/
+│   └── k8s/
+│       ├── 01-redis-deployment.yaml  ← Pod Redis
+│       ├── 02-redis-service.yaml     ← ClusterIP redis-service:6379
+│       ├── 05-prometheus-pvc.yaml    ← PVC 5Gi para TSDB
+│       ├── 06-prometheus-configmap.yaml ← Configuração de scraping
+│       ├── 07-prometheus-deployment.yaml
+│       ├── 08-prometheus-service.yaml ← ClusterIP prometheus-service:9090
+│       ├── 09-grafana-deployment.yaml
+│       ├── 10-grafana-service.yaml   ← NodePort 30030
+│       ├── 11-grafana-datasource-config.yaml ← Provisioning automático
+│       └── grafana-dashboard.json   ← Dashboard com 11 painéis
+├── ci/
+│   └── Jenkinsfile                   ← Pipeline 5-stages
+├── docker-compose.yml               ← Ambiente local (volumes + binds)
+├── setup-projeto.ps1                ← Setup completo para avaliação (Windows)
+├── deploy.sh                        ← Deploy completo (Linux/WSL)
+└── push_pro_dash.py                 ← Importar dashboard no Grafana
 ```
 
 ---
