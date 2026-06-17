@@ -51,9 +51,6 @@ RUN dotnet test ./tests/ControlService.Application.Tests/ControlService.Applicat
         --logger "console;verbosity=minimal"
 
 # ── Publicação (Release) ───────────────────────────────────────────────────────
-# Nota: sem --no-restore para garantir compatibilidade cross-platform.
-# O dotnet restore anterior já baixou os pacotes; esta etapa apenas resolve
-# os assets sem depender do cache .nuget do Windows (fallbackPackageFolders).
 RUN dotnet publish ./src/ControlService.API/ControlService.API.csproj \
         --configuration Release \
         --output /app/publish \

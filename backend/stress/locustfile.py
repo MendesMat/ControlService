@@ -23,9 +23,13 @@ def generate_random_document():
 def build_customer_payload():
     unique_suffix = uuid.uuid4().hex[:UNIQUE_SUFFIX_LENGTH]
     return {
-        "name": f"Locust User {unique_suffix}",
-        "email": f"locust_{unique_suffix}@stress.com",
-        "document": generate_random_document()
+        "legalName": f"Locust User {unique_suffix}",
+        "street": "Rua do Teste de Carga",
+        "neighborhood": "Bairro Locust",
+        "city": "São Paulo",
+        "state": "SP",
+        "tradeName": f"Locust {unique_suffix}",
+        "postalCode": "01310100",
     }
 
 

@@ -1,0 +1,45 @@
+# =============================================================================
+# backend/.dockerignore
+# Exclui artefatos locais do contexto de build enviado ao Docker daemon.
+#
+# IMPORTANTE: Este arquivo deve ficar em backend/ (junto ao Dockerfile e ao
+# contexto de build). O .dockerignore da raiz do projeto é IGNORADO quando o
+# contexto passado ao `docker build` é uma subpasta (ex: `docker build backend/`).
+#
+# Causa do bug MSB4018 sem este arquivo:
+#   1. `dotnet restore` gera project.assets.json DENTRO do container (Linux Alpine)
+#   2. `COPY src/ ./src/` copia os obj/ do Windows para DENTRO do container,
+#      sobrescrevendo os assets com caminhos Windows (ex: C:\Program Files\...)
+#   3. `dotnet publish` lê os assets corrompidos → MSB4018 ResolvePackageAssets
+# =============================================================================
+
+# ── Artefatos de build gerados localmente (Windows) ───────────────────────────
+# CRÍTICO: sem isto, os project.assets.json com paths Windows sobrescrevem
+# os gerados pelo `dotnet restore` no Alpine e causam MSB4018.
+**/bin/
+**/obj/
+
+# ── Resultados de testes locais ────────────────────────────────────────────────
+**/TestResults/
+coverage/
+
+# ── IDEs e ferramentas de desenvolvimento ─────────────────────────────────────
+.vs/
+.vscode/
+.idea/
+*.user
+
+# ── Segredos e configurações sensíveis ───────────────────────────────────────
+**/secrets.json
+**/*.pfx
+**/*.pem
+**/*.key
+.env
+.env.*
+!.env.example
+
+# ── Stress tests (não fazem parte da imagem da API) ───────────────────────────
+stress/
+
+# ── Documentação ──────────────────────────────────────────────────────────────
+*.md

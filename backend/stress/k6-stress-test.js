@@ -41,33 +41,23 @@ export const options = {
   ],
 };
 
-// Dados para os testes (evita conflitos de CPF/Telefone)
+// Dados para os testes — contrato atual da API (LegalName, Street, etc.)
 function generateCustomerPayload(vu, iteration) {
   const vuPadded = String(vu).padStart(4, "0");
   const iterPadded = String(iteration).padStart(6, "0");
 
   return {
-    name: `Stress Test VU${vuPadded} IT${iterPadded}`,
-    // E-mail único: garantido único por VU+iteração
-    email: `stress.vu${vuPadded}.it${iterPadded}@k6.test`,
-    // Documento CPF fictício único baseado em VU+iteração (11 dígitos)
-    document: generateFakeCpf(vu, iteration),
-    // Telefone fictício único (11 dígitos, formato celular brasileiro)
-    phone: generateFakePhone(vu, iteration),
+    // Campos obrigatórios conforme CreateCustomerCommand e CreateCustomerCommandValidator
+    legalName: `Stress Test VU${vuPadded} IT${iterPadded}`,
+    street: "Rua dos Testes de Carga",
+    neighborhood: "Bairro K6",
+    city: "São Paulo",
+    state: "SP",
+    // Campos opcionais sem documentValue (CPF requer dígitos verificadores válidos)
+    tradeName: `VU${vuPadded} IT${iterPadded}`,
+    postalCode: "01310100",
+    number: String(vu * 10 + (iteration % 9999)),
   };
-}
-
-function generateFakeCpf(vu, iteration) {
-  // Gera um número de 11 dígitos baseado em vu+iteration para unicidade.
-  // Não passa na validação de CPF real — apenas para simular carga estrutural.
-  const base = (vu * 1000 + (iteration % 1000)) % 100000;
-  return String(base).padStart(5, "0") + String(iteration % 1000000).padStart(6, "0");
-}
-
-function generateFakePhone(vu, iteration) {
-  const areaCode = 10 + (vu % 90);
-  const number = 900000000 + ((vu * 1000 + iteration) % 99999999);
-  return `${areaCode}${number}`;
 }
 
 // Fluxo principal do teste
@@ -151,10 +141,11 @@ export default function () {
     const id = createdIds[0];
     const updatedPayload = JSON.stringify({
       id: id,
-      name: `Updated VU${__VU} IT${__ITER}`,
-      email: `updated.vu${__VU}.it${__ITER}@k6.test`,
-      document: generateFakeCpf(__VU, __ITER + 500000),
-      phone: generateFakePhone(__VU, __ITER + 500000),
+      legalName: `Updated VU${__VU} IT${__ITER}`,
+      street: "Rua Atualizada",
+      neighborhood: "Bairro Novo",
+      city: "Campinas",
+      state: "SP",
     });
 
     const res = http.put(`${API}/customers/${id}`, updatedPayload, {
