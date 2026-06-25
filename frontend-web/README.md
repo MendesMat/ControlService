@@ -16,25 +16,6 @@ O front-end web é projetado sob os mais modernos conceitos de desenvolvimento d
 
 ---
 
-## 🎨 Identidade Visual e Layout
-
-A interface segue uma linha estética premium, profissional e limpa, otimizada para alta produtividade em escritório:
-
-*   **Estrutura Base (Layout SPA):**
-    *   **Navegação Lateral Fixa (Sidebar):** Menu retrátil com largura fixa de `240px`, fundo escuro (`#111827`), texto em cinza claro (`#D1D5DB`) e ícones em `#9CA3AF`.
-    *   **Área de Conteúdo Principal:** Fundo claro/off-white (`#F9FAFB` / `#FFFFFF`) para máximo contraste e legibilidade.
-*   **Paleta de Cores Harmônica:**
-    *   **Primária:** Azul Destaque (`#2563EB`), com hover em Azul Escuro (`#1E40AF`).
-    *   **Secundária/Estrutura:** Tons de cinza estruturados (`#111827`, `#374151`, `#F3F4F6`).
-    *   **Estados (Feedback Rápido):** Sucesso (Verde `#16A34A`), Alerta (Amarelo `#D97706`) e Erro (Vermelho `#DC2626`).
-*   **Componentização e Micro-Interações:**
-    *   **Tipografia:** Utilização da fonte moderna `Inter` (com fallbacks nativos).
-    *   **Bordas e Sombras:** Cards e containers com cantos arredondados (`border-radius: 8px`) e sombras sutis (`shadow-sm`).
-    *   **Inputs Dinâmicos:** Efeito hover e focus com glow azul (`#2563EB`).
-    *   **Tabelas Responsivas:** Linhas alternadas em cinza leve com efeito hover para facilitar a leitura de planilhas e relatórios volumosos.
-
----
-
 ## ⚙️ Módulos Funcionais Implementados
 
 O painel web gerencia 4 dos 5 setores funcionais do ERP:

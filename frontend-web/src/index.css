@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 18px;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: hsl(215, 18%, 96%);
+  color: hsl(215, 25%, 12%);
+}
+
+h1 {
+  font-size: 1.75rem;
+  /* 31.5px @ 18px base */
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: hsl(215, 25%, 12%);
+}
+
+h2 {
+  font-size: 1.35rem;
+  /* 24.3px */
+  font-weight: 600;
+  line-height: 1.25;
+  color: hsl(215, 25%, 12%);
+}
+
+h3 {
+  font-size: 1.125rem;
+  /* 20.25px */
+  font-weight: 600;
+  line-height: 1.35;
+  color: hsl(215, 25%, 12%);
+}
+
+p {
+  max-width: 70ch;
+}
+
+@layer components {
+
+  /* Sidebar: módulo pai */
+  .sidebar-module-btn {
+    @apply w-full flex items-center gap-3 px-3 py-3 rounded-md font-medium transition-colors duration-150 cursor-pointer select-none;
+    font-size: 1rem;
+    /* 18px — igual ao body */
+    color: hsl(215, 14%, 45%);
+  }
+
+  .sidebar-module-btn:hover {
+    background-color: hsl(215, 18%, 94%);
+    color: hsl(215, 25%, 12%);
+  }
+
+  .sidebar-module-btn.active {
+    color: hsl(215, 25%, 12%);
+  }
+
+  /* Sidebar: submenu link */
+  .sidebar-sub-link {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-md font-normal transition-colors duration-150;
+    font-size: 1rem;
+    /* 18px */
+    color: hsl(215, 14%, 48%);
+  }
+
+  .sidebar-sub-link:hover {
+    background-color: hsl(215, 18%, 94%);
+    color: hsl(215, 25%, 12%);
+  }
+
+  .sidebar-sub-link.active-link {
+    background-color: hsl(221, 83%, 95%);
+    color: hsl(221, 83%, 48%);
+    font-weight: 500;
+  }
+
+  /* Badge de status */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold;
+  }
+
+  .badge-success {
+    background-color: hsl(142, 71%, 95%);
+    color: hsl(142, 71%, 34%);
+  }
+
+  .badge-alert {
+    background-color: hsl(38, 92%, 93%);
+    color: hsl(38, 70%, 35%);
+  }
+
+  .badge-error {
+    background-color: hsl(348, 83%, 96%);
+    color: hsl(348, 83%, 42%);
+  }
+
+  .badge-info {
+    background-color: hsl(221, 83%, 95%);
+    color: hsl(221, 83%, 45%);
+  }
+
+  .badge-gray {
+    background-color: hsl(215, 15%, 92%);
+    color: hsl(215, 14%, 45%);
+  }
+
+  /* Chip CNPJ ativo */
+  .chip-success {
+    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold tracking-wide uppercase;
+    background-color: hsl(142, 71%, 95%);
+    color: hsl(142, 71%, 34%);
+    border: 1px solid hsl(142, 60%, 80%);
+  }
+
+  /* Botão primário — reutilizável */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-semibold text-white shadow-soft transition-all duration-150;
+    background-color: hsl(221, 83%, 53%);
+  }
+
+  .btn-primary:hover {
+    background-color: hsl(221, 83%, 45%);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium border transition-all duration-150;
+    background-color: hsl(0, 0%, 100%);
+    border-color: hsl(215, 15%, 88%);
+    color: hsl(215, 25%, 12%);
+  }
+
+  .btn-secondary:hover {
+    background-color: hsl(215, 18%, 96%);
+  }
+}
