@@ -1,0 +1,33 @@
+# Opens weekly pull requests to keep dependencies up to date, grouped to reduce noise.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /backend/ControlService
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      aspire:
+        patterns: ["Aspire.*", "CommunityToolkit.Aspire.*"]
+      opentelemetry:
+        patterns: ["OpenTelemetry.*"]
+      microsoft:
+        patterns: ["Microsoft.*"]
+      testing:
+        patterns: ["xunit*", "Shouldly", "NSubstitute", "NetArchTest.*", "Testcontainers*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /backend/ControlService/src/ControlService.API
+    schedule:
+      interval: weekly
+      day: monday
