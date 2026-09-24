@@ -19,7 +19,7 @@ var mailpit = builder.AddMailPit("mailpit")
     .WithContainerName($"{NamePrefix}-mailpit")
     .WithLifetime(ContainerLifetime.Persistent);
 
-builder.AddProject<Projects.ControlService_API>("api")
+builder.AddProject<Projects.ControlService_API>("api", launchProfileName: "https")
     .WithReference(database)
     .WaitFor(database)
     .WithReference(mailpit)

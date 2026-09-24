@@ -1,4 +1,4 @@
-@ControlService.API_HostAddress = http://localhost:5283
+@ControlService.API_HostAddress = https://localhost:7243
 
 # OpenAPI document generated from the endpoints (ADR-0004).
 # The interactive reference is at {{ControlService.API_HostAddress}}/scalar

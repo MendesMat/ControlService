@@ -6,20 +6,28 @@ API em C# com .NET 10, organizada em Clean Architecture ([ADR-0005](../../docs/a
 
 Pré-requisitos: .NET SDK 10 e Docker Desktop aberto.
 
+**Uma vez por máquina**, marque o certificado de desenvolvimento do .NET como confiável, para o navegador aceitar o `https://localhost`. O Windows pede confirmação:
+
 ```bash
-dotnet run --project src/ControlService.AppHost --launch-profile http
+dotnet dev-certs https --trust
 ```
 
-O Aspire sobe o PostgreSQL, o Mailpit (caixa de e-mails de teste) e a API. O console mostra o link de login do **painel do Aspire** (`http://localhost:15150/login?t=...`), com os endereços, logs e situação de cada parte.
+Depois, para subir o sistema:
+
+```bash
+dotnet run --project src/ControlService.AppHost
+```
+
+O Aspire sobe o PostgreSQL, o Mailpit (caixa de e-mails de teste) e a API. O console mostra o link de login do **painel do Aspire** (`https://localhost:17150/login?t=...`), com os endereços, logs e situação de cada parte. No Visual Studio, basta escolher `ControlService.AppHost` como projeto de inicialização e apertar F5.
 
 | O quê | Endereço |
 |---|---|
-| Painel do Aspire | `http://localhost:15150` (use o link com `?t=` que aparece no console) |
-| API | `http://localhost:5283` |
-| Documentação interativa da API (Scalar) | `http://localhost:5283/scalar` |
+| Painel do Aspire | `https://localhost:17150` (use o link com `?t=` que aparece no console) |
+| API | `https://localhost:7243` |
+| Documentação interativa da API (Scalar) | `https://localhost:7243/scalar` |
 | Caixa de e-mails de teste (Mailpit) | Link do recurso `mailpit` no painel do Aspire |
 
-O perfil `https` também funciona, mas precisa que o certificado de desenvolvimento seja confiável no seu Windows. Essa é uma configuração de segurança da máquina, então faça-a só se quiser, com `dotnet dev-certs https --trust`.
+Sem o certificado confiável, o navegador mostra um aviso de segurança. Nesse caso, use o perfil `http` (`--launch-profile http`), com o painel em `http://localhost:15150`.
 
 Para rodar os testes:
 
