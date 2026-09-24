@@ -24,12 +24,30 @@ csharp_style_expression_bodied_methods = when_on_single_line:suggestion
 csharp_prefer_braces = when_multiline:suggestion
 dotnet_style_readonly_field = true:warning
 
-# Naming: private fields as _camelCase
+# Naming (.NET conventions). Rules with modifiers are more specific, so they win over the general field rule.
+#   const and static readonly fields: PascalCase       -> ApiNamespace, DomainAssembly
+#   other private fields:             _camelCase       -> _userRepository
+dotnet_naming_rule.constants_pascal_case.symbols = constants
+dotnet_naming_rule.constants_pascal_case.style = pascal_case
+dotnet_naming_rule.constants_pascal_case.severity = warning
+dotnet_naming_symbols.constants.applicable_kinds = field, local
+dotnet_naming_symbols.constants.applicable_accessibilities = *
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_rule.static_readonly_pascal_case.symbols = static_readonly_fields
+dotnet_naming_rule.static_readonly_pascal_case.style = pascal_case
+dotnet_naming_rule.static_readonly_pascal_case.severity = warning
+dotnet_naming_symbols.static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_fields.applicable_accessibilities = *
+dotnet_naming_symbols.static_readonly_fields.required_modifiers = static, readonly
+
 dotnet_naming_rule.private_fields_underscore.symbols = private_fields
 dotnet_naming_rule.private_fields_underscore.style = underscore_camel_case
 dotnet_naming_rule.private_fields_underscore.severity = warning
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
 dotnet_naming_style.underscore_camel_case.required_prefix = _
 dotnet_naming_style.underscore_camel_case.capitalization = camel_case
 

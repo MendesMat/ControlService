@@ -11,8 +11,8 @@ namespace Microsoft.Extensions.Hosting;
 
 public static class Extensions
 {
-    private const string _healthEndpointPath = "/health";
-    private const string _alivenessEndpointPath = "/alive";
+    private const string HealthEndpointPath = "/health";
+    private const string AlivenessEndpointPath = "/alive";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
@@ -46,8 +46,8 @@ public static class Extensions
                 .AddSource(builder.Environment.ApplicationName)
                 .AddAspNetCoreInstrumentation(options =>
                     options.Filter = context =>
-                        !context.Request.Path.StartsWithSegments(_healthEndpointPath)
-                        && !context.Request.Path.StartsWithSegments(_alivenessEndpointPath))
+                        !context.Request.Path.StartsWithSegments(HealthEndpointPath)
+                        && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
                 .AddHttpClientInstrumentation());
 
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
@@ -71,8 +71,8 @@ public static class Extensions
     {
         if (app.Environment.IsDevelopment())
         {
-            app.MapHealthChecks(_healthEndpointPath);
-            app.MapHealthChecks(_alivenessEndpointPath, new HealthCheckOptions
+            app.MapHealthChecks(HealthEndpointPath);
+            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
             {
                 Predicate = registration => registration.Tags.Contains("live")
             });
