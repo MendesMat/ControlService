@@ -4,6 +4,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!-- ASPIRE010: keep the orchestrator and dashboard from NuGet so `dotnet run` works as usual.
+         The Aspire CLI bundle tries to trust the HTTPS development certificate on start, which is a
+         machine security setting the developer should change deliberately (dotnet dev-certs https - -trust). -->
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
     <UserSecretsId>5f1c7a2e-3b8d-4e6f-9a0c-2d4b6e8f1a3c</UserSecretsId>
   </PropertyGroup>
 

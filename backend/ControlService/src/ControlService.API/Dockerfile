@@ -31,6 +31,8 @@ RUN dotnet publish "./ControlService.API.csproj" -c $BUILD_CONFIGURATION -o /app
 
 # Esta fase é usada na produção ou quando executada no VS no modo normal (padrão quando não está usando a configuração de Depuração)
 FROM base AS final
+LABEL org.opencontainers.image.title="controlservice-api" \
+      org.opencontainers.image.description="Control Service ERP - HTTP API"
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "ControlService.API.dll"]
