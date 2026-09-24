@@ -1,0 +1,14 @@
+# Normalize line endings in the repository; each OS checks out its native ending.
+* text=auto
+
+# Files that must keep a fixed ending
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.cs text eol=crlf
+*.slnx text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.webp binary
+*.zip binary

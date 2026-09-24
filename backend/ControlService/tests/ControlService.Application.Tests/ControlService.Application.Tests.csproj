@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Handlers and validators with fake dependencies. -->
+
+  <PropertyGroup>
+    <!-- TEMPORARY: exit code 8 means "zero tests ran". Remove this line when the first test is written. -->
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSubstitute" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ControlService.Application\ControlService.Application.csproj" />
+  </ItemGroup>
+
+</Project>

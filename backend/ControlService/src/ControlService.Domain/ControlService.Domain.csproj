@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Innermost layer: entities, value objects and business rules. No references, no framework packages (ADR-0005). -->
+
+</Project>

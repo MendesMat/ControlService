@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Implementations of the Application interfaces: EF Core, Identity, e-mail (ADR-0005). -->
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ControlService.Application\ControlService.Application.csproj" />
+    <ProjectReference Include="..\ControlService.Domain\ControlService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

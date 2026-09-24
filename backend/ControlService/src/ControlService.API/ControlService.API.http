@@ -1,0 +1,12 @@
+@ControlService.API_HostAddress = http://localhost:5283
+
+# OpenAPI document generated from the endpoints (ADR-0004).
+# The interactive reference is at {{ControlService.API_HostAddress}}/scalar
+GET {{ControlService.API_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+
+GET {{ControlService.API_HostAddress}}/health
+
+###

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Dependency rules between the layers, checked on every test run (ADR-0025). -->
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ControlService.Domain\ControlService.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ControlService.Application\ControlService.Application.csproj" />
+    <ProjectReference Include="..\..\src\ControlService.Infrastructure\ControlService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ControlService.API\ControlService.API.csproj" />
+  </ItemGroup>
+
+</Project>

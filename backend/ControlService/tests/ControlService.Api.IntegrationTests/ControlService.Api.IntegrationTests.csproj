@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Real HTTP calls against the API. Testcontainers (PostgreSQL, Mailpit) is added with the persistence slice. -->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ControlService.API\ControlService.API.csproj" />
+  </ItemGroup>
+
+</Project>

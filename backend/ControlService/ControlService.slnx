@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ControlService.Domain/ControlService.Domain.csproj" />
+    <Project Path="src/ControlService.Application/ControlService.Application.csproj" />
+    <Project Path="src/ControlService.Infrastructure/ControlService.Infrastructure.csproj" />
+    <Project Path="src/ControlService.API/ControlService.API.csproj" />
+  </Folder>
+  <Folder Name="/aspire/">
+    <Project Path="src/ControlService.AppHost/ControlService.AppHost.csproj" />
+    <Project Path="src/ControlService.ServiceDefaults/ControlService.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <File Path="tests/Directory.Build.props" />
+    <Project Path="tests/ControlService.Domain.Tests/ControlService.Domain.Tests.csproj" />
+    <Project Path="tests/ControlService.Application.Tests/ControlService.Application.Tests.csproj" />
+    <Project Path="tests/ControlService.Api.IntegrationTests/ControlService.Api.IntegrationTests.csproj" />
+    <Project Path="tests/ControlService.ArchitectureTests/ControlService.ArchitectureTests.csproj" />
+  </Folder>
+</Solution>

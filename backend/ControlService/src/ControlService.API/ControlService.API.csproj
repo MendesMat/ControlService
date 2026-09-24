@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- HTTP endpoints (Minimal APIs, ADR-0003), authentication setup and composition root (ADR-0005). -->
+
+  <PropertyGroup>
+    <UserSecretsId>a0e82690-8e8c-42bc-a8fe-3893a0f5a183</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ControlService.Application\ControlService.Application.csproj" />
+    <!-- Infrastructure is referenced only to register its services in Program.cs (ADR-0005). -->
+    <ProjectReference Include="..\ControlService.Infrastructure\ControlService.Infrastructure.csproj" />
+    <ProjectReference Include="..\ControlService.ServiceDefaults\ControlService.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

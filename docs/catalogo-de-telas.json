@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "defaultLevel": "negado",
+  "accessLevels": [
+    {
+      "id": "negado",
+      "label": "Negado",
+      "rank": 0,
+      "description": "Não vê a tela."
+    },
+    {
+      "id": "leitor",
+      "label": "Leitor",
+      "rank": 1,
+      "description": "Vê as informações, mas não altera nada."
+    },
+    {
+      "id": "editor",
+      "label": "Editor",
+      "rank": 2,
+      "description": "Vê, cadastra e altera informações."
+    },
+    {
+      "id": "gerenciador",
+      "label": "Gerenciador",
+      "rank": 3,
+      "description": "Faz tudo, inclusive excluir e desativar registros."
+    }
+  ],
+  "areas": [
+    {
+      "id": "gerenciamento",
+      "label": "Gerenciamento",
+      "screens": [
+        {
+          "key": "gerenciamento/usuarios",
+          "label": "Usuários",
+          "status": "built"
+        },
+        {
+          "key": "gerenciamento/permissoes",
+          "label": "Permissões",
+          "status": "built"
+        },
+        {
+          "key": "gerenciamento/perfis-cnpj",
+          "label": "Perfis CNPJ",
+          "status": "placeholder"
+        },
+        {
+          "key": "gerenciamento/naturezas-de-servico",
+          "label": "Naturezas de Serviço",
+          "status": "placeholder"
+        },
+        {
+          "key": "gerenciamento/objetos-de-servico",
+          "label": "Objetos de Serviço",
+          "status": "placeholder"
+        },
+        {
+          "key": "gerenciamento/produtos",
+          "label": "Produtos",
+          "status": "placeholder"
+        },
+        {
+          "key": "gerenciamento/garantias",
+          "label": "Garantias",
+          "status": "placeholder"
+        },
+        {
+          "key": "gerenciamento/formas-de-pagamento",
+          "label": "Formas de Pagamento",
+          "status": "placeholder"
+        },
+        {
+          "key": "gerenciamento/veiculos",
+          "label": "Veículos",
+          "status": "placeholder"
+        }
+      ]
+    },
+    {
+      "id": "comercial",
+      "label": "Comercial",
+      "screens": [
+        {
+          "key": "comercial/clientes",
+          "label": "Clientes",
+          "status": "placeholder"
+        },
+        {
+          "key": "comercial/roteiro-diario",
+          "label": "Roteiro Diário",
+          "status": "placeholder"
+        },
+        {
+          "key": "comercial/roteiro-mensal",
+          "label": "Roteiro Mensal",
+          "status": "placeholder"
+        },
+        {
+          "key": "comercial/acompanhamento",
+          "label": "Acompanhamento",
+          "status": "placeholder"
+        },
+        {
+          "key": "comercial/renovacoes",
+          "label": "Renovações",
+          "status": "placeholder"
+        }
+      ]
+    },
+    {
+      "id": "financeiro",
+      "label": "Financeiro",
+      "screens": [
+        {
+          "key": "financeiro/contas-a-receber",
+          "label": "Contas a Receber",
+          "status": "placeholder"
+        },
+        {
+          "key": "financeiro/contas-a-pagar",
+          "label": "Contas a Pagar",
+          "status": "placeholder"
+        }
+      ]
+    },
+    {
+      "id": "relatorios",
+      "label": "Relatórios",
+      "screens": [
+        {
+          "key": "relatorios/relatorio-de-vendas",
+          "label": "Relatório de Vendas",
+          "status": "placeholder"
+        },
+        {
+          "key": "relatorios/raae",
+          "label": "RAAE",
+          "status": "placeholder"
+        },
+        {
+          "key": "relatorios/incongruencias",
+          "label": "Incongruências",
+          "status": "placeholder"
+        },
+        {
+          "key": "relatorios/custo-x-faturamento",
+          "label": "Custo x Faturamento",
+          "status": "placeholder"
+        }
+      ]
+    }
+  ]
+}

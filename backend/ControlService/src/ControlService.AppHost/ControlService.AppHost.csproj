@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+
+  <!-- Starts PostgreSQL, Mailpit and the API with one command for local development (ADR-0027). -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <UserSecretsId>5f1c7a2e-3b8d-4e6f-9a0c-2d4b6e8f1a3c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.MailPit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ControlService.API\ControlService.API.csproj" />
+  </ItemGroup>
+
+</Project>

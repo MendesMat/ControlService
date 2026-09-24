@@ -1,0 +1,19 @@
+# Build output
+bin/
+obj/
+TestResults/
+*.binlog
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Obsidian workspace state (keep the shared settings)
+docs/.obsidian/workspace.json
+
+# Local secrets and environment files
+*.env
+appsettings.*.local.json

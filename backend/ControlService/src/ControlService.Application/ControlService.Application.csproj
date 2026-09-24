@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Use cases (commands and queries) and the interfaces they need from the outside (ADR-0005, ADR-0007). -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\ControlService.Domain\ControlService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
