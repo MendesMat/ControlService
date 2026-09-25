@@ -1,5 +1,7 @@
 # Contributing
 
+> **AI coding agents:** start with [AGENTS.md](AGENTS.md). It contains the rules and links to the detailed [guides and workflows](docs/agents/README.md).
+
 ## Workflow
 
 `main` is protected: nothing is pushed to it directly. Every change goes through a pull request.

@@ -11,6 +11,9 @@ TestResults/
 *.user
 *.suo
 
+# Personal AI agent settings (the shared ones live in .claude/settings.json)
+.claude/settings.local.json
+
 # Obsidian workspace state (keep the shared settings)
 docs/.obsidian/workspace.json
 
