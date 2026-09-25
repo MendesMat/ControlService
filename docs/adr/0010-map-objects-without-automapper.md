@@ -1,6 +1,7 @@
 ---
-status: proposed
+status: accepted
 date: 2026-09-23
+accepted: 2026-09-25
 scope: back-end
 tags: [architecture]
 ---

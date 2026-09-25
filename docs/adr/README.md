@@ -2,7 +2,7 @@
 
 This folder records the architectural decisions for the Control Service back-end, built in C# with .NET. The process is described in [ADR-0001](0001-record-architecture-decisions.md) and step by step in the [record a decision](../agents/workflows/record-a-decision.md) workflow; new records start from [template.md](template.md).
 
-**26** records are **accepted**, because the project owner explicitly confirmed them; the others are still **proposed**. When a decision changes, write a new record and mark the old one as superseded instead of editing an accepted record.
+**28** records are **accepted**, because the project owner explicitly confirmed them; the others are still **proposed**. When a decision changes, write a new record and mark the old one as superseded instead of editing an accepted record.
 
 What the system does is described in [`docs/product/`](../product/); open questions are in [open-questions.md](../product/open-questions.md).
 
@@ -55,9 +55,9 @@ To list the accepted security records, for example: search the folder for `statu
 | [0005](0005-adopt-clean-architecture.md) | Adopt Clean Architecture with four projects | Accepted |
 | [0006](0006-apply-tactical-ddd-in-the-domain.md) | Apply tactical DDD in the domain | Accepted |
 | [0007](0007-implement-cqrs-without-mediatr.md) | Implement CQRS with in-house handlers instead of MediatR | Accepted |
-| [0008](0008-validate-input-with-fluentvalidation.md) | Validate input with FluentValidation | Proposed |
+| [0008](0008-validate-input-with-fluentvalidation.md) | Validate input with FluentValidation | Accepted |
 | [0009](0009-use-result-pattern-and-problem-details.md) | Use the Result pattern for business errors and Problem Details for HTTP errors | Accepted |
-| [0010](0010-map-objects-without-automapper.md) | Map objects manually, with Mapperly as an option | Proposed |
+| [0010](0010-map-objects-without-automapper.md) | Map objects manually, with Mapperly as an option | Accepted |
 
 ## Data
 
