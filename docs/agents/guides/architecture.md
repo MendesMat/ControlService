@@ -47,7 +47,8 @@ Current features: `Access`, `Auth`, `Users`, `PermissionProfiles`, `Screens`. Sh
 ## Application layer (ADR-0007, ADR-0009)
 
 - One folder per use case with its command or query, handler and validator.
-- Input validation with FluentValidation and manual mapping are proposed in ADR-0008 and ADR-0010, which are still *Proposed*: confirm them with the owner (and accept the ADR) before adding the package or the pattern.
+- **Validation (ADR-0008):** each command has a FluentValidation `{UseCase}Validator` that checks shape and format (required fields, lengths, formats), with the Portuguese messages of the feature document and camelCase property paths (`emergencyContact.phone`). A validation decorator runs it before the handler. Rules that need the database (uniqueness) run in the handler; business invariants stay in the domain.
+- **Mapping (ADR-0010):** hand-written extension methods next to each feature's models, such as `user.ToResponse()` and `request.ToCommand()`. No AutoMapper; Mapperly only if mapping becomes repetitive, after asking the owner.
 - Handlers implement the in-house `ICommandHandler<TCommand, TResult>` / `IQueryHandler<TQuery, TResult>`. MediatR is not used.
 - Expected failures return `Result` / `Result<T>` with an `Error` (stable `code`, Portuguese `message`). Exceptions are only for unexpected failures.
 - Handlers orchestrate; business decisions live in the domain.

@@ -9,7 +9,7 @@ Control Service is an ERP for service companies and the owner's **public portfol
 - **Stack:** .NET 10 / C# 14, ASP.NET Core Minimal APIs, EF Core 10, PostgreSQL 18, .NET Aspire 13.5, xUnit v3 on Microsoft.Testing.Platform. Clean Architecture with tactical DDD.
 - **Business rules:** `docs/product/` is the source of truth: one document per feature in `docs/product/features/`, plus the rules shared by all in `docs/product/conventions.md`. Rules have stable IDs (`USR-06`, `PERM-05`); cite them in tests and pull requests. User-facing messages are in Portuguese, verbatim. Terms: [domain glossary](docs/product/glossary.md). Start at the [docs index](docs/README.md).
 - **Technical decisions:** `docs/adr/` (English). Accepted ADRs are binding.
-- **Status:** back-end skeleton ready; first slice is sign-in, users and per-screen permissions ([roadmap](README.md#roadmap)).
+- **Work items:** GitHub issues in the milestone [M1: Sign-in, users and permissions](https://github.com/MendesMat/ControlService/milestone/1), numbered in dependency order. Unless the owner names another one, take the lowest open issue (`gh issue list --milestone "M1: Sign-in, users and permissions"`), read it with `gh issue view <number>`, and close it from the pull request with `Closes #<number>`.
 
 | Path | Content |
 |---|---|

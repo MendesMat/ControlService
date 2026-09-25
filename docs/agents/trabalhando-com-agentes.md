@@ -24,6 +24,14 @@ Dicas:
 - **Diga o que não fazer**, quando importa ("sem pacote novo", "não mude as rotas").
 - **Perguntas abertas também valem**, quando você quer explorar: "o que você melhoraria neste arquivo?"
 
+## Começando a próxima tarefa
+
+O trabalho está organizado em issues no [milestone M1](https://github.com/MendesMat/ControlService/milestone/1), na ordem em que devem ser feitas. Numa conversa nova, cole:
+
+> "Implemente a próxima issue aberta do milestone M1. Antes de programar, leia a issue e os documentos que ela cita, e me mostre um plano curto em português: quais arquivos vai criar e quais IDs de regra cada teste vai cobrir. Siga o AGENTS.md e pare quando o PR estiver aberto com o CI verde."
+
+Para uma issue específica, troque o começo por "Implemente a issue #4". O agente abre o PR com `Closes #4`, e a issue fecha sozinha quando você fizer o merge.
+
 ## Funcionalidades grandes: peça para ser entrevistado
 
 Antes de uma fatia inteira (por exemplo, "desativação de usuários"), peça:

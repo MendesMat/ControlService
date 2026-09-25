@@ -24,6 +24,8 @@ git status --short
 
 If `git status` shows changes you did not make, stop and ask the owner what to do with them. Never discard or stash someone else's work silently.
 
+**Always branch from an up-to-date `main`, never from another open branch.** Squash merges rewrite the base branch's commits, and fixing a stacked branch afterwards would need a force push, which is blocked. If your work depends on an open pull request, wait until the owner merges it.
+
 ## 2. Create a branch
 
 ```bash
@@ -81,6 +83,7 @@ gh pr create --base main --title "feat(users): validate CPF check digits" --body
 ```
 
 - The title follows Conventional Commits: it becomes the commit message on `main` after the squash merge.
+- When the work comes from an issue, the body contains `Closes #<number>`, so GitHub closes the issue when the owner merges. One pull request per issue; a large issue may be delivered in several pull requests, and only the last one closes it (the others say `Part of #<number>`).
 - Keep pull requests small and focused; split unrelated changes.
 - Use `--draft` while the work is incomplete, and `gh pr ready` when it is done.
 - Do not enable auto-merge.
