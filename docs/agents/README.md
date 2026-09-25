@@ -20,6 +20,7 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 
 | Workflow | Use it to |
 |---|---|
+| [test-driven-development.md](workflows/test-driven-development.md) | Write any code: Red → Green → Refactor in pair mode, with pauses and evidence |
 | [git-and-pull-requests.md](workflows/git-and-pull-requests.md) | Deliver any change through a branch and a pull request |
 | [implement-a-feature.md](workflows/implement-a-feature.md) | Build a slice of the roadmap from the business rules to a merged pull request |
 | [record-a-decision.md](workflows/record-a-decision.md) | Propose, accept or supersede an ADR |

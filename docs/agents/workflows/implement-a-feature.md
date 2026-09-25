@@ -12,37 +12,34 @@ Use this workflow for any slice of the roadmap, for example "permission profiles
 ## 2. Plan the slice
 
 - Split it into steps that can each be committed with passing tests, inside out: **domain → application → infrastructure → API**.
-- For a large slice, share the plan with the owner before starting, in Portuguese, with the files you expect to create.
+- Write the **test list** of the [TDD workflow](test-driven-development.md): one-line test names, simplest first, each with its rule ID. Show it to the owner in Portuguese, together with the files you expect to create, and wait for approval.
 - Create the branch ([git and pull requests](git-and-pull-requests.md), steps 1 and 2).
 
-## 3. Domain, test first
+Every step below follows the [TDD workflow](test-driven-development.md): one failing test, the smallest code that passes, refactor, **pause after each phase** in pair mode.
 
-For each rule:
+## 3. Domain
 
-1. Write a failing test in `ControlService.Domain.Tests` named after the behavior.
-2. Write the smallest domain code that makes it pass: a value object, an aggregate method or a domain service.
-3. Refactor with the tests green. Commit.
+For each rule: a failing unit test in `ControlService.Domain.Tests`, then the value object, aggregate method or domain service that makes it pass, then refactor. Commit after green cycles.
 
-Validation messages come verbatim from the feature document. Each rule ID should be covered by at least one test; cite the ID in a comment when the test name does not make it obvious.
+Validation messages come verbatim from the feature document. Each rule ID must be covered by at least one test; cite the ID in a comment when the test name does not make it obvious.
 
 ## 4. Application
 
-1. Create the use case folder: command or query, handler, validator.
-2. Declare the interfaces the handler needs (repository, clock, e-mail) in the Application project.
-3. Test the handler in `ControlService.Application.Tests` with NSubstitute fakes: the success path, each expected failure (`Result` errors) and the orchestration (what is saved, what is sent). Commit.
+1. Start from a failing handler or validator test in `ControlService.Application.Tests`: the success path, each expected failure (`Result` errors) and the observable outcome (what is saved, what is sent).
+2. Let the test drive the use case folder (command or query, handler, validator) and the interfaces the handler needs (repository, clock, e-mail) in the Application project.
+3. Use hand-written in-memory fakes for those interfaces (ADR-0033). Commit after green cycles.
 
 ## 5. Infrastructure
 
-1. Implement the interfaces: EF Core configuration, repository, migration, e-mail sender.
-2. Generate migrations with the EF Core CLI and review the generated SQL-relevant code before committing.
-3. Register services in the Infrastructure's service registration method. Commit.
+1. Start from a failing integration test against real PostgreSQL (Testcontainers): the repository saves and reads the aggregate, a unique index refuses a duplicate, a concurrency conflict is detected.
+2. Implement the EF Core configuration and repository that make it pass. Generate migrations with the EF Core CLI and review them before committing (the migration itself has no Red: say so).
+3. Register services in the Infrastructure's service registration method; the integration tests cover this wiring. Commit.
 
 ## 6. API
 
-1. Add or extend `{Feature}Endpoints.cs` with the routes in the *Operations* section of the feature document, following `docs/api/conventions.md`.
-2. Declare the permission of each endpoint (`.RequireScreenAccess(...)`) with the minimum level in the same table (PERM-03).
-3. Map results to the status codes and error codes of ADR-0009.
-4. Write integration tests: allowed path, denied path for the minimum level, validation errors, concurrency conflict where applicable. Commit.
+1. Start from a failing integration test with `WebApplicationFactory` for each route in the *Operations* section of the feature document: the status code, body and error codes of `docs/api/conventions.md`.
+2. Add or extend `{Feature}Endpoints.cs` until it passes, declaring the permission of each endpoint (`.RequireScreenAccess(...)`) with the minimum level in the same table (PERM-03) and mapping results as in ADR-0009.
+3. Cover the allowed path, the denied path for the minimum level, validation errors and the concurrency conflict where applicable. Commit.
 
 ## 7. Verify end to end
 

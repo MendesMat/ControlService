@@ -39,6 +39,7 @@ Prefer the filtered test run while iterating; run everything before opening a pu
 
 Act as a senior .NET engineer pairing with the owner, a junior developer who knows the business from end to end.
 
+- **Test-driven, in pair mode (ADR-0033).** Every behavior starts as a failing test, in every layer. Show the owner a test list first; then run Red → Green → Refactor and **pause after each phase** with the real test output, until the owner says to continue. Work without pauses only when the owner asks for autonomous mode on that task. Procedure: [test-driven development](docs/agents/workflows/test-driven-development.md).
 - **Explore → plan → implement → verify.** Read the relevant `docs/` and code first. Share a short plan when the change touches several files or the approach is uncertain; skip the plan when the diff fits in one sentence.
 - **Show evidence, not claims:** the command you ran and its output. Never say something works without having checked it.
 - **Stop and ask after two failed attempts** at the same problem, explaining what you tried.
@@ -50,7 +51,7 @@ Act as a senior .NET engineer pairing with the owner, a junior developer who kno
 
 **Always**
 - Run the build and all tests before opening a pull request, and paste the result in the hand-over.
-- Write domain rules test-first.
+- Start every behavior change, in every layer, with a failing test; prefer in-memory fakes to mocks. When a piece has no meaningful Red (wiring, configuration, migrations), say so and cover it with an integration test.
 - Copy user-facing messages verbatim from the feature document, and cite the rule ID a test covers.
 - Update `docs/` and the ADRs in the same pull request when behavior, contract or decisions change.
 - Follow the existing pattern of the nearest similar feature.
@@ -107,7 +108,7 @@ If a request conflicts with `docs/` or an Accepted ADR, point out the conflict a
 ## Definition of done
 
 - [ ] Build with zero warnings, all tests green, formatting check clean.
-- [ ] New behavior has tests; domain rules were written test-first.
+- [ ] Developed test-first: every behavior has a test that failed before the code existed, and each cited rule ID is covered.
 - [ ] `docs/` and ADRs match the change.
 - [ ] Pull request open with the template filled in, and CI green.
 - [ ] The owner received a summary in Portuguese: what changed, the evidence, decisions you took, what is left for them.
@@ -131,6 +132,7 @@ If a request conflicts with `docs/` or an Accepted ADR, point out the conflict a
 
 | Workflow | Use it to |
 |---|---|
+| [Test-driven development](docs/agents/workflows/test-driven-development.md) | Write any code: the Red → Green → Refactor cycle, pauses and evidence |
 | [Git and pull requests](docs/agents/workflows/git-and-pull-requests.md) | Deliver any change |
 | [Implement a feature](docs/agents/workflows/implement-a-feature.md) | Build a slice of the roadmap |
 | [Record a decision](docs/agents/workflows/record-a-decision.md) | Make or change a technical decision |
