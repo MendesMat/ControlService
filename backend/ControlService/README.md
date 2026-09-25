@@ -112,4 +112,4 @@ Pastas previstas para a primeira etapa: `Access` (níveis, chaves das telas, ace
 5. Perfis de permissão.
 6. Usuários e links de ativação e troca de senha.
 
-As rotas previstas estão em [docs/05-integracao-com-o-front.md](../../docs/05-integracao-com-o-front.md#rotas-http).
+As rotas de cada funcionalidade estão na seção *Operations* do documento dela, em [docs/product/features](../../docs/product/features/), e o que vale para todas as rotas está em [docs/api/conventions.md](../../docs/api/conventions.md).

@@ -52,8 +52,8 @@ Use short kebab-case names in English that describe the change.
 ```
 feat(users): validate CPF check digits
 
-CPF is informational (docs/03), so only the check digits and the
-all-equal-digits rule are enforced; uniqueness is not required.
+CPF is informational (CNV-06), so only the check digits and the
+all-equal-digits rule are enforced (USR-08); uniqueness is not required.
 ```
 
 ## 4. Verify locally

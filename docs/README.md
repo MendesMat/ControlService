@@ -1,38 +1,67 @@
-# Control Service — Documentação
+# Documentation
 
-Esta pasta descreve o ERP Control Service: um front-end de página única (`control-service-erp.html`), com a estrutura de navegação completa e duas telas funcionais, **Usuários** e **Permissões**, e as decisões tomadas para o back-end em C# com .NET.
+Everything about Control Service that is not code: what the system does, how the front-end and the back-end talk, why the back-end is built the way it is, and how AI agents work on it. Written in English for both people and AI agents; user-facing messages stay in Portuguese, verbatim.
 
-Os documentos descrevem o sistema **como foi decidido**, e o front-end já segue essas decisões. Enquanto o back-end está em construção, o front-end traz um **servidor simulado**, que implementa as mesmas operações e regras que o back-end deverá implementar (ver [05-integracao-com-o-front.md](05-integracao-com-o-front.md)). O que ainda não foi decidido está reunido em [07-pendencias.md](07-pendencias.md).
+## Start here
 
-## Como ler
-
-| Arquivo | Para que serve |
+| If you want to… | Read |
 |---|---|
-| [01-visao-geral.md](01-visao-geral.md) | O produto, o público, os princípios de design e o mapa de menus e telas. |
-| [02-modelo-de-dados.md](02-modelo-de-dados.md) | Os registros que o front-end grava e lê, campo por campo, com exemplos em JSON. |
-| [03-regras-de-negocio.md](03-regras-de-negocio.md) | Validações, acesso ao sistema, desativação, autoria, concorrência e todas as mensagens exibidas. |
-| [04-permissoes.md](04-permissoes.md) | Níveis de acesso, chaves das telas e como o acesso efetivo é calculado. |
-| [05-integracao-com-o-front.md](05-integracao-com-o-front.md) | O servidor simulado, as operações que o back-end precisa oferecer e os erros que o front-end trata. |
-| [06-front-end.md](06-front-end.md) | Organização do código, navegação por abas, acesso e sessão, rotas, temas e como adicionar uma tela nova. |
-| [07-pendencias.md](07-pendencias.md) | Decisões em aberto que afetam o back-end. |
-| [adr/](adr/README.md) | Registros de decisões de arquitetura do back-end (ADRs), em inglês: tecnologias escolhidas, alternativas e consequências. |
-| [catalogo-de-telas.json](catalogo-de-telas.json) | Lista das áreas, telas e níveis de acesso em formato de dados, com as mesmas chaves usadas pelo front-end. |
+| Understand the product | [product/overview.md](product/overview.md), then [product/glossary.md](product/glossary.md) |
+| Implement or change a feature | Its file in [product/features/](product/features/), plus [product/conventions.md](product/conventions.md) and [api/conventions.md](api/conventions.md) |
+| Add a new screen | [product/features/template.md](product/features/template.md) and the [implement a feature](agents/workflows/implement-a-feature.md) workflow |
+| Know why the back-end is built this way | [adr/](adr/README.md) |
+| Check what is still undecided | [product/open-questions.md](product/open-questions.md) |
+| Work on the front-end prototype | [frontend/](frontend/README.md) |
+| Work as an AI agent | [AGENTS.md](../AGENTS.md), then [agents/](agents/README.md) |
+| Run the system | [backend/ControlService/README.md](../backend/ControlService/README.md) |
 
-## Convenções
+## Layout
 
-Os nomes de campos, chaves e identificadores estão em inglês, exatamente como aparecem no código e nos dados gravados (`fullName`, `profileIds`, `levels`). Os textos exibidos para as pessoas, as mensagens de erro e esta documentação estão em português.
+```
+docs/
+├── README.md                 This index
+├── product/                  WHAT the system does: the business rules (source of truth)
+│   ├── overview.md           Product, users, design principles, navigation, screen keys
+│   ├── glossary.md           Business terms (pt-BR) → names in code → values on the wire
+│   ├── conventions.md        Rules for every record and screen (CNV)
+│   ├── open-questions.md     Undecided topics (OQ)
+│   ├── screen-catalog.json   Areas, screens, keys and access levels, as data
+│   └── features/             One document per feature, mirroring the code's feature folders
+│       ├── template.md
+│       ├── authentication.md (AUTH)
+│       ├── users.md          (USR)
+│       └── permission-profiles.md (PERM)
+├── api/
+│   └── conventions.md        What every endpoint shares: routes, paging, versions, errors (API)
+├── adr/                      Architecture Decision Records, numbered, with metadata
+├── frontend/                 The front-end prototype and its simulated server
+└── agents/                   Rules, guides and workflows for AI coding agents
+```
 
-Datas seguem o formato ISO 8601: `AAAA-MM-DD` para datas simples, como nascimento, e data e hora completas com fuso UTC para carimbos de tempo, como `updatedAt`.
+**Product documents describe decided behavior only.** Anything undecided lives in [open-questions.md](product/open-questions.md) until the owner decides it.
 
-## Situação atual
+## Rule IDs
 
-| Parte | Situação |
+Every rule has a stable ID, so that tests, pull requests and conversations can cite the exact rule ("the test covers USR-06").
+
+| Prefix | Document |
 |---|---|
-| Menu lateral, abas, temas claro e escuro | Pronto |
-| Tela Usuários (lista por página, cadastro, edição, desativação, reativação, reenvio de acesso) | Pronta |
-| Tela Permissões (lista, cadastro, edição, duplicação, exclusão) | Pronta |
-| As outras 18 telas do menu | Estrutura pronta, conteúdo em construção |
-| Login por link de ativação, troca de senha e bloqueio por tentativas | Pronto no front-end, com servidor simulado |
-| Permissões aplicadas: menu, telas e botões conforme o nível | Pronto no front-end, com servidor simulado |
-| Desativação de usuários, autoria, controle de versão, listas por página | Pronto no front-end, com servidor simulado |
-| Back-end | Em construção, em [`backend/ControlService`](../backend/ControlService/README.md). A estrutura está pronta; a primeira etapa é login, usuários e permissões. Até lá, o front-end usa o servidor simulado, que guarda os dados no banco do artifact do Claude ou no navegador (ver [05](05-integracao-com-o-front.md)). As decisões para o back-end real estão em [adr/](adr/README.md). |
+| `CNV` | [product/conventions.md](product/conventions.md) |
+| `AUTH` | [product/features/authentication.md](product/features/authentication.md) |
+| `USR` | [product/features/users.md](product/features/users.md) |
+| `PERM` | [product/features/permission-profiles.md](product/features/permission-profiles.md) |
+| `API` | [api/conventions.md](api/conventions.md) |
+| `OQ` | [product/open-questions.md](product/open-questions.md) (questions, not rules) |
+
+- **Format:** `PREFIX-nn`, numbered in order of appearance in the document.
+- **Never reused or renumbered.** A new rule takes the next free number, even if it is placed in the middle of the document. A removed rule keeps its ID with the text *Retired: reason*.
+- **A new feature gets a new prefix** of 3 to 5 capital letters, added to this table.
+- **Changing a rule's meaning** is a product decision: the owner confirms it, and the pull request says which IDs changed.
+- **Tests cite the rule** they cover in a comment when the test name alone does not make it obvious.
+
+## Writing conventions
+
+- **English** for everything, except user-facing messages (Portuguese, verbatim, CNV-16), wire values (`negado`, `gerenciamento/usuarios`) and the owner's personal guide ([agents/trabalhando-com-agentes.md](agents/trabalhando-com-agentes.md)).
+- **One topic per file**, named in kebab-case. Link instead of copying: each fact lives in one place.
+- **Relative links** between documents, so they work on GitHub, in the IDE and in Obsidian.
+- **Documentation changes with the code**, in the same pull request ([documentation guide](agents/guides/documentation.md)).

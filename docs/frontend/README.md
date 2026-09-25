@@ -1,146 +1,121 @@
-# 6. Front-end
+# Front-end prototype
 
-## Organização do código
+The front-end is a single-page prototype, `control-service-erp.html`, with no build step. It is **not in this repository yet**. It implements the navigation, the Users and Permissions screens and every business rule of [product](../product/), using a [simulated server](simulated-server.md) instead of the real API.
 
-O front-end é um único arquivo, `control-service-erp.html`, sem etapa de compilação. Ele contém o HTML da moldura (menu lateral, topo e barra de abas), o CSS e o JavaScript. A única dependência externa é a fonte Atkinson Hyperlegible, carregada do Google Fonts; se ela não carregar, o navegador usa a fonte padrão do sistema.
+Back-end work does not need this document: the contract between both sides is in the [API conventions](../api/conventions.md) and in each [feature](../product/features/). Read it when working on the front-end or when connecting it to the real API.
 
-O script está dividido em seções, marcadas com comentários, nesta ordem:
+## Code organization
 
-| Seção | Responsabilidade |
+One file holds the frame's HTML (side menu, top bar and tab bar), the CSS and the JavaScript. The only external dependency is the Atkinson Hyperlegible font, loaded from Google Fonts; if it fails, the browser falls back to the system font.
+
+The script is split into sections marked with comments, in this order:
+
+| Section | Responsibility |
 |---|---|
-| Catálogo de telas | Menu com as chaves fixas, níveis de acesso, situações de conta, prazos, mensagens e referências da página. |
-| Utilidades | Funções genéricas: ícones, escape de HTML, normalização de texto, geração de ids. |
-| Armazenamento do servidor simulado | Adaptadores do banco do artifact e do navegador. |
-| Registro de usuário com todos os campos | Formato completo de um usuário, com valores vazios. |
-| Máscaras e validações | Máscaras de CPF, CEP e telefone; validação de CPF e telefone. |
-| Menu lateral, Busca de telas, Abrir e esconder a barra lateral | Comportamento do menu, da busca de telas e do botão Menu. |
-| Tema claro e escuro | Alternância e memória do tema escolhido. |
-| Navegação, Abas | Abertura de abas, navegação dentro da aba, botão Voltar e histórico. |
-| Estrutura comum das telas, Listas, Formulários | Blocos reutilizáveis de página, tabela, campos, erros e botões. |
-| Tela de usuários, Assinatura, Tela de permissões | As duas telas prontas. |
-| Diálogo e mensagens rápidas | Confirmações e avisos temporários, com ação opcional ("Ver e-mail"). |
-| Permissões da pessoa conectada | Nível de cada tela, telas e áreas visíveis, nome no topo. |
-| Formatação para exibição | Máscaras na exibição, datas no horário de Brasília, situação da conta, rodapé de autoria. |
-| Tratamento de erros do servidor | O que fazer com cada tipo de erro (ver [05](05-integracao-com-o-front.md#erros)). |
-| Telas de acesso | Entrar, primeiro acesso, ativar conta, esqueci minha senha, criar senha nova. |
-| Entrar e sair do sistema | Abrir o sistema depois de entrar, retomar a sessão, sair. |
-| Início | Tela de boas-vindas e mensagens de "sem acesso". |
-| Listas por página | Busca, filtro de situação e paginação pedidos ao servidor. |
-| Caixa de e-mails de teste | Mostra os e-mails "enviados" pela simulação. |
-| Servidor simulado | Todas as operações e regras do back-end (ver [05](05-integracao-com-o-front.md)). |
-| Inicialização | Liga os eventos, confere a sessão e abre a tela de entrada ou o sistema. |
+| Screen catalog | Menu with the fixed keys, access levels, account statuses, durations, messages and page references |
+| Utilities | Icons, HTML escaping, text normalization, id generation |
+| Simulated server storage | Adapters for the Claude artifact database and for the browser |
+| Full user record | The complete shape of a user, with empty values |
+| Masks and validation | CPF, CEP and phone masks; CPF and phone validation |
+| Side menu, screen search, show/hide the sidebar | Menu behavior |
+| Light and dark theme | Theme switching and memory |
+| Navigation, tabs | Opening tabs, navigation inside a tab, Back button and history |
+| Common screen structure, lists, forms | Reusable page, table, field, error and button blocks |
+| Users screen, signature, Permissions screen | The two built screens |
+| Dialog and toasts | Confirmations and temporary notices, with an optional action ("Ver e-mail") |
+| Permissions of the signed-in person | Level of each screen, visible screens and areas, name in the top bar |
+| Display formatting | Masks, Brasília time, account status, authorship footer |
+| Server error handling | What to do with each error code ([API conventions](../api/conventions.md#error-codes)) |
+| Access screens | Sign in, first access, activate account, forgot password, new password |
+| Signing in and out | Opening the system after signing in, resuming the session, signing out |
+| Home | Welcome screen and no-access messages |
+| Paged lists | Search, status filter and paging requested from the server |
+| Test inbox | Shows the e-mails "sent" by the simulation |
+| Simulated server | Every back-end operation and rule |
+| Startup | Binds events, checks the session and opens the sign-in screen or the system |
 
 ## Menu
 
-O menu é gerado a partir da constante `MENU`, uma lista de áreas com o nome, o ícone e as telas. Cada tela declara a **chave** e o **nome** explicitamente (ver [04-permissoes.md](04-permissoes.md#chaves-das-telas)).
+The menu is generated from the `MENU` constant, a list of areas with name, icon and screens. Each screen declares its **key** and **name** explicitly ([screen keys](../product/overview.md#screen-keys)).
 
-O menu mostra só as telas a que a pessoa tem acesso, e esconde as áreas sem nenhuma tela visível (ver [04-permissoes.md](04-permissoes.md#o-que-a-pessoa-vê)). A busca de telas só encontra as telas visíveis.
+The menu shows only the screens the person can access and hides areas without any visible screen (PERM-08). The search "Buscar tela…" filters screens while the person types, ignoring accents and case; typing an area name shows all its screens, and Enter opens the first result in a new tab.
 
-A busca "Buscar tela…", no topo do menu, filtra as telas enquanto a pessoa digita, ignorando acentos e maiúsculas. Digitar o nome de uma área mostra todas as telas dela. Enter abre o primeiro resultado numa aba nova.
+## Tabs and navigation
 
-## Abas e navegação
+These rules were defined with the product owner and apply to every screen.
 
-As regras abaixo foram definidas junto com o dono do produto e valem para todas as telas.
+- **Only the menu opens tabs.** Each click on a menu screen opens a new tab, even if that screen is already open. That is how someone works with the same screen twice, such as two user records at once.
+- **Inside a tab, navigation stays in the tab.** "Novo usuário", clicking a list row, "Duplicar perfil", "Cancelar" and the breadcrumb links replace the tab's content. The tab name follows the screen shown.
+- **Exceptions that open a new tab:** the "Permissões" link inside the user form (so the person does not lose what they typed; the text next to it says so, and it appears only to people with access to Permissões), and Ctrl + click, Shift + click or middle click on any link or list row, as in a browser.
+- **Back.** Each tab keeps its own history of up to 20 steps. When there is a previous screen, a left-arrow button appears next to the title; on hover it shows the destination ("Voltar para Usuários"). The browser's Back button does the same. After saving, deleting, deactivating or reactivating, the form leaves the history, so going back from the list does not reopen a finished record.
+- **Unsaved changes.** Editing a form adds a dot next to the tab name. Closing the tab, going back or leaving the screen asks for confirmation ("Descartar as alterações?"). Closing or reloading the page makes the browser warn too.
+- **After saving, deleting, deactivating or reactivating,** the tab returns to the updated list. Lists open in other tabs refresh when the person returns to them. Forms open in other tabs never refresh, so nothing being typed is lost.
+- **Home.** The welcome screen appears only when no tab is open, and then the tab bar is hidden. Closing the last tab shows Home again.
+- **Limit.** At most 15 tabs. Opening more asks to close one first.
+- **Keyboard.** With the focus on a tab, the arrow keys switch tabs, Home and End go to the first and last, and Delete closes the tab.
 
-**Só o menu abre abas.** Cada clique numa tela do menu abre uma aba nova, mesmo que aquela tela já esteja aberta. É assim que se trabalha com a mesma tela duas vezes, por exemplo dois cadastros de usuário ao mesmo tempo.
+## Routes
 
-**Dentro da aba, a navegação fica na aba.** Botões como "Novo usuário", cliques em linhas de lista, "Duplicar perfil", "Cancelar" e os links do caminho no topo trocam o conteúdo da aba atual. O nome da aba acompanha a tela exibida.
-
-**Exceções que abrem aba nova:**
-- O link "Permissões" dentro do cadastro de usuário, para não fazer a pessoa perder o que já preencheu. O texto ao lado avisa que ele abre em outra aba. O link só aparece para quem tem acesso à tela Permissões.
-- Ctrl + clique, Shift + clique ou clique com o botão do meio em qualquer link ou linha de lista, como num navegador.
-
-**Voltar.** Cada aba guarda o próprio histórico, de até 20 passos. Quando existe uma tela anterior na aba, aparece um botão com uma seta à esquerda do título. Ao passar o mouse, o botão mostra o destino, por exemplo "Voltar para Usuários". O botão Voltar do navegador tem o mesmo efeito. Depois de salvar, excluir, desativar ou reativar, o formulário sai do histórico, então voltar da lista não reabre um cadastro já concluído.
-
-**Alterações não salvas.** Quando a pessoa edita um formulário, a aba ganha uma bolinha ao lado do nome. Fechar a aba, voltar ou sair da tela pede confirmação ("Descartar as alterações?"). Fechar ou recarregar a página também faz o navegador avisar.
-
-**Depois de salvar, excluir, desativar ou reativar**, a aba volta para a lista, já atualizada. Listas abertas em outras abas se atualizam quando a pessoa volta a elas. Formulários abertos em outras abas não se atualizam, para nunca apagar o que está sendo digitado.
-
-**Início.** A tela de boas-vindas só aparece quando não há nenhuma aba aberta. Nesse caso a barra de abas fica escondida. Ao fechar a última aba, o Início volta.
-
-**Limite.** São no máximo 15 abas abertas. Ao tentar abrir mais, o sistema pede para fechar alguma primeiro.
-
-**Teclado.** Com o foco numa aba, as setas para os lados trocam de aba, Home e End vão para a primeira e a última, e Delete fecha a aba.
-
-## Rotas
-
-O endereço da página acompanha a aba ativa, no formato:
+The page address follows the active tab:
 
 ```
-#/{area}/{tela}                 lista da tela          #/gerenciamento/usuarios
-#/{area}/{tela}/novo            cadastro novo          #/gerenciamento/usuarios/novo
-#/{area}/{tela}/{id}            registro existente     #/gerenciamento/usuarios/sistema-admin
-#/{area}/{tela}/novo?copiar={id}  cópia de um perfil   #/gerenciamento/permissoes/novo?copiar=sistema-gerenciador
-#/                              Início (sem abas)
+#/{area}/{screen}                     list                   #/gerenciamento/usuarios
+#/{area}/{screen}/novo                new record             #/gerenciamento/usuarios/novo
+#/{area}/{screen}/{id}                existing record        #/gerenciamento/usuarios/{id}
+#/{area}/{screen}/novo?copiar={id}    copy of a profile      #/gerenciamento/permissoes/novo?copiar={id}
+#/                                    Home (no tabs)
 ```
 
-Abrir o sistema por um desses endereços abre a tela correspondente numa aba, depois que a pessoa entra.
-
-As telas de acesso têm rotas próprias, que não abrem abas:
+Opening the system with one of these addresses opens that screen in a tab after the person signs in. The access screens have their own routes, which do not open tabs:
 
 ```
-#/entrar                        tela de entrada
-#/esqueci-senha                 pedir link de troca de senha
-#/ativar?token={token}          criar a senha pelo link de ativação
-#/redefinir-senha?token={token} criar senha nova pelo link de troca
+#/entrar                         sign in
+#/esqueci-senha                  request a password reset link
+#/ativar?token={token}           create the password from the activation link
+#/redefinir-senha?token={token}  create a new password from the reset link
 ```
 
-## Preferências guardadas no navegador
+## Preferences stored in the browser
 
-Estas informações ficam no `localStorage` de cada pessoa e não são dados do negócio.
+Stored in each person's `localStorage`; not business data.
 
-| Chave | Conteúdo |
+| Key | Content |
 |---|---|
-| `control-service:theme` | `light` ou `dark`, quando a pessoa escolheu um tema. Sem essa chave, o sistema segue o tema do computador ou celular. |
-| `control-service:sidebar-hidden` | `true` quando a pessoa escondeu o menu lateral no computador. |
-| `control-service:abas:{id do usuário}` | Abas abertas de cada pessoa, com a rota e o histórico de cada uma, e o índice da aba ativa. São restauradas quando a mesma pessoa entra de novo. |
-| `control-service:sessao` | Sessão da simulação: quem está conectado e até quando. Some ao sair. |
+| `control-service:theme` | `light` or `dark`, when the person chose a theme. Without it, the system follows the device theme |
+| `control-service:sidebar-hidden` | `true` when the person hid the side menu on a computer |
+| `control-service:abas:{user id}` | Each person's open tabs, with route and history, and the active tab. Restored when the same person signs in again |
+| `control-service:sessao` | The simulated session: who is signed in and until when. Removed on sign-out |
 
-## Temas e cores
+## Themes and colors
 
-Todas as cores são variáveis CSS definidas no início do estilo, em três blocos: tema claro, tema escuro automático e tema escuro escolhido. Os principais tokens são `--bg` (fundo da área de conteúdo), `--surface` (cartões e topo), `--ink` e `--ink-muted` (textos), `--line` (bordas), `--side-*` (menu lateral), `--active-*` (item ativo) e `--danger*` (erros e exclusões). Para ajustar uma cor no sistema inteiro, basta mudar o token nos blocos de tema.
+Every color is a CSS variable defined at the top of the style, in three blocks: light theme, automatic dark theme and chosen dark theme. The main tokens are `--bg` (content background), `--surface` (cards and top bar), `--ink` and `--ink-muted` (text), `--line` (borders), `--side-*` (side menu), `--active-*` (active item) and `--danger*` (errors and deletions). To change a color everywhere, change the token in the theme blocks.
 
-## Acessibilidade
+## Accessibility
 
-O menu usa botões com `aria-expanded` para as gavetas e marca a tela atual com `aria-current`. A barra de abas segue o padrão de abas do WAI-ARIA (`tablist`, `tab`, `tabpanel`). Erros de formulário são ligados aos campos por `aria-describedby` e marcados com `aria-invalid`. Ao trocar de tela, e também nas telas de acesso, o foco vai para o título, para quem usa leitor de tela. Todas as animações são desligadas quando o sistema operacional pede movimento reduzido.
+The menu uses buttons with `aria-expanded` for the drawers and marks the current screen with `aria-current`. The tab bar follows the WAI-ARIA tabs pattern (`tablist`, `tab`, `tabpanel`). Form errors are linked to their fields with `aria-describedby` and marked with `aria-invalid`. When the screen changes, and on the access screens, the focus goes to the title for screen reader users. All animations are disabled when the operating system asks for reduced motion.
 
-## Como adicionar uma tela
+## Access and session
 
-Estes passos já consideram a decisão de chaves fixas.
+- **Sign-in screen.** While nobody is signed in, the sign-in screen replaces everything. It also offers "Esqueci minha senha" and, below, the demo notice with the **E-mails de teste** button.
+- **Top bar.** With someone signed in, it shows the person's initials and display name, the test inbox button and **Sair**. Signing out with unsaved changes asks for confirmation.
+- **E-mail links.** Activation and reset links open `#/ativar?token=…` and `#/redefinir-senha?token=…`. If someone is already signed in on the same browser, the screen offers to go back to the system or sign out and use the other account.
+- **Session ended.** If the session ends or the account is deactivated, the sign-in screen appears **over** the system without closing the tabs. If the same person signs in again, everything is where it was, including unsaved forms. If someone else signs in, the tabs are replaced by theirs.
 
-1. Acrescente a tela à área certa em `MENU`, com o nome e a **chave** escritos explicitamente. A mesma chave precisa existir no catálogo do servidor. A tela passa a aparecer na tela de Permissões, com nível `negado` em todos os perfis, exceto o Gerenciador.
-2. Enquanto a tela não tiver uma função de exibição própria, ela mostra o aviso "Tela em construção".
-3. Para dar conteúdo à tela, escreva uma função assíncrona no formato `(tab, entry, param, query)` e registre-a em `SCREENS` com a chave da tela. Ela busca os dados pelo objeto `api` e usa `canAccess(chave, nível)` para decidir quais botões mostrar. `param` é `null` para a lista, `"novo"` para um cadastro novo ou o `id` de um registro; `query` traz os parâmetros depois do `?`. As telas de Usuários e Permissões servem de modelo: `renderScreen` monta a página, `formSectionHtml` e `textFieldHtml` montam o formulário, e `bindFormBehavior` liga validação, máscaras, detecção de alterações e salvamento.
-4. Se a tela gravar dados, acrescente as operações e a coleção ao servidor simulado, aplicando as regras de nível com `requireLevel`, e documente o novo registro em [02-modelo-de-dados.md](02-modelo-de-dados.md) e as operações em [05-integracao-com-o-front.md](05-integracao-com-o-front.md).
+## Record forms
 
-## Acesso e sessão
+- **Buttons follow the level** (PERM-11).
+- **Users.** In a new record, the login is suggested while the full name is typed (USR-14). The section "Acesso ao sistema" shows the account status and, for pending accounts with an e-mail, **Reenviar acesso**. CPF, phone and CEP are shown masked and sent digits only. Saving without a profile asks for confirmation (USR-22).
+- **Authorship footer** on every open record (CNV-11).
+- **Version.** Each tab keeps the version of the open record and sends it when saving; on a conflict it shows "Recarregar" / "Continuar aqui" (CNV-14).
+- **Lists.** The user list is paged on the server, 10 per page, with search and status filter. Each tab remembers the search, filter and page of each list.
 
-**Tela de entrada.** Enquanto ninguém está conectado, o sistema mostra a tela de entrada no lugar de tudo. Ela também oferece "Esqueci minha senha" e, abaixo, o aviso do ambiente de demonstração, com o botão **E-mails de teste**.
+## Adding a screen
 
-**Topo.** Com alguém conectado, o topo mostra as iniciais e o nome de exibição da pessoa, o botão de e-mails de teste e o botão **Sair**. Sair com alterações não salvas pede confirmação.
+1. Add the screen to the right area in `MENU`, with its name and **key** written explicitly. The same key must exist in the back-end's `ScreenKeys`. The screen then appears on the Permissões screen, `negado` in every profile except Gerenciador.
+2. Until it has its own render function, the screen shows "Tela em construção".
+3. To give it content, write an async function `(tab, entry, param, query)` and register it in `SCREENS` under the screen key. It fetches data through the `api` object and uses `canAccess(key, level)` to decide which buttons to show. `param` is `null` for the list, `"novo"` for a new record or the record `id`; `query` holds the parameters after `?`. The Users and Permissions screens are the model: `renderScreen` builds the page, `formSectionHtml` and `textFieldHtml` build the form, and `bindFormBehavior` wires validation, masks, change detection and saving.
+4. If the screen stores data, add the operations and the collection to the simulated server, applying the level rules with `requireLevel`, and document the feature in [product/features](../product/features/) from the [template](../product/features/template.md).
 
-**Links dos e-mails.** Os links de ativação e de troca de senha abrem as rotas `#/ativar?token=…` e `#/redefinir-senha?token=…`. Se alguém já estiver conectado no mesmo navegador, a tela oferece voltar ao sistema ou sair para entrar com a outra conta.
+## Connecting to the real back-end
 
-**Sessão encerrada.** Se a sessão terminar (na simulação, depois de 8 horas sem nenhuma ação) ou a conta for desativada, a tela de entrada aparece **por cima** do sistema, sem fechar as abas. Se a mesma pessoa entrar de novo, ela volta exatamente onde estava, inclusive com formulários ainda não salvos. Se entrar outra pessoa, as abas são trocadas pelas dela.
-
-**Abas guardadas por pessoa.** As abas abertas de cada pessoa ficam guardadas no navegador. Ao sair e entrar de novo, a pessoa reencontra as mesmas abas, na mesma tela.
-
-## Cadastros
-
-**Botões conforme o nível.** Quem é Leitor vê o cadastro em modo somente leitura, com um aviso. Quem é Editor cadastra, altera, duplica perfis e reenvia acesso. Quem é Gerenciador também desativa, reativa e exclui. Os detalhes estão em [04-permissoes.md](04-permissoes.md#o-que-a-pessoa-vê).
-
-**Usuários.** O cadastro tem as seções Dados pessoais, Acesso ao sistema, Telefone e endereço, Contato de emergência, Assinatura e Perfis de permissão.
-- Num cadastro novo, o login é sugerido enquanto a pessoa digita o nome completo, até que alguém digite um login por conta própria. O botão de salvar de um cadastro novo se chama **Cadastrar e enviar acesso**.
-- A seção Acesso ao sistema mostra a situação da conta e, para contas pendentes com e-mail, o botão **Reenviar acesso**.
-- CPF, telefone e CEP são exibidos com máscara, mas enviados e guardados só com dígitos.
-- Perfis são opcionais. Salvar um usuário sem nenhum perfil pede confirmação, e a lista mostra "Nenhum perfil" na coluna Perfis.
-
-**Rodapé de autoria.** Todo cadastro aberto mostra quem criou, quem fez a última alteração e quando.
-
-**Versão.** Cada aba guarda a versão do registro aberto e a envia ao salvar. Se outra pessoa salvou antes, aparece o aviso com as opções "Recarregar" e "Continuar aqui".
-
-**Listas.** A lista de usuários é paginada no servidor, com 10 registros por página, busca e filtro de situação. Cada aba lembra a busca, o filtro e a página de cada lista.
-
-## O que depende do back-end real
-
-Todas as decisões registradas em [02](02-modelo-de-dados.md), [03](03-regras-de-negocio.md) e [04](04-permissoes.md) já estão implementadas no front-end, com o servidor simulado. O único passo que falta é trocar o servidor simulado por um cliente HTTP do back-end real, como descrito em [05](05-integracao-com-o-front.md#o-servidor-simulado).
+Every decision in [product](../product/) is already implemented in the prototype with the simulated server. The only step left is to replace the simulated server with an HTTP client for the real API, handling the differences listed in [simulated server](simulated-server.md#differences-from-the-real-back-end).

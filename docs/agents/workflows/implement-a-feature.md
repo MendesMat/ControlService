@@ -4,10 +4,10 @@ Use this workflow for any slice of the roadmap, for example "permission profiles
 
 ## 1. Understand the rule
 
-1. Read the relevant parts of `docs/02-modelo-de-dados.md`, `docs/03-regras-de-negocio.md`, `docs/04-permissoes.md` and `docs/05-integracao-com-o-front.md`.
-2. Read the ADRs that apply (the index is in `docs/adr/README.md`).
-3. Check `docs/07-pendencias.md`: if the slice depends on an open question, ask the owner before coding.
-4. Write down, for yourself, the rules, validations, messages, routes, status codes and error codes the slice must implement. If anything is ambiguous or contradictory, ask the owner (see the [communication guide](../guides/communication.md)).
+1. Read the feature document in `docs/product/features/`, plus `docs/product/conventions.md` and `docs/api/conventions.md`. For a new screen without a document, create it from `docs/product/features/template.md` and have the owner confirm the rules before coding.
+2. Read the ADRs listed at the top of the feature document (the index is in `docs/adr/README.md`).
+3. Check `docs/product/open-questions.md`: if the slice depends on an open question, ask the owner before coding.
+4. List the rule IDs the slice implements (for example USR-01 to USR-13): they become your checklist of tests. If anything is ambiguous or contradictory, ask the owner (see the [communication guide](../guides/communication.md)).
 
 ## 2. Plan the slice
 
@@ -23,7 +23,7 @@ For each rule:
 2. Write the smallest domain code that makes it pass: a value object, an aggregate method or a domain service.
 3. Refactor with the tests green. Commit.
 
-Validation messages come verbatim from `docs/03-regras-de-negocio.md`.
+Validation messages come verbatim from the feature document. Each rule ID should be covered by at least one test; cite the ID in a comment when the test name does not make it obvious.
 
 ## 4. Application
 
@@ -39,8 +39,8 @@ Validation messages come verbatim from `docs/03-regras-de-negocio.md`.
 
 ## 6. API
 
-1. Add or extend `{Feature}Endpoints.cs` with the routes from `docs/05-integracao-com-o-front.md`.
-2. Declare the permission of each endpoint (`.RequireScreenAccess(...)`), following `docs/04-permissoes.md`.
+1. Add or extend `{Feature}Endpoints.cs` with the routes in the *Operations* section of the feature document, following `docs/api/conventions.md`.
+2. Declare the permission of each endpoint (`.RequireScreenAccess(...)`) with the minimum level in the same table (PERM-03).
 3. Map results to the status codes and error codes of ADR-0009.
 4. Write integration tests: allowed path, denied path for the minimum level, validation errors, concurrency conflict where applicable. Commit.
 

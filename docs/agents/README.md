@@ -1,6 +1,6 @@
 # Agent guides and workflows
 
-Detailed instructions for AI coding agents. The entry point, with the non-negotiable rules, is [AGENTS.md](../../AGENTS.md) at the repository root.
+Detailed instructions for AI coding agents. The entry point, with the non-negotiable rules, is [AGENTS.md](../../AGENTS.md) at the repository root. The business rules themselves are in [docs/product](../product/); the map of all documentation is the [docs index](../README.md).
 
 - **Guides** describe *how things are done here*: conventions, patterns and constraints. Read the relevant ones before working.
 - **Workflows** are *step-by-step procedures* for recurring tasks. Follow them in order and do not skip steps.
@@ -10,7 +10,6 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 | Guide | Covers |
 |---|---|
 | [architecture.md](guides/architecture.md) | Layers, dependency rule, feature folders, DDD building blocks, Result pattern, endpoints |
-| [domain-glossary.md](guides/domain-glossary.md) | Business terms in Portuguese, their names in code and on the wire |
 | [coding-conventions.md](guides/coding-conventions.md) | Naming, style, language of each artifact, packages, warnings |
 | [testing.md](guides/testing.md) | Test projects, naming, commands, coverage, what to test where |
 | [documentation.md](guides/documentation.md) | What to update in `docs/` and in the ADRs, and when |

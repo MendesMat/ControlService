@@ -75,7 +75,7 @@ dotnet test --solution ControlService.slnx
 
 | Document | Language | Content |
 |---|---|---|
-| [Functional documentation](docs/README.md) | Portuguese | Product, data model, business rules, permissions and the front-end contract |
+| [Product documentation](docs/README.md) | English | Product overview, glossary, business rules by feature (with stable rule IDs), API conventions and open questions |
 | [Architecture Decision Records](docs/adr/README.md) | English | What was decided for the back-end, why, and which alternatives were rejected |
 | [Back-end guide](backend/ControlService/README.md) | Portuguese | How to run, project structure and what each Docker resource is |
 | [AGENTS.md](AGENTS.md) and [agent guides](docs/agents/README.md) | English | Rules, guides and workflows for the AI coding agents that work on this repository |
@@ -83,7 +83,7 @@ dotnet test --solution ControlService.slnx
 
 ## Roadmap
 
-- [x] Functional documentation and architecture decisions
+- [x] Product documentation and architecture decisions
 - [x] Back-end skeleton, local environment with Aspire, CI
 - [ ] Domain: value objects, users, permission profiles, effective access
 - [ ] Persistence: EF Core, audit fields, concurrency, seeded system records
