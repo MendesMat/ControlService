@@ -1,8 +1,12 @@
-# ADR-0005: Adopt Clean Architecture with four projects
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [architecture]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0005: Adopt Clean Architecture with four projects
 
 ## Context
 

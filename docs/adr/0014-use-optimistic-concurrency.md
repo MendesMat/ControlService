@@ -1,19 +1,22 @@
-# ADR-0014: Use optimistic concurrency control
+---
+status: accepted
+date: 2026-09-23
+scope: back-end
+tags: [data, api]
+---
 
-- **Status:** Accepted
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0014: Use optimistic concurrency control
 
 ## Context
 
-Today, if two people edit the same record and both save, the last save silently overwrites the first (`docs/07-pendencias.md`). The ERP will be used by several people at once, so lost updates are a real risk.
+Today, if two people edit the same record and both save, the last save silently overwrites the first (`docs/product/open-questions.md`). The ERP will be used by several people at once, so lost updates are a real risk.
 
 ## Decision
 
 - Every aggregate has a concurrency token. In PostgreSQL we use the `xmin` system column, mapped by Npgsql as a row version, so no extra column is needed.
 - Read responses include the current version. Update and delete requests must send it back, either in an `If-Match` header or in the request body.
 - If the record changed in the meantime, EF Core raises a concurrency exception, which the API returns as **409 Conflict** with the code `concurrency_conflict`. The response includes the display name of the person who made the latest change, taken from the record's `UpdatedBy` (ADR-0015), so the front-end can show: *"Este cadastro foi alterado por {nome} enquanto você editava. Recarregue para ver a versão atual."*
-- Nothing is written in that case. The front-end keeps the user's input on screen and offers "Recarregar" or "Continuar aqui" (`docs/03-regras-de-negocio.md`).
+- Nothing is written in that case. The front-end keeps the user's input on screen and offers "Recarregar" or "Continuar aqui" (`docs/product/conventions.md`).
 
 ## Alternatives considered
 

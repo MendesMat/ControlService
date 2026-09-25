@@ -1,8 +1,11 @@
-# ADR-0010: Map objects manually, with Mapperly as an option
+---
+status: proposed
+date: 2026-09-23
+scope: back-end
+tags: [architecture]
+---
 
-- **Status:** Proposed
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0010: Map objects manually, with Mapperly as an option
 
 ## Context
 

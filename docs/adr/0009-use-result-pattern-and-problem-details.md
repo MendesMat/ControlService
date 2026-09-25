@@ -1,8 +1,12 @@
-# ADR-0009: Use the Result pattern for business errors and Problem Details for HTTP errors
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [architecture, api]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0009: Use the Result pattern for business errors and Problem Details for HTTP errors
 
 ## Context
 
@@ -30,7 +34,7 @@ Some failures are expected outcomes, not exceptional situations: a login already
 | Lockout after repeated failed sign-ins, or rate limit (ADR-0023) | 429 | `locked_out`, with `Retry-After` |
 | Unexpected error | 500 | Generic Portuguese message, details only in logs |
 
-Duplicates are validation failures, not 409 conflicts, because the front-end shows them under the field, like any other validation message (`docs/03-regras-de-negocio.md`). The database unique index is still the last line of defense: if two requests race, the index violation is translated into the same 400 response.
+Duplicates are validation failures, not 409 conflicts, because the front-end shows them under the field, like any other validation message (`docs/api/conventions.md`). The database unique index is still the last line of defense: if two requests race, the index violation is translated into the same 400 response.
 
 **Response body.** Every error has this shape. `code`, `message` and, when present, `errors` and `details` are Problem Details extensions:
 
@@ -51,7 +55,7 @@ Duplicates are validation failures, not 409 conflicts, because the front-end sho
 
 - `errors` uses the model path of each field in camelCase (`login`, `address.cep`, `emergencyContact.phone`). On the password screens, the fields are `password` and `passwordConfirmation`.
 - `details` carries rule-specific data: `updatedByName` for `concurrency_conflict`, `userNames` for `profile_in_use`.
-- The front-end's HTTP client converts this body into its `ApiError` (`status`, `code`, `message`, `details.fields`), so the screens do not change (`docs/05-integracao-com-o-front.md`).
+- The front-end's HTTP client converts this body into its `ApiError` (`status`, `code`, `message`, `details.fields`), so the screens do not change (`docs/api/conventions.md`).
 
 - Every Problem Details response includes the request `traceId`, so a user report can be matched to logs (ADR-0028).
 

@@ -1,8 +1,12 @@
-# ADR-0002: Use .NET 10 LTS and C# 14
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-23
+scope: back-end
+tags: [platform]
+---
 
-- **Status:** Accepted (2026-09-23)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0002: Use .NET 10 LTS and C# 14
 
 ## Context
 

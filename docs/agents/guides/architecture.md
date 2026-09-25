@@ -41,7 +41,7 @@ Current features: `Access`, `Auth`, `Users`, `PermissionProfiles`, `Screens`. Sh
 - Expose behavior, not setters: `user.Deactivate(by, now)`, `profile.SetLevel(screen, level)`. The aggregate protects its invariants (for example, a system record cannot change).
 - Value objects are immutable and validated at creation (`Cpf`, `Login`, `EmailAddress`, `PhoneNumber`, `Cep`, `BloodType`, `ScreenKey`, `AccessLevel`). An invalid value object must not be constructible.
 - Never inject services or repositories into an aggregate. The handler loads what the aggregate needs and passes it as a parameter.
-- Effective access is a domain service: the highest level among the user's profiles, screen by screen (`docs/04-permissoes.md`).
+- Effective access is a domain service: the highest level among the user's profiles, screen by screen (PERM-05, PERM-06 in `docs/product/features/permission-profiles.md`).
 - Rules that need data from other aggregates (uniqueness of login, profile in use) are checked in the handler and guaranteed by database constraints.
 
 ## Application layer (ADR-0007, ADR-0009)
@@ -57,8 +57,8 @@ Current features: `Access`, `Auth`, `Users`, `PermissionProfiles`, `Screens`. Sh
 
 - One `{Feature}Endpoints.cs` per feature, with an extension method `Map{Feature}Endpoints` on the `/api/v1` group.
 - Endpoints are thin: bind the request, call the handler, translate the `Result` to typed results and Problem Details.
-- Every endpoint declares its permission: `.RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor)`, following the table in `docs/04-permissoes.md`.
-- Routes, status codes and error codes must match `docs/05-integracao-com-o-front.md` exactly: the front-end depends on them.
+- Every endpoint declares its permission: `.RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor)`, with the minimum level from the feature document's *Operations* table (PERM-03).
+- Routes, status codes and error codes must match the feature document and `docs/api/conventions.md` exactly: the front-end depends on them.
 
 ## Persistence (ADR-0011 to ADR-0015)
 

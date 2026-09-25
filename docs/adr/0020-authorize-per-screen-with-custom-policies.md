@@ -1,12 +1,16 @@
-# ADR-0020: Authorize per screen with custom policies
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [security, permissions]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0020: Authorize per screen with custom policies
 
 ## Context
 
-Permissions are defined per screen and per level (`docs/04-permissoes.md`), but they are not enforced anywhere yet. The effective level of a user is the highest level among their profiles. What each level allows on each screen was also still undefined. This is the most distinctive business rule of the project and the main showcase of the portfolio.
+Permissions are defined per screen and per level (`docs/product/features/permission-profiles.md`), but they are not enforced anywhere yet. The effective level of a user is the highest level among their profiles. What each level allows on each screen was also still undefined. This is the most distinctive business rule of the project and the main showcase of the portfolio.
 
 ## Decision
 
@@ -28,11 +32,11 @@ Permissions are defined per screen and per level (`docs/04-permissoes.md`), but 
 
 Exceptions are documented on the endpoint and in the OpenAPI description. The first one already exists: listing permission profiles is allowed with Reader on **either** the Permissions screen or the Users screen, because the user form needs the list of profiles to choose from.
 
-This mapping is already applied by the front-end's simulated server and user interface (`docs/04-permissoes.md`). The project owner confirmed it on 2026-09-24, including that a Reader on the Users screen can see people's signatures.
+This mapping is already applied by the front-end's simulated server and user interface (`docs/product/features/permission-profiles.md`). The project owner confirmed it on 2026-09-24, including that a Reader on the Users screen can see people's signatures.
 
 **Caching.** Effective permissions, together with the account status (ADR-0032), are cached per user with **HybridCache**, in memory only while the API runs as a single instance. Redis is added as the distributed layer when a second instance exists. Entries are invalidated when a user's profiles or status change or a profile's levels change.
 
-**Front-end support.** `GET /api/v1/me` returns the effective level for every screen. The front-end uses it to apply the visibility rules confirmed by the project owner (`docs/04-permissoes.md`):
+**Front-end support.** `GET /api/v1/me` returns the effective level for every screen. The front-end uses it to apply the visibility rules confirmed by the project owner (`docs/product/features/permission-profiles.md`):
 
 - a screen whose effective level is `negado` is not shown in the menu or in the screen search;
 - a menu area whose screens are all `negado` is not shown at all;

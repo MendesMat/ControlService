@@ -7,7 +7,7 @@ Instructions for AI coding agents working on this repository. Read this file com
 Control Service is an ERP for service companies and the owner's **public portfolio**: everything that reaches GitHub must look like the work of a careful professional team.
 
 - **Stack:** .NET 10 / C# 14, ASP.NET Core Minimal APIs, EF Core 10, PostgreSQL 18, .NET Aspire 13.5, xUnit v3 on Microsoft.Testing.Platform. Clean Architecture with tactical DDD.
-- **Business rules:** `docs/` (Portuguese) is the source of truth. `docs/03-regras-de-negocio.md` and `docs/04-permissoes.md` define behavior and the exact user-facing messages. Terms: [domain glossary](docs/agents/guides/domain-glossary.md).
+- **Business rules:** `docs/product/` is the source of truth: one document per feature in `docs/product/features/`, plus the rules shared by all in `docs/product/conventions.md`. Rules have stable IDs (`USR-06`, `PERM-05`); cite them in tests and pull requests. User-facing messages are in Portuguese, verbatim. Terms: [domain glossary](docs/product/glossary.md). Start at the [docs index](docs/README.md).
 - **Technical decisions:** `docs/adr/` (English). Accepted ADRs are binding.
 - **Status:** back-end skeleton ready; first slice is sign-in, users and per-screen permissions ([roadmap](README.md#roadmap)).
 
@@ -15,9 +15,11 @@ Control Service is an ERP for service companies and the owner's **public portfol
 |---|---|
 | `backend/ControlService/src/` | Domain, Application, Infrastructure, API, AppHost, ServiceDefaults |
 | `backend/ControlService/tests/` | Domain, Application, API integration and architecture tests |
-| `docs/01-07*.md`, `docs/catalogo-de-telas.json` | Functional documentation and screen catalog |
-| `docs/adr/` | Architecture Decision Records |
+| `docs/product/` | Business rules: overview, glossary, conventions, features, open questions, screen catalog |
+| `docs/api/` | What every endpoint shares: routes, paging, versions, errors |
+| `docs/adr/` | Architecture Decision Records, with YAML metadata (status, tags) |
 | `docs/agents/` | Guides and workflows for agents |
+| `docs/frontend/` | The front-end prototype (not in this repository) and its simulated server |
 
 ## Commands
 
@@ -49,7 +51,7 @@ Act as a senior .NET engineer pairing with the owner, a junior developer who kno
 **Always**
 - Run the build and all tests before opening a pull request, and paste the result in the hand-over.
 - Write domain rules test-first.
-- Copy user-facing messages verbatim from `docs/03-regras-de-negocio.md`.
+- Copy user-facing messages verbatim from the feature document, and cite the rule ID a test covers.
 - Update `docs/` and the ADRs in the same pull request when behavior, contract or decisions change.
 - Follow the existing pattern of the nearest similar feature.
 
@@ -120,7 +122,7 @@ If a request conflicts with `docs/` or an Accepted ADR, point out the conflict a
 | Guide | Read it when |
 |---|---|
 | [Architecture](docs/agents/guides/architecture.md) | Deciding where code goes or which pattern to use |
-| [Domain glossary](docs/agents/guides/domain-glossary.md) | Naming anything that comes from the business |
+| [Domain glossary](docs/product/glossary.md) | Naming anything that comes from the business |
 | [Coding conventions](docs/agents/guides/coding-conventions.md) | Writing or reviewing C# code |
 | [Testing](docs/agents/guides/testing.md) | Writing or running tests |
 | [Documentation](docs/agents/guides/documentation.md) | Behavior, contract or decisions change |

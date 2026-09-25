@@ -1,12 +1,16 @@
-# ADR-0022: Seed and protect system records
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [security, data]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0022: Seed and protect system records
 
 ## Context
 
-Two records must always exist and can never be changed: the **Gerenciador** profile, with the highest level on every screen, and the **Admin** user, who has that profile. Today they are hard-coded in the front-end and never stored (`docs/02-modelo-de-dados.md`).
+Two records must always exist and can never be changed: the **Gerenciador** profile, with the highest level on every screen, and the **Admin** user, who has that profile. Today they are hard-coded in the front-end and never stored (`docs/product/features/users.md`).
 
 ## Decision
 

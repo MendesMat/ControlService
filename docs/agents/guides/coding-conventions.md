@@ -7,10 +7,11 @@ The compiler enforces most of these: `TreatWarningsAsErrors`, `AnalysisLevel=lat
 | Artifact | Language |
 |---|---|
 | Identifiers, code comments, commit messages, pull requests, ADRs, agent guides | English |
-| Functional documentation (`docs/01-07`), user-facing messages, e-mail templates | Portuguese (pt-BR) |
+| Documentation in `docs/` (except the owner's guide) | English |
+| User-facing messages, e-mail templates | Portuguese (pt-BR) |
 | Wire values that already exist in the front-end contract (`negado`, `leitor`, `editor`, `gerenciador`, screen keys) | Keep exactly as documented |
 
-User-facing messages are copied **verbatim** from `docs/03-regras-de-negocio.md`. Do not paraphrase them. A new message follows the same plain tone and is added to that document.
+User-facing messages are copied **verbatim** from the feature document in `docs/product/features/`. Do not paraphrase them. A new message follows the same plain tone (CNV-15) and is added to that document.
 
 ## Naming
 
@@ -25,7 +26,7 @@ User-facing messages are copied **verbatim** from `docs/03-regras-de-negocio.md`
 | Use case types | `{Verb}{Noun}Command` / `Query` / `Handler` / `Validator` | `CreateUserHandler` |
 | Endpoints | `{Feature}Endpoints`, `Map{Feature}Endpoints` | `UsersEndpoints` |
 
-Translate business terms exactly as in the [domain glossary](domain-glossary.md); add new terms there. Avoid technical filler names such as `Helper`, `Processor`, `Data`, and never use `Manager` as a class-name suffix: in this domain, Manager is an access level (`AccessLevel.Manager`).
+Translate business terms exactly as in the [domain glossary](../../product/glossary.md); add new terms there. Avoid technical filler names such as `Helper`, `Processor`, `Data`, and never use `Manager` as a class-name suffix: in this domain, Manager is an access level (`AccessLevel.Manager`).
 
 ## Style
 

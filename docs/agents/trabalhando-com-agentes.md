@@ -15,12 +15,12 @@ Um bom pedido tem quatro partes: **o quê**, **onde**, **restrições** e **como
 
 | Pedido vago | Pedido bom |
 |---|---|
-| "Faz a validação de CPF." | "Crie o objeto de valor `Cpf` em `Domain/Users`, seguindo as regras do doc 03 (dígitos verificadores, sequências repetidas recusadas, gravado só com dígitos). Escreva os testes primeiro, incluindo `52998224725` como válido e `11111111111` como inválido. Pronto quando `dotnet test` passar." |
-| "Arruma o erro do login." | "Depois de 5 senhas erradas, o bloqueio não acontece. Veja o fluxo em `Application/Auth`. Escreva um teste que reproduza o problema e depois corrija. A regra está no doc 03, seção Entrar." |
-| "Melhora a tela de perfis." | "Leia o doc 05, seção Perfis de permissão, e me diga o que falta no back-end para `listProfiles` devolver `userCount`. Não altere nada ainda." |
+| "Faz a validação de CPF." | "Crie o objeto de valor `Cpf` em `Domain/Users`, seguindo a regra USR-08 e a CNV-07 (dígitos verificadores, sequências repetidas recusadas, gravado só com dígitos). Escreva os testes primeiro, incluindo `52998224725` como válido e `11111111111` como inválido. Pronto quando `dotnet test` passar." |
+| "Arruma o erro do login." | "Depois de 5 senhas erradas, o bloqueio não acontece (regra AUTH-08). Veja o fluxo em `Application/Auth`. Escreva um teste que reproduza o problema e depois corrija." |
+| "Melhora a tela de perfis." | "Leia a seção *Operations* de `docs/product/features/permission-profiles.md` e me diga o que falta no back-end para `listProfiles` devolver `userCount`. Não altere nada ainda." |
 
 Dicas:
-- **Aponte arquivos e seções** em vez de descrever onde as coisas estão.
+- **Aponte arquivos, seções e IDs de regra** (USR-06, PERM-05) em vez de descrever onde as coisas estão. Cada regra de negócio tem um ID estável; a lista de prefixos está no [índice da documentação](../README.md#rule-ids).
 - **Diga o que não fazer**, quando importa ("sem pacote novo", "não mude as rotas").
 - **Perguntas abertas também valem**, quando você quer explorar: "o que você melhoraria neste arquivo?"
 
@@ -44,18 +44,18 @@ Quando o plano estiver bom, **comece uma conversa nova** para implementar. A con
 O agente abre o PR e para. **Quem faz o merge é você.** Na revisão, olhe nesta ordem:
 
 1. **A descrição do PR:** o que mudou, por quê, e como foi testado. Se não der para entender, peça para reescrever.
-2. **Regras de negócio:** o comportamento bate com os docs 03 e 04? Esse é o seu ponto forte, e a parte que os testes não pegam sozinhos.
-3. **Mensagens para o usuário:** estão iguais às do doc 03?
+2. **Regras de negócio:** o comportamento bate com o documento da funcionalidade em `docs/product/features/`? O PR deve citar os IDs das regras que implementa. Esse é o seu ponto forte, e a parte que os testes não pegam sozinhos.
+3. **Mensagens para o usuário:** estão iguais às do documento da funcionalidade?
 4. **Testes:** existe um teste para cada regra nova? Os nomes dos testes descrevem o comportamento?
 5. **Tamanho:** um PR grande demais é difícil de revisar. Peça para dividir.
 
-Para pedir ajustes, comente no próprio PR ou diga ao agente: "No PR #N, a mensagem de bloqueio está diferente do doc 03. Corrija." Para aprovar: "pode juntar o PR #N".
+Para pedir ajustes, comente no próprio PR ou diga ao agente: "No PR #N, a mensagem de bloqueio está diferente da AUTH-08. Corrija." Para aprovar: "pode juntar o PR #N".
 
 ## Revisão cruzada
 
 Um agente é tendencioso em relação ao código que ele mesmo escreveu. Para mudanças importantes (segurança, permissões, banco), abra uma **conversa nova** e peça:
 
-> "Revise o PR #N contra os docs 03 e 04 e o AGENTS.md. Aponte só problemas de correção ou regras não cumpridas, não preferências de estilo."
+> "Revise o PR #N contra o documento da funcionalidade em `docs/product/features/` e o AGENTS.md. Aponte só problemas de correção ou regras não cumpridas (citando os IDs), não preferências de estilo."
 
 ## O que o agente nunca faz, e por quê
 

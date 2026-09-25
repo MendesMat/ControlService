@@ -1,14 +1,18 @@
-# ADR-0019: Authenticate with ASP.NET Core Identity, JWT and activation links
+---
+status: accepted
+date: 2026-09-23
+scope: back-end
+tags: [security, authentication]
+amended-by: ADR-0032 (session lifetime and revocation)
+---
 
-- **Status:** Accepted; session lifetime and revocation are completed by [ADR-0032](0032-define-session-lifetime-and-per-request-account-checks.md)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0019: Authenticate with ASP.NET Core Identity, JWT and activation links
 
 ## Context
 
 There is no sign-in yet. The top bar of the front-end shows a fixed name, and permissions cannot be enforced without knowing who is signed in.
 
-The project owner defined how accounts work (see `docs/03-regras-de-negocio.md`):
+The project owner defined how accounts work (see `docs/product/features/authentication.md`):
 
 - Nobody signs up on their own. A new user is always created by someone with access to the Users screen.
 - Users sign in with a new **`login`** field, which is unique.

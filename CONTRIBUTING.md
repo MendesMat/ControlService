@@ -42,7 +42,8 @@
 
 ## Conventions
 
-- Code, identifiers, commits and ADRs in English; functional documentation and user-facing messages in Portuguese.
+- Code, identifiers, commits and documentation in English; user-facing messages in Portuguese, verbatim from `docs/product/`.
+- Business rules have stable IDs (`USR-06`, `PERM-05`): cite them in tests and pull requests ([docs index](docs/README.md#rule-ids)).
 - Business rules live in the Domain project and are covered by unit tests (ADR-0005, ADR-0024).
 - Package versions are declared only in `Directory.Packages.props`.
 - A significant technical decision gets an ADR in `docs/adr/`.

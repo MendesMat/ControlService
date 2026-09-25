@@ -1,10 +1,38 @@
 # Architecture Decision Records
 
-This folder records the architectural decisions for the Control Service back-end, built in C# with .NET. The process is described in [ADR-0001](0001-record-architecture-decisions.md); new records start from [template.md](template.md).
+This folder records the architectural decisions for the Control Service back-end, built in C# with .NET. The process is described in [ADR-0001](0001-record-architecture-decisions.md) and step by step in the [record a decision](../agents/workflows/record-a-decision.md) workflow; new records start from [template.md](template.md).
 
-**24** records are **Accepted**, because the project owner explicitly confirmed them. The others are still **Proposed**. When a decision changes, write a new record and mark the old one as superseded instead of editing an accepted record.
+**26** records are **accepted**, because the project owner explicitly confirmed them; the others are still **proposed**. When a decision changes, write a new record and mark the old one as superseded instead of editing an accepted record.
 
-The functional documentation of the system, in Portuguese, lives one level up in [`docs/`](../README.md). Open questions are tracked in [`docs/07-pendencias.md`](../07-pendencias.md).
+What the system does is described in [`docs/product/`](../product/); open questions are in [open-questions.md](../product/open-questions.md).
+
+## Organization
+
+- **One flat folder, ordered by number.** The number is the identity of a record: it never changes and is never reused. Records are not split into subfolders, because a decision often belongs to several categories and moving files would break links. Categories live in the tags and in the index below.
+- **File name:** `NNNN-short-title-in-the-imperative.md`.
+
+## Metadata
+
+Every record starts with YAML front matter, so people and agents can filter records without reading them all. GitHub renders it as a table.
+
+```yaml
+---
+status: accepted                 # proposed | accepted | superseded | deprecated
+date: 2026-09-24                 # when the record was written
+accepted: 2026-09-24             # when the owner accepted it (accepted records only, when known)
+scope: back-end
+tags: [authentication, email]    # one or more from the vocabulary below
+supersedes: ADR-0030 (delivery of activation e-mails only)   # optional relation
+---
+```
+
+| Field | Values |
+|---|---|
+| `status` | `proposed`, `accepted`, `superseded`, `deprecated` |
+| Relations (optional) | `supersedes`, `superseded-by`, `amends`, `amended-by`. A partial relation names the part in parentheses; the record keeps `status: accepted` while the rest of it still applies |
+| `tags` | `process`, `platform`, `api`, `architecture`, `domain`, `data`, `security`, `authentication`, `permissions`, `email`, `quality`, `testing`, `operations`. Add a new tag here before using it |
+
+To list the accepted security records, for example: search the folder for `status: accepted` and `tags:` containing `security`.
 
 ## Process
 
@@ -16,9 +44,9 @@ The functional documentation of the system, in Portuguese, lives one level up in
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0002](0002-use-dotnet-10-lts.md) | Use .NET 10 LTS and C# 14 | Proposed |
+| [0002](0002-use-dotnet-10-lts.md) | Use .NET 10 LTS and C# 14 | Accepted |
 | [0003](0003-use-minimal-apis-grouped-by-feature.md) | Use Minimal APIs grouped by feature | Accepted |
-| [0004](0004-use-built-in-openapi-with-scalar.md) | Use built-in OpenAPI generation with the Scalar UI | Proposed |
+| [0004](0004-use-built-in-openapi-with-scalar.md) | Use built-in OpenAPI generation with the Scalar UI | Accepted |
 
 ## Architecture
 
@@ -48,7 +76,7 @@ The functional documentation of the system, in Portuguese, lives one level up in
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0019](0019-authenticate-with-identity-and-jwt.md) | Authenticate with ASP.NET Core Identity, JWT and activation links | Accepted, completed by 0032 |
+| [0019](0019-authenticate-with-identity-and-jwt.md) | Authenticate with ASP.NET Core Identity, JWT and activation links | Accepted, amended by 0032 |
 | [0020](0020-authorize-per-screen-with-custom-policies.md) | Authorize per screen with custom policies | Accepted |
 | [0021](0021-define-screen-keys-as-stable-constants.md) | Define screen keys as stable constants owned by the back-end | Accepted |
 | [0022](0022-seed-and-protect-system-records.md) | Seed and protect system records | Accepted |

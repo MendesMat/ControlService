@@ -1,12 +1,15 @@
-# ADR-0021: Define screen keys as stable constants owned by the back-end
+---
+status: accepted
+date: 2026-09-23
+scope: back-end
+tags: [permissions, domain]
+---
 
-- **Status:** Accepted
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0021: Define screen keys as stable constants owned by the back-end
 
 ## Context
 
-Screen keys such as `gerenciamento/usuarios` are currently derived from the screen names in the front-end menu. Renaming a screen changes its key and silently invalidates every permission stored for it (`docs/07-pendencias.md`).
+Screen keys such as `gerenciamento/usuarios` are currently derived from the screen names in the front-end menu. Renaming a screen changes its key and silently invalidates every permission stored for it (`docs/product/open-questions.md`).
 
 ### Example
 
@@ -22,7 +25,7 @@ Separating an identifier from its presentation is standard practice: products ke
 ## Decision
 
 - The back-end defines every screen key as a constant in a `ScreenKeys` class in the Domain project. This class is the single source of truth.
-- The existing keys are kept exactly as they are (see `docs/catalogo-de-telas.json`), so stored permissions remain valid. The `area/screen` format is only a readability convention; once created, a key never follows changes to the display name.
+- The existing keys are kept exactly as they are (see `docs/product/screen-catalog.json`), so stored permissions remain valid. The `area/screen` format is only a readability convention; once created, a key never follows changes to the display name.
 - Keys are never reused. A retired key is not assigned to a different screen.
 - The API exposes the catalog (keys, display names, areas) at `GET /api/v1/screens`, used by the permission screen of the front-end.
 - The front-end menu stores each screen's key explicitly instead of deriving it from the name.

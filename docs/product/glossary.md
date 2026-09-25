@@ -1,8 +1,8 @@
 # Domain glossary
 
-The business speaks Portuguese; the code speaks English. This table is the single translation, so that every agent names the same concept the same way (the *ubiquitous language* of DDD). Wire values are the ones the front-end already uses and must not change (`docs/05-integracao-com-o-front.md`).
+The business speaks Portuguese; the code speaks English. This table is the single translation, so that people and agents name the same concept the same way (the *ubiquitous language* of DDD). Wire values are the ones the front-end already uses and must not change ([API conventions](../api/conventions.md)).
 
-Most code names below do not exist yet: they are the names the first slice must use. If implementation shows a better name, change it here in the same pull request, so the glossary and the code never disagree. When a new business term appears, add it too. Sources: `docs/02-modelo-de-dados.md`, `docs/03-regras-de-negocio.md`, `docs/04-permissoes.md`, ADR-0006.
+Most code names below do not exist yet: they are the names the first slice must use. If implementation shows a better name, change it here in the same pull request, so the glossary and the code never disagree. When a new business term appears, add it too. Sources: the [feature documents](features/), [conventions](conventions.md) and ADR-0006.
 
 ## Access and permissions
 
