@@ -1,8 +1,11 @@
-# ADR-0016: Deactivate users instead of deleting them
+---
+status: accepted
+date: 2026-09-23
+scope: back-end
+tags: [data, domain]
+---
 
-- **Status:** Accepted
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0016: Deactivate users instead of deleting them
 
 ## Context
 

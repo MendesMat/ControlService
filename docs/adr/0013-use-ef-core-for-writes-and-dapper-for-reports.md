@@ -1,8 +1,12 @@
-# ADR-0013: Use EF Core 10 for writes and Dapper for reporting queries
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [data]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0013: Use EF Core 10 for writes and Dapper for reporting queries
 
 ## Context
 

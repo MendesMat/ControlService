@@ -1,12 +1,15 @@
-# ADR-0015: Record audit fields automatically
+---
+status: accepted
+date: 2026-09-23
+scope: back-end
+tags: [data]
+---
 
-- **Status:** Accepted
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0015: Record audit fields automatically
 
 ## Context
 
-Records currently only have `updatedAt`, set by the browser. There is no record of when something was created or who changed it (`docs/07-pendencias.md`). An ERP needs at least basic traceability.
+Records currently only have `updatedAt`, set by the browser. There is no record of when something was created or who changed it (`docs/product/open-questions.md`). An ERP needs at least basic traceability.
 
 ## Decision
 
@@ -19,7 +22,7 @@ Records currently only have `updatedAt`, set by the browser. There is no record 
 ## Alternatives considered
 
 - **Set the fields in each handler.** Easy to forget.
-- **A full audit log table or event sourcing.** Records every change, field by field, but is more than the project needs now. It is listed as future work in `docs/07-pendencias.md` and can be added later without changing this decision.
+- **A full audit log table or event sourcing.** Records every change, field by field, but is more than the project needs now. It is listed as future work in `docs/product/open-questions.md` and can be added later without changing this decision.
 
 ## Consequences
 

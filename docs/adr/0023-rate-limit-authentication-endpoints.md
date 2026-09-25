@@ -1,8 +1,12 @@
-# ADR-0023: Rate limit authentication endpoints
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [security, authentication]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0023: Rate limit authentication endpoints
 
 ## Context
 

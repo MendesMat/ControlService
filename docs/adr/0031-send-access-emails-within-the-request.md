@@ -1,16 +1,20 @@
-# ADR-0031: Send activation e-mails within the request
+---
+status: accepted
+date: 2026-09-24
+accepted: 2026-09-24
+scope: back-end
+tags: [authentication, email]
+supersedes: ADR-0030 (delivery of activation e-mails only)
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-24
-- **Scope:** Back-end
-- **Supersedes:** the **Delivery** section of [ADR-0030](0030-send-transactional-emails.md), for activation e-mails only
+# ADR-0031: Send activation e-mails within the request
 
 ## Context
 
 ADR-0030 sends every e-mail through an in-process background queue after the database transaction commits. But the front-end contract needs to know the outcome **in the response**:
 
-- `createUser` returns `{ user, emailSent }`, `resendAccess` returns `{ emailSent, email }` and `reactivateUser` returns `{ user, emailSent }` (`docs/05-integracao-com-o-front.md`);
-- the screens show different messages depending on it: *"Enviamos o link de ativação para {e-mail}"* or *"…mas não conseguimos enviar o e-mail de ativação. Use 'Reenviar acesso' para tentar de novo."* (`docs/03-regras-de-negocio.md`).
+- `createUser` returns `{ user, emailSent }`, `resendAccess` returns `{ emailSent, email }` and `reactivateUser` returns `{ user, emailSent }` (`docs/product/features/users.md`);
+- the screens show different messages depending on it: *"Enviamos o link de ativação para {e-mail}"* or *"…mas não conseguimos enviar o e-mail de ativação. Use 'Reenviar acesso' para tentar de novo."* (`docs/product/features/authentication.md`).
 
 With a background queue, the server does not know yet whether the e-mail left when it answers.
 
@@ -34,6 +38,6 @@ The project owner also asked whether the user should only be saved after the lin
 ## Consequences
 
 - Creating a user takes as long as the SMTP handshake; with Mailpit locally this is milliseconds, and the timeout bounds the worst case.
-- The messages in `docs/03-regras-de-negocio.md` stay exactly as they are.
+- The messages in `docs/product/features/authentication.md` stay exactly as they are.
 - Integration tests cover `emailSent = false` by making the SMTP server unreachable, and check that the user was still saved as `pending`.
 - The application keeps two delivery paths: direct for activation, queued for password reset.

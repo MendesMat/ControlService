@@ -1,12 +1,16 @@
-# ADR-0006: Apply tactical DDD in the domain
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [architecture, domain]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0006: Apply tactical DDD in the domain
 
 ## Context
 
-The front-end currently validates CPF, phone and CEP and stores them **with formatting masks** (`529.982.247-25`). Every rule lives only in the browser. The permission model relies on an ordered set of access levels, and the effective level of a user is the highest level among their profiles. These rules belong to the business, not to any particular screen. See `docs/02-modelo-de-dados.md`, `docs/03-regras-de-negocio.md` and `docs/04-permissoes.md`.
+The front-end currently validates CPF, phone and CEP and stores them **with formatting masks** (`529.982.247-25`). Every rule lives only in the browser. The permission model relies on an ordered set of access levels, and the effective level of a user is the highest level among their profiles. These rules belong to the business, not to any particular screen. See `docs/product/conventions.md`, `docs/product/features/users.md` and `docs/product/features/permission-profiles.md`.
 
 ## Decision
 
@@ -31,7 +35,7 @@ The Domain project will use tactical Domain-Driven Design patterns.
 
 **Wire format of access levels.** In C#, `AccessLevel` uses English names. On the wire and in the database it keeps the existing identifiers `negado`, `leitor`, `editor` and `gerenciador`, so the current front-end contract does not change.
 
-**Effective access.** A domain service computes the effective level of a user for a screen as the **maximum level among the user's profiles**, treating a missing entry as `Denied`. With no profiles, the maximum of an empty set is `Denied`. The calculation is done independently for each screen (each submenu item). `Denied` means "no permission granted by this profile", not an explicit prohibition: it never overrides a higher level granted by another profile. This business rule is described in `docs/04-permissoes.md`.
+**Effective access.** A domain service computes the effective level of a user for a screen as the **maximum level among the user's profiles**, treating a missing entry as `Denied`. With no profiles, the maximum of an empty set is `Denied`. The calculation is done independently for each screen (each submenu item). `Denied` means "no permission granted by this profile", not an explicit prohibition: it never overrides a higher level granted by another profile. This business rule is described in `docs/product/features/permission-profiles.md`.
 
 ## Alternatives considered
 
@@ -41,7 +45,7 @@ The Domain project will use tactical Domain-Driven Design patterns.
 
 ## Consequences
 
-- The rules in `docs/03-regras-de-negocio.md` become unit-testable domain code, independent of the front-end.
+- The rules in `docs/product/` become unit-testable domain code, independent of the front-end.
 - The front-end adapter must format CPF, phone and CEP for display and send them unmasked or masked; either is accepted.
 - EF Core needs value converters for the value objects.
 - Adding a profile to a user can only increase their access; reducing access requires removing a profile or lowering a level inside one. The user interface must make this clear when profiles are assigned.

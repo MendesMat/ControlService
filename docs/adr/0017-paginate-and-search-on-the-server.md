@@ -1,12 +1,15 @@
-# ADR-0017: Paginate, sort and search on the server
+---
+status: accepted
+date: 2026-09-23
+scope: back-end
+tags: [data, api]
+---
 
-- **Status:** Accepted
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0017: Paginate, sort and search on the server
 
 ## Context
 
-The front-end loads whole collections into memory and filters them in the browser (`docs/05-integracao-com-o-front.md`). This works for a few dozen users, but not for clients, accounts or reports, which can reach thousands of rows. It also sends the browser data that the user may not be allowed to see, which conflicts with per-screen permissions (ADR-0020).
+The front-end loads whole collections into memory and filters them in the browser (`docs/frontend/simulated-server.md`). This works for a few dozen users, but not for clients, accounts or reports, which can reach thousands of rows. It also sends the browser data that the user may not be allowed to see, which conflicts with per-screen permissions (ADR-0020).
 
 ## Decision
 

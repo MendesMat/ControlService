@@ -1,8 +1,11 @@
-# ADR-0001: Record architecture decisions
+---
+status: proposed
+date: 2026-09-23
+scope: back-end
+tags: [process]
+---
 
-- **Status:** Proposed
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0001: Record architecture decisions
 
 ## Context
 
@@ -12,11 +15,11 @@ Control Service is a portfolio ERP. The front-end already exists as a single HTM
 
 We will record every significant architectural decision as an Architecture Decision Record (ADR) in `docs/adr/`, written in English.
 
-Each ADR is a Markdown file named `NNNN-short-title.md` and follows the structure in [template.md](template.md): status, date, context, decision, alternatives considered and consequences. An ADR covers one decision.
+Each ADR is a Markdown file named `NNNN-short-title.md` and follows the structure in [template.md](template.md): YAML metadata (status, dates, tags and relations to other records, described in the [index](README.md#metadata)), context, decision, alternatives considered and consequences. An ADR covers one decision. All records stay in one folder, ordered by number.
 
 An ADR starts as **Proposed**. It becomes **Accepted** when the decision is implemented or explicitly agreed. Accepted ADRs are not rewritten. If a decision changes, a new ADR is written and the old one is marked **Superseded by ADR-NNNN**.
 
-The functional documentation in `docs/` (written in Portuguese) describes *what* the system does. ADRs describe *how* the back-end is built and *why*.
+The product documentation in `docs/product/` describes *what* the system does. ADRs describe *how* the back-end is built and *why*.
 
 ## Alternatives considered
 

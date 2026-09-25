@@ -1,17 +1,21 @@
-# ADR-0032: Define the session lifetime and check the account on every request
+---
+status: accepted
+date: 2026-09-24
+accepted: 2026-09-24
+scope: back-end
+tags: [security, authentication]
+amends: ADR-0019 (session lifetime and revocation)
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-24
-- **Scope:** Back-end
-- **Completes:** [ADR-0019](0019-authenticate-with-identity-and-jwt.md)
+# ADR-0032: Define the session lifetime and check the account on every request
 
 ## Context
 
-ADR-0019 issues a 15-minute JWT access token and a rotating refresh token, but it does not say **how long the refresh token lives**, which is what decides when the person sees *"Sua sessão terminou. Entre de novo para continuar."* The simulated server ends a session after **8 hours without any action** (`docs/05-integracao-com-o-front.md`).
+ADR-0019 issues a 15-minute JWT access token and a rotating refresh token, but it does not say **how long the refresh token lives**, which is what decides when the person sees *"Sua sessão terminou. Entre de novo para continuar."* The simulated server ends a session after **8 hours without any action** (`docs/frontend/simulated-server.md`).
 
 Two business rules also do not fit a self-contained token that stays valid for 15 minutes:
 
-- a deactivated person *"sai do sistema na próxima ação"* (`docs/03-regras-de-negocio.md`);
+- a deactivated person *"sai do sistema na próxima ação"* (`docs/product/features/users.md`);
 - until the Admin changes the initial password, *"nenhuma outra tela fica disponível"*.
 
 ## Decision

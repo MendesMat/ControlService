@@ -1,8 +1,12 @@
-# ADR-0004: Use built-in OpenAPI generation with the Scalar UI
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-23
+scope: back-end
+tags: [platform, api]
+---
 
-- **Status:** Accepted (2026-09-23)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0004: Use built-in OpenAPI generation with the Scalar UI
 
 ## Context
 

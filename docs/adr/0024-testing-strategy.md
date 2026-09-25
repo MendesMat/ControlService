@@ -1,8 +1,12 @@
-# ADR-0024: Testing strategy
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [quality, testing]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0024: Testing strategy
 
 ## Context
 

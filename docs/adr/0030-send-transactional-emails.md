@@ -1,8 +1,12 @@
-# ADR-0030: Send transactional e-mails through SMTP with Mailpit in development
+---
+status: accepted
+date: 2026-09-23
+scope: back-end
+tags: [security, email]
+superseded-by: ADR-0031 (delivery of activation e-mails only)
+---
 
-- **Status:** Accepted; for **activation e-mails**, the **Delivery** section is superseded by [ADR-0031](0031-send-access-emails-within-the-request.md). Password-reset e-mails still follow it.
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0030: Send transactional e-mails through SMTP with Mailpit in development
 
 ## Context
 
@@ -16,7 +20,7 @@ Account activation and password reset depend on e-mails (ADR-0019). These messag
 
 **Development and CI.** **Mailpit** runs as a container, started by the Aspire AppHost (ADR-0027) and by Testcontainers in integration tests. It accepts every message and shows it in a local web inbox, so activation links can be opened during development. Nothing is actually delivered.
 
-**Production.** Any SMTP-capable transactional e-mail provider, configured by environment variables. The provider for the public demo is still open (`docs/07-pendencias.md`).
+**Production.** Any SMTP-capable transactional e-mail provider, configured by environment variables. The provider for the public demo is still open (`docs/product/open-questions.md`).
 
 **Delivery.**
 - E-mails are sent **after** the database transaction commits, through an in-process background queue (`Channel<T>` consumed by a `BackgroundService`), with a few retries.

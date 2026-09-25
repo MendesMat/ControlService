@@ -1,12 +1,15 @@
-# ADR-0018: Store signatures in object storage
+---
+status: proposed
+date: 2026-09-23
+scope: back-end
+tags: [data]
+---
 
-- **Status:** Proposed
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0018: Store signatures in object storage
 
 ## Context
 
-The user's signature is currently stored inside the user record as a data URL of up to about 180,000 characters (`docs/02-modelo-de-dados.md`). Large binary content inside rows makes every user query heavier and the database larger.
+The user's signature is currently stored inside the user record as a data URL of up to about 180,000 characters (`docs/product/features/users.md`). Large binary content inside rows makes every user query heavier and the database larger.
 
 ## Decision
 

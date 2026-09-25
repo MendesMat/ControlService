@@ -1,8 +1,12 @@
-# ADR-0026: Enforce build quality settings across the solution
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [quality]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0026: Enforce build quality settings across the solution
 
 ## Context
 

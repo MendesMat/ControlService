@@ -1,8 +1,12 @@
-# ADR-0027: Use .NET Aspire for local development
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [operations]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0027: Use .NET Aspire for local development
 
 ## Context
 

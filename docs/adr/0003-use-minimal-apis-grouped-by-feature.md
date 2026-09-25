@@ -1,8 +1,12 @@
-# ADR-0003: Use Minimal APIs grouped by feature
+---
+status: accepted
+date: 2026-09-23
+accepted: 2026-09-24
+scope: back-end
+tags: [platform, api]
+---
 
-- **Status:** Accepted (2026-09-24)
-- **Date:** 2026-09-23
-- **Scope:** Back-end
+# ADR-0003: Use Minimal APIs grouped by feature
 
 ## Context
 
