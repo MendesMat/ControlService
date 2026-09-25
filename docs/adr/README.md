@@ -2,7 +2,7 @@
 
 This folder records the architectural decisions for the Control Service back-end, built in C# with .NET. The process is described in [ADR-0001](0001-record-architecture-decisions.md) and step by step in the [record a decision](../agents/workflows/record-a-decision.md) workflow; new records start from [template.md](template.md).
 
-**28** records are **accepted**, because the project owner explicitly confirmed them; the others are still **proposed**. When a decision changes, write a new record and mark the old one as superseded instead of editing an accepted record.
+**29** records are **accepted**, because the project owner explicitly confirmed them; the others are still **proposed**. When a decision changes, write a new record and mark the old one as superseded instead of editing an accepted record.
 
 What the system does is described in [`docs/product/`](../product/); open questions are in [open-questions.md](../product/open-questions.md).
 
@@ -89,9 +89,10 @@ To list the accepted security records, for example: search the folder for `statu
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0024](0024-testing-strategy.md) | Testing strategy | Accepted |
+| [0024](0024-testing-strategy.md) | Testing strategy | Accepted, amended by 0033 |
 | [0025](0025-enforce-architecture-rules-with-tests.md) | Enforce architecture rules with tests | Accepted |
 | [0026](0026-enforce-build-quality-settings.md) | Enforce build quality settings across the solution | Accepted |
+| [0033](0033-develop-test-first-in-pair-mode.md) | Develop test-first, in pair mode, with in-memory fakes | Accepted |
 
 ## Operations
 
