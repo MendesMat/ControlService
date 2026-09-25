@@ -79,6 +79,7 @@ dotnet test --solution ControlService.slnx
 | [Architecture Decision Records](docs/adr/README.md) | English | What was decided for the back-end, why, and which alternatives were rejected |
 | [Back-end guide](backend/ControlService/README.md) | Portuguese | How to run, project structure and what each Docker resource is |
 | [AGENTS.md](AGENTS.md) and [agent guides](docs/agents/README.md) | English | Rules, guides and workflows for the AI coding agents that work on this repository |
+| [Trabalhando com agentes](docs/agents/trabalhando-com-agentes.md) | Portuguese | How the owner pairs with AI agents: asking for tasks, reviewing pull requests |
 
 ## Roadmap
 
