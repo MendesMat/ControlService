@@ -1,6 +1,6 @@
 # Trabalhando com agentes de IA
 
-Guia para você, dono do projeto, tirar o máximo dos agentes de IA como *pair programmers*: um parceiro que programa enquanto você orienta, revisa e aprende. As regras que os agentes seguem estão no [AGENTS.md](../../AGENTS.md), em inglês. Este guia é o outro lado: como **você** conduz o trabalho.
+Guia para humanos tirarem o máximo dos agentes de IA como *pair programmers*: um parceiro que programa enquanto você orienta, revisa e aprende. As regras que os agentes seguem estão no [AGENTS.md](../../AGENTS.md), em inglês. Este guia é o outro lado: como **você** conduz o trabalho.
 
 ## A ideia central
 
