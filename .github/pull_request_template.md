@@ -1,3 +1,5 @@
+Closes #<!-- issue number; use "Part of #N" when this pull request delivers only part of the issue -->
+
 ## What
 
 <!-- What does this pull request change? One or two sentences. -->

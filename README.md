@@ -83,6 +83,8 @@ dotnet test --solution ControlService.slnx
 
 ## Roadmap
 
+The current slice is tracked in the milestone [M1: Sign-in, users and permissions](https://github.com/MendesMat/ControlService/milestone/1), one issue per step.
+
 - [x] Product documentation and architecture decisions
 - [x] Back-end skeleton, local environment with Aspire, CI
 - [ ] Domain: value objects, users, permission profiles, effective access
