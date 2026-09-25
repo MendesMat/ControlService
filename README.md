@@ -14,6 +14,7 @@ An ERP for service companies: users and permissions, service catalog, clients an
 - **Invitation-based accounts.** Nobody signs up alone: a new user receives a single-use activation link by e-mail and creates their own password. Nobody ever sees or types someone else's password.
 - **Safe concurrent editing.** Optimistic concurrency rejects a save when someone else changed the record in the meantime, and tells who did it.
 - **Traceability.** Every record stores who created it, who last changed it and when. Users are deactivated, never deleted.
+- **Test-driven development.** Every behavior starts as a failing test, in every layer, and business rules carry stable IDs that the tests cite ([ADR-0033](docs/adr/0033-develop-test-first-in-pair-mode.md)).
 - **Architecture enforced by tests.** Clean Architecture layers are separate projects, and architecture tests fail the build if a layer depends on the wrong one.
 - **Decisions on record.** Every significant technical choice has an [Architecture Decision Record](docs/adr/README.md) with the alternatives considered.
 - **AI-assisted, human-reviewed.** AI coding agents implement changes following [AGENTS.md](AGENTS.md): they work on branches and open pull requests, and the owner reviews and merges every one of them.

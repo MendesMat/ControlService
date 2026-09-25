@@ -14,7 +14,7 @@ Closes #<!-- issue number; use "Part of #N" when this pull request delivers only
 
 ## Checklist
 
-- [ ] Tests cover the new behavior (domain rules have unit tests)
+- [ ] Developed test-first: every behavior has a test that failed before the code existed (ADR-0033)
 - [ ] `dotnet test --solution ControlService.slnx` passes locally
 - [ ] Documentation updated (`docs/product/`, ADRs, README) when behavior or decisions changed
 - [ ] Rule IDs covered or changed are listed above (for example USR-06, PERM-05)

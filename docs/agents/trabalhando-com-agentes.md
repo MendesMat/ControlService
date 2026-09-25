@@ -28,9 +28,32 @@ Dicas:
 
 O trabalho está organizado em issues no [milestone M1](https://github.com/MendesMat/ControlService/milestone/1), na ordem em que devem ser feitas. Numa conversa nova, cole:
 
-> "Implemente a próxima issue aberta do milestone M1. Antes de programar, leia a issue e os documentos que ela cita, e me mostre um plano curto em português: quais arquivos vai criar e quais IDs de regra cada teste vai cobrir. Siga o AGENTS.md e pare quando o PR estiver aberto com o CI verde."
+> "Vamos trabalhar na próxima issue aberta do milestone M1, em TDD no modo par. Leia a issue e os documentos que ela cita e me mostre a lista de testes, do mais simples ao mais complexo, com o ID da regra de cada um. Depois siga o AGENTS.md, pausando a cada fase do ciclo, até o PR estar aberto com o CI verde."
 
-Para uma issue específica, troque o começo por "Implemente a issue #4". O agente abre o PR com `Closes #4`, e a issue fecha sozinha quando você fizer o merge.
+Para uma issue específica, troque o começo por "Vamos trabalhar na issue #4". O agente abre o PR com `Closes #4`, e a issue fecha sozinha quando você fizer o merge.
+
+## TDD no modo par: o seu papel
+
+Todo o desenvolvimento segue TDD (*Test-Driven Development*, ADR-0033). Cada comportamento nasce de um teste que falha, e o código cresce só o necessário para ele passar. No **modo par**, que é o padrão, você é o **navegador** e o agente é o **motorista**: ele escreve, você decide a direção.
+
+O ciclo tem três fases, e o agente **para depois de cada uma** mostrando a saída real do teste:
+
+| Fase | O que o agente mostra | O que você confere |
+|---|---|---|
+| **Red** (vermelho) | O teste novo e a falha dele | O teste descreve o comportamento certo? Falhou **pelo motivo esperado**, e não por um erro de digitação? |
+| **Green** (verde) | O código mínimo e o teste passando | A estratégia faz sentido? Às vezes ele "trapaceia" de propósito (*Fake It*, devolvendo um valor fixo); o próximo teste vai forçar o código de verdade |
+| **Refactor** | O que ficou mais limpo, ou "nada a refatorar", e os testes ainda verdes | Nomes claros, sem duplicação. Depois ele sugere os 2 ou 3 próximos testes: **você escolhe** |
+
+Como responder nas pausas:
+
+- **"ok"** ou **"segue"**: continua para a próxima fase.
+- **"próximo: o teste X"**: escolhe o próximo teste da lista.
+- **"por que assim?"**: peça a explicação. Entender o motivo de cada passo é o objetivo do modo par.
+- **"faça Green e Refactor sem parar"**: junta duas fases quando o passo for óbvio.
+- **"modo autônomo nesta tarefa"**: o agente faz os ciclos sozinho e te entrega o registro de cada fase para você auditar. Use em tarefas repetitivas.
+- **"passo a passo"**: volta ao modo par a qualquer momento.
+
+Antes do primeiro ciclo, o agente mostra a **lista de testes** da tarefa. Revise com atenção, porque é ali que você garante que nenhuma regra ficou de fora. Se um caso estiver faltando, diga "acrescente um teste para...".
 
 ## Funcionalidades grandes: peça para ser entrevistado
 
