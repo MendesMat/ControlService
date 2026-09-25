@@ -42,6 +42,35 @@ docker run --rm --name controlservice-api -p 127.0.0.1:8080:8080 -e ASPNETCORE_E
 
 On this machine, ports published on all interfaces make `localhost` hang, because `localhost` resolves to IPv6 first. Port 5080 on `::1` is taken by a Windows process.
 
+## Resource names and configuration keys
+
+Use these names exactly; do not invent others.
+
+**Aspire resources** (declared in `src/ControlService.AppHost/AppHost.cs`). Aspire injects each referenced resource into the API as a connection string with the same name:
+
+| Resource | Name | Reaches the API as |
+|---|---|---|
+| PostgreSQL database | `controlservice` | `ConnectionStrings:controlservice` |
+| Mailpit (SMTP test inbox) | `mailpit` | `ConnectionStrings:mailpit` |
+
+Register the API side with the Aspire client integrations for these names, and check the exact method names and connection string format in the current Aspire documentation when you implement them. Integration tests start their own containers with Testcontainers and pass the connection strings under the same names, without the AppHost.
+
+**Configuration keys** (from the ADRs):
+
+| Key | Meaning | Default | Where the value lives |
+|---|---|---|---|
+| `Auth:AccessTokenMinutes` | Access token lifetime (ADR-0032) | 15 | `appsettings.json` |
+| `Auth:RefreshTokenIdleHours` | Sliding refresh token lifetime (ADR-0032) | 8 | `appsettings.json` |
+| `Auth:SigningKey` | JWT signing key (ADR-0019) | none | **User secrets** |
+| `Admin:Email` | E-mail of the seeded Admin (ADR-0022) | none | **User secrets** |
+| `Admin:InitialPassword` | Initial Admin password, changed on first access (AUTH-13) | none | **User secrets** |
+| `Email:SendTimeoutSeconds` | Timeout for activation e-mails (ADR-0031) | 10 | `appsettings.json` |
+
+- **Secrets live only in the user secrets of the API project** (`UserSecretsId` is in `ControlService.API.csproj`) and, in deployment, in environment variables. Never in `appsettings*.json`, code, tests or documentation.
+- The API must fail at startup with a clear message when a required secret is missing, instead of running with an empty value.
+- Durations and limits are configuration, not constants (AUTH-22). New keys follow the same `Section:Name` pattern and are added to this table in the same pull request.
+- The owner sets secrets with `dotnet user-secrets set "Auth:SigningKey" "<value>" --project src/ControlService.API`. Agents give the command; they never choose or print real secret values.
+
 ## HTTPS
 
 The API and the dashboard use HTTPS by default. The browser trusts `https://localhost` only after the owner runs `dotnet dev-certs https --trust`. **Agents must never run that command** or any other that changes certificate trust: ask the owner. To check the state without changing it:
