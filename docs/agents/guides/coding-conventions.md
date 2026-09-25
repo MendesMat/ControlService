@@ -25,7 +25,7 @@ User-facing messages are copied **verbatim** from `docs/03-regras-de-negocio.md`
 | Use case types | `{Verb}{Noun}Command` / `Query` / `Handler` / `Validator` | `CreateUserHandler` |
 | Endpoints | `{Feature}Endpoints`, `Map{Feature}Endpoints` | `UsersEndpoints` |
 
-Use the business vocabulary from `docs/` translated consistently: *usuário* → `User`, *perfil de permissão* → `PermissionProfile`, *tela* → `Screen`, *nível* → `AccessLevel`, *desativar* → `Deactivate`. Avoid technical filler names such as `Manager`, `Helper`, `Data`.
+Translate business terms exactly as in the [domain glossary](domain-glossary.md); add new terms there. Avoid technical filler names such as `Helper`, `Processor`, `Data`, and never use `Manager` as a class-name suffix: in this domain, Manager is an access level (`AccessLevel.Manager`).
 
 ## Style
 

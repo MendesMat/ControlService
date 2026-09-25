@@ -10,6 +10,7 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 | Guide | Covers |
 |---|---|
 | [architecture.md](guides/architecture.md) | Layers, dependency rule, feature folders, DDD building blocks, Result pattern, endpoints |
+| [domain-glossary.md](guides/domain-glossary.md) | Business terms in Portuguese, their names in code and on the wire |
 | [coding-conventions.md](guides/coding-conventions.md) | Naming, style, language of each artifact, packages, warnings |
 | [testing.md](guides/testing.md) | Test projects, naming, commands, coverage, what to test where |
 | [documentation.md](guides/documentation.md) | What to update in `docs/` and in the ADRs, and when |
@@ -24,6 +25,14 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 | [implement-a-feature.md](workflows/implement-a-feature.md) | Build a slice of the roadmap from the business rules to a merged pull request |
 | [record-a-decision.md](workflows/record-a-decision.md) | Propose, accept or supersede an ADR |
 | [review-dependency-updates.md](workflows/review-dependency-updates.md) | Evaluate and merge Dependabot pull requests |
+
+## For the owner
+
+[trabalhando-com-agentes.md](trabalhando-com-agentes.md) (Portuguese): how to ask for tasks, review pull requests and keep conversations productive when pairing with an agent.
+
+## Enforced rules
+
+`.claude/settings.json` blocks, in Claude Code, pushing to `main`, force pushing and trusting certificates. The rules in `AGENTS.md` still apply to every agent; the settings file only makes the most critical ones impossible to break by mistake. Changing it requires the owner's approval.
 
 ## Maintaining these files
 
