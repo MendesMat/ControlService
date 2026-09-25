@@ -4,6 +4,7 @@ date: 2026-09-23
 accepted: 2026-09-24
 scope: back-end
 tags: [quality, testing]
+amended-by: ADR-0033 (test doubles and when tests are written)
 ---
 
 # ADR-0024: Testing strategy

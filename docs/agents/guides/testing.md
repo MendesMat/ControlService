@@ -1,13 +1,13 @@
 # Testing guide
 
-The strategy is in ADR-0024. Tests are the executable version of the business rules, so they are part of every change, not an extra.
+The strategy is in ADR-0024, and ADR-0033 makes all development test-first. Tests are the executable version of the business rules, so they are part of every change, not an extra. **How** to write them, one failing test at a time, is in the [test-driven development workflow](../workflows/test-driven-development.md).
 
 ## Test projects
 
 | Project | Tests | Doubles |
 |---|---|---|
 | `ControlService.Domain.Tests` | Value objects, aggregates, effective access | None: the domain has no dependencies |
-| `ControlService.Application.Tests` | Handlers and validators | NSubstitute fakes for the Application interfaces |
+| `ControlService.Application.Tests` | Handlers and validators | Hand-written in-memory fakes of the Application interfaces (ADR-0033); NSubstitute only when a fake would be clearly heavier |
 | `ControlService.Api.IntegrationTests` | Real HTTP calls, authentication, authorization, persistence | `WebApplicationFactory`, Testcontainers (PostgreSQL, Mailpit) |
 | `ControlService.ArchitectureTests` | Dependency rules between layers | None |
 
@@ -38,7 +38,8 @@ dotnet test --solution ControlService.slnx --coverage --coverage-output-format c
 ## Writing tests
 
 - **Name tests after the behavior**, with underscores: `Cpf_with_all_equal_digits_is_rejected`, `Denied_in_one_profile_and_editor_in_another_results_in_editor`.
-- **Domain rules are written test-first:** a failing test for the rule, then the smallest code that passes, then refactor.
+- **Every behavior starts as a failing test,** in every layer ([TDD workflow](../workflows/test-driven-development.md)).
+- **Test behavior, not implementation:** assert on outcomes through the public API. Fakes live in the test project (for example `Fakes/InMemoryUserRepository.cs`) and are reused across tests.
 - Arrange, act, assert, in that order, one behavior per test. Use `[Theory]` with `[InlineData]` for tables of cases, such as valid and invalid CPFs.
 - Control time with a fake `TimeProvider`; never depend on the real clock.
 - Integration tests run against real containers, never the EF Core in-memory provider.

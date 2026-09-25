@@ -4,16 +4,16 @@ Everything about Control Service that is not code: what the system does, how the
 
 ## Start here
 
-| If you want to… | Read |
-|---|---|
-| Understand the product | [product/overview.md](product/overview.md), then [product/glossary.md](product/glossary.md) |
-| Implement or change a feature | Its file in [product/features/](product/features/), plus [product/conventions.md](product/conventions.md) and [api/conventions.md](api/conventions.md) |
-| Add a new screen | [product/features/template.md](product/features/template.md) and the [implement a feature](agents/workflows/implement-a-feature.md) workflow |
-| Know why the back-end is built this way | [adr/](adr/README.md) |
-| Check what is still undecided | [product/open-questions.md](product/open-questions.md) |
-| Work on the front-end prototype | [frontend/](frontend/README.md) |
-| Work as an AI agent | [AGENTS.md](../AGENTS.md), then [agents/](agents/README.md) |
-| Run the system | [backend/ControlService/README.md](../backend/ControlService/README.md) |
+| If you want to…                         | Read                                                                                                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Understand the product                  | [product/overview.md](product/overview.md), then [product/glossary.md](product/glossary.md)                                                            |
+| Implement or change a feature           | Its file in [product/features/](product/features/), plus [product/conventions.md](product/conventions.md) and [api/conventions.md](api/conventions.md) |
+| Add a new screen                        | [product/features/template.md](product/features/template.md) and the [implement a feature](agents/workflows/implement-a-feature.md) workflow           |
+| Know why the back-end is built this way | [adr/](adr/README.md)                                                                                                                                  |
+| Check what is still undecided           | [product/open-questions.md](product/open-questions.md)                                                                                                 |
+| Work on the front-end prototype         | [frontend/](frontend/README.md)                                                                                                                        |
+| Work as an AI agent                     | [AGENTS.md](../AGENTS.md), then [agents/](agents/README.md)                                                                                            |
+| Run the system                          | [backend/ControlService/README.md](../backend/ControlService/README.md)                                                                                |
 
 ## Layout
 
