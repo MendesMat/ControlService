@@ -1,6 +1,6 @@
-using ControlService.Domain.ValueObjects;
+using ControlService.Domain.Users;
 
-namespace ControlService.Domain.Tests.ValueObjects;
+namespace ControlService.Domain.Tests.Users;
 
 public class CpfTests
 {
@@ -32,7 +32,7 @@ public class CpfTests
         var result = Cpf.Create(cpf);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
+        result.Error.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
     }
 
     [Theory]
@@ -43,7 +43,7 @@ public class CpfTests
         var result = Cpf.Create(cpf);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
+        result.Error.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
     }
 
     [Theory]
@@ -54,6 +54,6 @@ public class CpfTests
         var result = Cpf.Create(cpf);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
+        result.Error.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
     }
 }

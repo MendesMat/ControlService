@@ -1,6 +1,6 @@
-using ControlService.Domain.ValueObjects;
+using ControlService.Domain.Users;
 
-namespace ControlService.Domain.Tests.ValueObjects;
+namespace ControlService.Domain.Tests.Users;
 
 public class CepTests
 {
@@ -28,6 +28,6 @@ public class CepTests
         var result = Cep.Create("2004002");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("O CEP precisa ter 8 números.");
+        result.Error.Message.ShouldBe("O CEP precisa ter 8 números.");
     }
 }

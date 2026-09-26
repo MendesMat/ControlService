@@ -95,7 +95,7 @@ Some pieces give no useful Red: registering services in DI, `Program.cs` wiring,
 
 ## Example: two cycles in C#
 
-Illustrative only; the real API of the value objects comes from issue #4.
+These are the real first cycles of `PhoneNumber` (`Domain/Users/PhoneNumber.cs`). A failure test reads `result.Error` without `!`: `Result` marks `IsFailure` with `[MemberNotNullWhen]`, so once `IsFailure.ShouldBeTrue()` passes, the compiler knows `Error` is not null.
 
 **Cycle 1, Red.** The type does not exist, so the build fails: a valid Red.
 
