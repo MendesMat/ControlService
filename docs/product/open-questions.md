@@ -20,6 +20,7 @@ What is still undecided and affects the back-end or its integration with the fro
 | OQ-05 | **Demo access in the public environment.** The prototype shows the login `admin` and the password `admin123`, and e-mails go to its test inbox. For the real back-end published to reviewers, it is undecided how someone signs in without receiving an activation link: for example, a demo user with a password published in the README, limited profiles and data restored periodically. |
 | OQ-06 | **Personal data of the Admin.** The Admin cannot be changed (USR-23). Should it still be possible to fill in data such as phone and signature, or does it stay a technical account? Until decided, it is a technical account. |
 | OQ-07 | **Where the front-end is served.** The session refresh cookie works only if the page is on `localhost` or on the API's own site (API-10). Serving the HTML from the API or from another address is undecided, and it defines the CORS configuration. |
+| OQ-11 | **Unknown screen in a profile's levels.** When a profile is saved with an item in `levels` whose screen key is not in the catalog (for example, from a page opened before a screen was retired), should the server refuse the save (400 `validation_failed`) or ignore that item, as it ignores unknown ids in `profileIds` (PERM-05, USR-13)? The domain already refuses to create such a `ScreenKey`, with the message confirmed by the owner: *"Esta tela não existe mais no sistema. Atualize a página e tente de novo."* Must be decided before the permission profile endpoints. |
 
 ### Content
 
