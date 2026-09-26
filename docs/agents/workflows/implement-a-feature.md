@@ -8,6 +8,7 @@ Use this workflow for any slice of the roadmap, for example "permission profiles
 2. Read the ADRs listed at the top of the feature document (the index is in `docs/adr/README.md`).
 3. Check `docs/product/open-questions.md`: if the slice depends on an open question, ask the owner before coding.
 4. List the rule IDs the slice implements (for example USR-01 to USR-13): they become your checklist of tests. If anything is ambiguous or contradictory, ask the owner (see the [communication guide](../guides/communication.md)).
+5. For every rejection or error case in the slice (an invalid value, a value outside a closed list, a missing record), confirm the feature document gives its exact message. List the ones without a message and ask the owner **before** showing the test list, so the gaps are settled in one conversation instead of interrupting a Red or Green phase. A new message becomes a new rule ID in the feature document, in the same pull request.
 
 ## 2. Plan the slice
 

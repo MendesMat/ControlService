@@ -27,7 +27,7 @@ Run from `backend/ControlService`. Each one was verified on this machine.
 
 | Purpose | Command |
 |---|---|
-| Build (warnings are errors) | `dotnet build ControlService.slnx` |
+| Build (warnings are errors; prints only problems and the summary) | `dotnet build ControlService.slnx -v q -clp:Summary` |
 | All tests | `dotnet test --solution ControlService.slnx` |
 | Tests of one project, filtered | `dotnet test --project tests/ControlService.Domain.Tests --filter-method '*Cpf*'` |
 | Style and formatting check | `dotnet format ControlService.slnx --verify-no-changes` |
