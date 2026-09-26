@@ -3,51 +3,51 @@ namespace ControlService.Domain.Access;
 /// <summary>Stable screen keys owned by the back-end (ADR-0021). Mirrors docs/product/screen-catalog.json.</summary>
 public static class ScreenKeys
 {
-    public const string GerenciamentoUsuarios = "gerenciamento/usuarios";
-    public const string GerenciamentoPermissoes = "gerenciamento/permissoes";
-    public const string GerenciamentoPerfisCnpj = "gerenciamento/perfis-cnpj";
-    public const string GerenciamentoNaturezasDeServico = "gerenciamento/naturezas-de-servico";
-    public const string GerenciamentoObjetosDeServico = "gerenciamento/objetos-de-servico";
-    public const string GerenciamentoProdutos = "gerenciamento/produtos";
-    public const string GerenciamentoGarantias = "gerenciamento/garantias";
-    public const string GerenciamentoFormasDePagamento = "gerenciamento/formas-de-pagamento";
-    public const string GerenciamentoVeiculos = "gerenciamento/veiculos";
+    public const string Users = "gerenciamento/usuarios";
+    public const string PermissionProfiles = "gerenciamento/permissoes";
+    public const string CnpjProfiles = "gerenciamento/perfis-cnpj";
+    public const string ServiceNatures = "gerenciamento/naturezas-de-servico";
+    public const string ServiceObjects = "gerenciamento/objetos-de-servico";
+    public const string Products = "gerenciamento/produtos";
+    public const string Warranties = "gerenciamento/garantias";
+    public const string PaymentMethods = "gerenciamento/formas-de-pagamento";
+    public const string Vehicles = "gerenciamento/veiculos";
 
-    public const string ComercialClientes = "comercial/clientes";
-    public const string ComercialRoteiroDiario = "comercial/roteiro-diario";
-    public const string ComercialRoteiroMensal = "comercial/roteiro-mensal";
-    public const string ComercialAcompanhamento = "comercial/acompanhamento";
-    public const string ComercialRenovacoes = "comercial/renovacoes";
+    public const string Customers = "comercial/clientes";
+    public const string DailyRoute = "comercial/roteiro-diario";
+    public const string MonthlyRoute = "comercial/roteiro-mensal";
+    public const string FollowUp = "comercial/acompanhamento";
+    public const string Renewals = "comercial/renovacoes";
 
-    public const string FinanceiroContasAReceber = "financeiro/contas-a-receber";
-    public const string FinanceiroContasAPagar = "financeiro/contas-a-pagar";
+    public const string AccountsReceivable = "financeiro/contas-a-receber";
+    public const string AccountsPayable = "financeiro/contas-a-pagar";
 
-    public const string RelatoriosRelatorioDeVendas = "relatorios/relatorio-de-vendas";
-    public const string RelatoriosRaae = "relatorios/raae";
-    public const string RelatoriosIncongruencias = "relatorios/incongruencias";
-    public const string RelatoriosCustoXFaturamento = "relatorios/custo-x-faturamento";
+    public const string SalesReport = "relatorios/relatorio-de-vendas";
+    public const string RaaeReport = "relatorios/raae";
+    public const string InconsistencyReport = "relatorios/incongruencias";
+    public const string CostVersusRevenueReport = "relatorios/custo-x-faturamento";
 
     public static readonly IReadOnlyCollection<string> All =
     [
-        GerenciamentoUsuarios,
-        GerenciamentoPermissoes,
-        GerenciamentoPerfisCnpj,
-        GerenciamentoNaturezasDeServico,
-        GerenciamentoObjetosDeServico,
-        GerenciamentoProdutos,
-        GerenciamentoGarantias,
-        GerenciamentoFormasDePagamento,
-        GerenciamentoVeiculos,
-        ComercialClientes,
-        ComercialRoteiroDiario,
-        ComercialRoteiroMensal,
-        ComercialAcompanhamento,
-        ComercialRenovacoes,
-        FinanceiroContasAReceber,
-        FinanceiroContasAPagar,
-        RelatoriosRelatorioDeVendas,
-        RelatoriosRaae,
-        RelatoriosIncongruencias,
-        RelatoriosCustoXFaturamento,
+        Users,
+        PermissionProfiles,
+        CnpjProfiles,
+        ServiceNatures,
+        ServiceObjects,
+        Products,
+        Warranties,
+        PaymentMethods,
+        Vehicles,
+        Customers,
+        DailyRoute,
+        MonthlyRoute,
+        FollowUp,
+        Renewals,
+        AccountsReceivable,
+        AccountsPayable,
+        SalesReport,
+        RaaeReport,
+        InconsistencyReport,
+        CostVersusRevenueReport,
     ];
 }

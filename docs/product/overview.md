@@ -43,42 +43,42 @@ The same list, with areas and access levels, is available as data in [screen-cat
 
 ### Gerenciamento (Management)
 
-| Screen | Key | Status |
-|---|---|---|
-| Usuários | `gerenciamento/usuarios` | Built ([users](features/users.md)) |
-| Permissões | `gerenciamento/permissoes` | Built ([permission profiles](features/permission-profiles.md)) |
-| Perfis CNPJ | `gerenciamento/perfis-cnpj` | Not specified yet |
-| Naturezas de Serviço | `gerenciamento/naturezas-de-servico` | Not specified yet |
-| Objetos de Serviço | `gerenciamento/objetos-de-servico` | Not specified yet |
-| Produtos | `gerenciamento/produtos` | Not specified yet |
-| Garantias | `gerenciamento/garantias` | Not specified yet |
-| Formas de Pagamento | `gerenciamento/formas-de-pagamento` | Not specified yet |
-| Veículos | `gerenciamento/veiculos` | Not specified yet |
+| Screen | Key | Code | Status |
+|---|---|---|---|
+| Usuários | `gerenciamento/usuarios` | `ScreenKeys.Users` | Built ([users](features/users.md)) |
+| Permissões | `gerenciamento/permissoes` | `ScreenKeys.PermissionProfiles` | Built ([permission profiles](features/permission-profiles.md)) |
+| Perfis CNPJ | `gerenciamento/perfis-cnpj` | `ScreenKeys.CnpjProfiles` | Not specified yet |
+| Naturezas de Serviço | `gerenciamento/naturezas-de-servico` | `ScreenKeys.ServiceNatures` | Not specified yet |
+| Objetos de Serviço | `gerenciamento/objetos-de-servico` | `ScreenKeys.ServiceObjects` | Not specified yet |
+| Produtos | `gerenciamento/produtos` | `ScreenKeys.Products` | Not specified yet |
+| Garantias | `gerenciamento/garantias` | `ScreenKeys.Warranties` | Not specified yet |
+| Formas de Pagamento | `gerenciamento/formas-de-pagamento` | `ScreenKeys.PaymentMethods` | Not specified yet |
+| Veículos | `gerenciamento/veiculos` | `ScreenKeys.Vehicles` | Not specified yet |
 
 ### Comercial (Commercial)
 
-| Screen | Key | Status |
-|---|---|---|
-| Clientes | `comercial/clientes` | Not specified yet |
-| Roteiro Diário | `comercial/roteiro-diario` | Not specified yet |
-| Roteiro Mensal | `comercial/roteiro-mensal` | Not specified yet |
-| Acompanhamento | `comercial/acompanhamento` | Not specified yet |
-| Renovações | `comercial/renovacoes` | Not specified yet |
+| Screen | Key | Code | Status |
+|---|---|---|---|
+| Clientes | `comercial/clientes` | `ScreenKeys.Customers` | Not specified yet |
+| Roteiro Diário | `comercial/roteiro-diario` | `ScreenKeys.DailyRoute` | Not specified yet |
+| Roteiro Mensal | `comercial/roteiro-mensal` | `ScreenKeys.MonthlyRoute` | Not specified yet |
+| Acompanhamento | `comercial/acompanhamento` | `ScreenKeys.FollowUp` | Not specified yet |
+| Renovações | `comercial/renovacoes` | `ScreenKeys.Renewals` | Not specified yet |
 
 ### Financeiro (Finance)
 
-| Screen | Key | Status |
-|---|---|---|
-| Contas a Receber | `financeiro/contas-a-receber` | Not specified yet |
-| Contas a Pagar | `financeiro/contas-a-pagar` | Not specified yet |
+| Screen | Key | Code | Status |
+|---|---|---|---|
+| Contas a Receber | `financeiro/contas-a-receber` | `ScreenKeys.AccountsReceivable` | Not specified yet |
+| Contas a Pagar | `financeiro/contas-a-pagar` | `ScreenKeys.AccountsPayable` | Not specified yet |
 
 ### Relatórios (Reports)
 
-| Screen | Key | Status |
-|---|---|---|
-| Relatório de Vendas | `relatorios/relatorio-de-vendas` | Not specified yet |
-| RAAE | `relatorios/raae` | Not specified yet |
-| Incongruências | `relatorios/incongruencias` | Not specified yet |
-| Custo x Faturamento | `relatorios/custo-x-faturamento` | Not specified yet |
+| Screen | Key | Code | Status |
+|---|---|---|---|
+| Relatório de Vendas | `relatorios/relatorio-de-vendas` | `ScreenKeys.SalesReport` | Not specified yet |
+| RAAE | `relatorios/raae` | `ScreenKeys.RaaeReport` | Not specified yet |
+| Incongruências | `relatorios/incongruencias` | `ScreenKeys.InconsistencyReport` | Not specified yet |
+| Custo x Faturamento | `relatorios/custo-x-faturamento` | `ScreenKeys.CostVersusRevenueReport` | Not specified yet |
 
-Screen names stay in Portuguese because they are what people see in the menu. "Built" means the prototype already implements the screen; the back-end implements them slice by slice (see the [roadmap](../../README.md#roadmap)).
+Screen names stay in Portuguese because they are what people see in the menu. The constants in code use English names, like every identifier; only the key keeps the Portuguese value. "Built" means the prototype already implements the screen; the back-end implements them slice by slice (see the [roadmap](../../README.md#roadmap)).
