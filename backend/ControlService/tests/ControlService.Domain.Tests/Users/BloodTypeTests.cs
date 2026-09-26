@@ -27,6 +27,6 @@ public class BloodTypeTests
         var result = BloodType.Create("X+");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("Este tipo sanguíneo não é válido.");
+        result.Error.Message.ShouldBe("Este tipo sanguíneo não é válido.");
     }
 }

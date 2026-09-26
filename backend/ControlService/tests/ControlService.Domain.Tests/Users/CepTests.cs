@@ -28,6 +28,6 @@ public class CepTests
         var result = Cep.Create("2004002");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("O CEP precisa ter 8 números.");
+        result.Error.Message.ShouldBe("O CEP precisa ter 8 números.");
     }
 }

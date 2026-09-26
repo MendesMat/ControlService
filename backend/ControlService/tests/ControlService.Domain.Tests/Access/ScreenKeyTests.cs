@@ -19,7 +19,7 @@ public class ScreenKeyTests
         var result = ScreenKey.Create("gerenciamento/tela-que-nao-existe");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Code.ShouldBe("validation_failed");
+        result.Error.Code.ShouldBe("validation_failed");
         result.Error.Message.ShouldBe("Esta tela não existe mais no sistema. Atualize a página e tente de novo.");
     }
 }

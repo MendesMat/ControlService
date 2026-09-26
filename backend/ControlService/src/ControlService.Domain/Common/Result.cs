@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ControlService.Domain.Common;
 
 public sealed class Result
@@ -8,8 +10,10 @@ public sealed class Result
         Error = error;
     }
 
+    [MemberNotNullWhen(false, nameof(Error))]
     public bool IsSuccess { get; }
 
+    [MemberNotNullWhen(true, nameof(Error))]
     public bool IsFailure => !IsSuccess;
 
     public Error? Error { get; }

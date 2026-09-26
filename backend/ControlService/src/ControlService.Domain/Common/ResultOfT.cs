@@ -17,8 +17,10 @@ public sealed class Result<T>
         Error = error;
     }
 
+    [MemberNotNullWhen(false, nameof(Error))]
     public bool IsSuccess { get; }
 
+    [MemberNotNullWhen(true, nameof(Error))]
     public bool IsFailure => !IsSuccess;
 
     public Error? Error { get; }

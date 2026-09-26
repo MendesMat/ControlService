@@ -19,7 +19,7 @@ public class EmailAddressTests
         var result = EmailAddress.Create("");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("Informe o e-mail. É para ele que o link de ativação será enviado.");
+        result.Error.Message.ShouldBe("Informe o e-mail. É para ele que o link de ativação será enviado.");
     }
 
     [Theory]
@@ -31,7 +31,7 @@ public class EmailAddressTests
         var result = EmailAddress.Create(email);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe(
+        result.Error.Message.ShouldBe(
             "Este e-mail não parece válido. Confira se ele tem @ e o domínio, por exemplo ana@empresa.com.br.");
     }
 }

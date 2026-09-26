@@ -19,7 +19,7 @@ public class LoginTests
         var result = Login.Create("an");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe(
+        result.Error.Message.ShouldBe(
             "O login deve ter de 3 a 30 caracteres, usando só letras sem acento, números, ponto, hífen ou sublinhado.");
     }
 
@@ -29,7 +29,7 @@ public class LoginTests
         var result = Login.Create(new string('a', 31));
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe(
+        result.Error.Message.ShouldBe(
             "O login deve ter de 3 a 30 caracteres, usando só letras sem acento, números, ponto, hífen ou sublinhado.");
     }
 
@@ -50,7 +50,7 @@ public class LoginTests
         var result = Login.Create(login);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe(
+        result.Error.Message.ShouldBe(
             "O login deve ter de 3 a 30 caracteres, usando só letras sem acento, números, ponto, hífen ou sublinhado.");
     }
 }
