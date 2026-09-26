@@ -21,4 +21,6 @@ public static class TextNormalization
 
         return withoutAccents.ToString().Normalize(NormalizationForm.FormC);
     }
+
+    public static string ExtractDigits(string text) => new(text.Where(char.IsDigit).ToArray());
 }

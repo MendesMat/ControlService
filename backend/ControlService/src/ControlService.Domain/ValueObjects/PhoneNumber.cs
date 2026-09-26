@@ -10,7 +10,7 @@ public sealed class PhoneNumber
 
     public static Result<PhoneNumber> Create(string phone)
     {
-        var digits = new string(phone.Where(char.IsDigit).ToArray());
+        var digits = TextNormalization.ExtractDigits(phone);
 
         if (digits.Length is < 10 or > 11)
         {
