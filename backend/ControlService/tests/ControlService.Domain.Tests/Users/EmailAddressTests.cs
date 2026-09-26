@@ -1,6 +1,6 @@
-using ControlService.Domain.ValueObjects;
+using ControlService.Domain.Users;
 
-namespace ControlService.Domain.Tests.ValueObjects;
+namespace ControlService.Domain.Tests.Users;
 
 public class EmailAddressTests
 {

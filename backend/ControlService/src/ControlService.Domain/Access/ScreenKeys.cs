@@ -1,4 +1,4 @@
-namespace ControlService.Domain.ValueObjects;
+namespace ControlService.Domain.Access;
 
 /// <summary>Stable screen keys owned by the back-end (ADR-0021). Mirrors docs/product/screen-catalog.json.</summary>
 public static class ScreenKeys

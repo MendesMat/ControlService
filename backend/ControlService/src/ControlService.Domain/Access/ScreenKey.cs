@@ -1,6 +1,6 @@
 using ControlService.Domain.Common;
 
-namespace ControlService.Domain.ValueObjects;
+namespace ControlService.Domain.Access;
 
 public sealed class ScreenKey
 {

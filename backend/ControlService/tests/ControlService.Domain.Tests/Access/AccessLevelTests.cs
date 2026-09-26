@@ -1,6 +1,6 @@
-using ControlService.Domain.ValueObjects;
+using ControlService.Domain.Access;
 
-namespace ControlService.Domain.Tests.ValueObjects;
+namespace ControlService.Domain.Tests.Access;
 
 public class AccessLevelTests
 {
