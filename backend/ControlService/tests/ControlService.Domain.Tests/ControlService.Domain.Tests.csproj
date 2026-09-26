@@ -2,11 +2,6 @@
 
   <!-- Value objects, aggregates and the effective-access rule, tested without database or web server. -->
 
-  <PropertyGroup>
-    <!-- TEMPORARY: exit code 8 means "zero tests ran". Remove this line when the first test is written. -->
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\ControlService.Domain\ControlService.Domain.csproj" />
   </ItemGroup>
