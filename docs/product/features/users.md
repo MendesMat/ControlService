@@ -108,6 +108,7 @@ Messages are verbatim, in Portuguese (CNV-16). The error path of each field is t
 | USR-11 | `address.cep` | When filled in, 8 digits. | O CEP precisa ter 8 números. |
 | USR-12 | `emergencyContact.phone` | Same rule as USR-10. | Digite o telefone com DDD. Ex.: (21) 98765-4321. |
 | USR-13 | `profileIds` | May be empty. Ids of profiles that do not exist are discarded on save. | — |
+| USR-14 | `bloodType` | When filled in, must be one of the closed list `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`, `O+`, `O-`. | Este tipo sanguíneo não é válido. |
 
 Duplicates (USR-03, USR-06) are validation errors like the others, shown under the field (ADR-0009).
 
