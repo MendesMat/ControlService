@@ -45,4 +45,15 @@ public class CpfTests
         result.IsFailure.ShouldBeTrue();
         result.Error!.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
     }
+
+    [Theory]
+    [InlineData("123456789")]
+    [InlineData("123456789012")]
+    public void Cpf_with_wrong_length_is_rejected(string cpf) // USR-08
+    {
+        var result = Cpf.Create(cpf);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error!.Message.ShouldBe("Este CPF não é válido. Confira os números ou deixe o campo em branco.");
+    }
 }

@@ -12,7 +12,8 @@ public sealed class Cpf
     {
         var digits = TextNormalization.ExtractDigits(cpf);
 
-        var isInvalid = digits.Distinct().Count() == 1
+        var isInvalid = digits.Length != 11
+            || digits.Distinct().Count() == 1
             || digits[9] - '0' != CheckDigit(digits[..9], firstWeight: 10)
             || digits[10] - '0' != CheckDigit(digits[..10], firstWeight: 11);
 
