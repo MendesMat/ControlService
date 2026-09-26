@@ -1,6 +1,6 @@
-using ControlService.Domain.ValueObjects;
+using ControlService.Domain.Users;
 
-namespace ControlService.Domain.Tests.ValueObjects;
+namespace ControlService.Domain.Tests.Users;
 
 public class PhoneNumberTests
 {
@@ -37,7 +37,7 @@ public class PhoneNumberTests
         var result = PhoneNumber.Create("219876543");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("Digite o telefone com DDD. Ex.: (21) 98765-4321.");
+        result.Error.Message.ShouldBe("Digite o telefone com DDD. Ex.: (21) 98765-4321.");
     }
 
     [Fact]
@@ -46,6 +46,6 @@ public class PhoneNumberTests
         var result = PhoneNumber.Create("219876543210");
 
         result.IsFailure.ShouldBeTrue();
-        result.Error!.Message.ShouldBe("Digite o telefone com DDD. Ex.: (21) 98765-4321.");
+        result.Error.Message.ShouldBe("Digite o telefone com DDD. Ex.: (21) 98765-4321.");
     }
 }

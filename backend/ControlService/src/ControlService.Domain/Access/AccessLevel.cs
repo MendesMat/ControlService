@@ -1,4 +1,4 @@
-namespace ControlService.Domain.ValueObjects;
+namespace ControlService.Domain.Access;
 
 public enum AccessLevel
 {

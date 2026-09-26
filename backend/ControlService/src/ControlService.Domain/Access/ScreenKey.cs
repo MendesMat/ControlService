@@ -1,6 +1,6 @@
 using ControlService.Domain.Common;
 
-namespace ControlService.Domain.ValueObjects;
+namespace ControlService.Domain.Access;
 
 public sealed class ScreenKey
 {
@@ -12,7 +12,9 @@ public sealed class ScreenKey
     {
         if (!ScreenKeys.All.Contains(key))
         {
-            return Result<ScreenKey>.Failure(new Error("invalid_screen_key", "Unknown screen key."));
+            return Result<ScreenKey>.Failure(new Error(
+                "validation_failed",
+                "Esta tela não existe mais no sistema. Atualize a página e tente de novo."));
         }
 
         return Result<ScreenKey>.Success(new ScreenKey(key));

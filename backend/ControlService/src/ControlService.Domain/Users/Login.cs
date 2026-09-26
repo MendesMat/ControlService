@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using ControlService.Domain.Common;
 
-namespace ControlService.Domain.ValueObjects;
+namespace ControlService.Domain.Users;
 
 public sealed partial class Login
 {
