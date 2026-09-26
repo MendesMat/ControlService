@@ -63,7 +63,7 @@ all-equal-digits rule are enforced (USR-08); uniqueness is not required.
 From `backend/ControlService`, both must succeed with zero warnings:
 
 ```bash
-dotnet build ControlService.slnx
+dotnet build ControlService.slnx -v q -clp:Summary
 ```
 
 ```bash
