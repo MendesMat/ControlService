@@ -83,6 +83,11 @@ For automated checks against an untrusted certificate, use `curl.exe -k`; do not
 
 The AppHost keeps `ASPIRE010` suppressed: the Aspire CLI bundle tries to trust the development certificate on start (see the comment in `ControlService.AppHost.csproj`).
 
+## Line endings and generated code
+
+- `.editorconfig` requires CRLF in C# files, but files written by agent tools (and by `sed`) come out with LF. The build does not notice; `dotnet format --verify-no-changes` fails with `ENDOFLINE` on every line. Run `dotnet format ControlService.slnx` before committing. Git also warns "LF will be replaced by CRLF" on commit; that warning alone is harmless.
+- Visual Studio may show `CS8795` ("partial method must have an implementation part") on `[GeneratedRegex]` methods while the command-line build is clean: the regex source generator has not run for IntelliSense yet. Rebuild the solution or reload the project; the command-line build is the reference.
+
 ## Windows PowerShell 5.1 pitfalls
 
 - `&&` and `||` do not exist. Use `;` or `if ($?) { ... }`.

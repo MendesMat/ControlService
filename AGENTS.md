@@ -92,6 +92,7 @@ In Claude Code, `.claude/settings.json` also **blocks** pushing to `main`, force
 - `dotnet test` runs on Microsoft.Testing.Platform: VSTest options (`--logger`, `--collect`) do not exist, and exit code 8 means "zero tests ran". The test projects without tests have a `TEMPORARY` line accepting it: delete it with the first test.
 - "**Gerenciador**" is two things: the system **profile** (`00000000-0000-7000-8000-000000000002`) and the highest **access level** (`AccessLevel.Manager`, wire value `gerenciador`). Say which one you mean.
 - The shell is **Windows PowerShell 5.1**: no `&&`, mangled double quotes in native arguments, and git/gh/docker write progress to stderr, which PowerShell reports as an error even on success. Check `$LASTEXITCODE`.
+- Files you write come out with LF, and `.editorconfig` requires CRLF: run `dotnet format ControlService.slnx` before committing, or the formatting check fails with `ENDOFLINE`.
 - `localhost` resolves to IPv6 first: publish container ports as `127.0.0.1:<host>:<container>`.
 - HTTPS works only after the owner trusts the development certificate. For automated checks, use `curl.exe -k`.
 

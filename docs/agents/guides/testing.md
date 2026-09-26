@@ -55,4 +55,4 @@ Every endpoint: one allowed and one denied path for its minimum level; the 409 c
 
 ## Temporary settings to remove
 
-`ControlService.Domain.Tests.csproj` and `ControlService.Application.Tests.csproj` contain a line marked `TEMPORARY` that accepts exit code 8 (no tests yet). Delete that line in the pull request that adds the first test to each project.
+`ControlService.Application.Tests.csproj` contains a line marked `TEMPORARY` that accepts exit code 8 (no tests yet). Delete that line in the pull request that adds its first test, as issue #4 did for `ControlService.Domain.Tests`.
