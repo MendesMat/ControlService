@@ -64,4 +64,26 @@ public class PermissionProfileTests
         result.Error.Message.ShouldBe("O perfil Gerenciador é do sistema e não pode ser alterado nem excluído.");
         profile.GetLevel(users).ShouldBe(AccessLevel.Manager);
     }
+
+    [Fact]
+    public void Regular_profile_can_be_deleted() // PERM-20
+    {
+        var profile = PermissionProfile.Create();
+
+        var result = profile.Delete();
+
+        result.IsSuccess.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Manager_profile_cannot_be_deleted() // PERM-22
+    {
+        var profile = PermissionProfile.CreateManagerProfile();
+
+        var result = profile.Delete();
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("system_record");
+        result.Error.Message.ShouldBe("O perfil Gerenciador é do sistema e não pode ser alterado nem excluído.");
+    }
 }

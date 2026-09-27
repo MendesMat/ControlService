@@ -33,14 +33,23 @@ public sealed class PermissionProfile
 
     public Result SetLevel(ScreenKey screen, AccessLevel level)
     {
-        if (IsSystem)
+        var systemCheck = EnsureNotSystem();
+        if (systemCheck.IsFailure)
         {
-            return Result.Failure(new Error(
-                "system_record",
-                "O perfil Gerenciador é do sistema e não pode ser alterado nem excluído."));
+            return systemCheck;
         }
 
         _levels[screen] = level;
         return Result.Success();
     }
+
+    /// <summary>Guards the invariant that the Gerenciador profile can never be deleted (PERM-22).
+    /// Whether the profile is still in use by a user (PERM-20) is checked by the handler.</summary>
+    public Result Delete() => EnsureNotSystem();
+
+    private Result EnsureNotSystem() => IsSystem
+        ? Result.Failure(new Error(
+            "system_record",
+            "O perfil Gerenciador é do sistema e não pode ser alterado nem excluído."))
+        : Result.Success();
 }
