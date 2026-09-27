@@ -18,7 +18,13 @@ public static partial class LoginSuggestion
             return candidate;
         }
 
-        return $"{candidate}2";
+        var suffix = 2;
+        while (takenLogins.Contains($"{candidate}{suffix}"))
+        {
+            suffix++;
+        }
+
+        return $"{candidate}{suffix}";
     }
 
     [GeneratedRegex("[^a-z0-9._-]")]

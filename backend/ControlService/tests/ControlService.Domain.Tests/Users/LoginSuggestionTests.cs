@@ -45,4 +45,12 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe("ana.souza2");
     }
+
+    [Fact]
+    public void Number_grows_until_the_login_is_free() // USR-14
+    {
+        var suggestion = LoginSuggestion.Suggest("Ana Souza", takenLogins: ["ana.souza", "ana.souza2"]);
+
+        suggestion.ShouldBe("ana.souza3");
+    }
 }
