@@ -19,6 +19,13 @@ public sealed class User
 
     public Result Activate(DateTimeOffset now)
     {
+        if (Status != UserStatus.Pending)
+        {
+            return Result.Failure(new Error(
+                "link_invalid",
+                "Este link não vale mais. Peça a quem cadastrou você para reenviar o acesso."));
+        }
+
         Status = UserStatus.Active;
         ActivatedAt = now;
         return Result.Success();

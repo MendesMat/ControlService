@@ -34,4 +34,18 @@ public class UserTests
         user.Status.ShouldBe(UserStatus.Active);
         user.ActivatedAt.ShouldBe(now);
     }
+
+    [Fact]
+    public void Activating_an_active_user_is_refused_as_invalid_link() // AUTH-23
+    {
+        var user = User.Create();
+        user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
+
+        var result = user.Activate(new DateTimeOffset(2026, 9, 13, 8, 0, 0, TimeSpan.Zero));
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("link_invalid");
+        result.Error.Message.ShouldBe(
+            "Este link não vale mais. Peça a quem cadastrou você para reenviar o acesso.");
+    }
 }
