@@ -28,7 +28,7 @@ Dicas:
 
 O trabalho está organizado em issues no [milestone M1](https://github.com/MendesMat/ControlService/milestone/1), na ordem em que devem ser feitas. Numa conversa nova, cole:
 
-> "Vamos trabalhar na próxima issue aberta do milestone M1, em TDD no modo par. Leia a issue e os documentos que ela cita e me mostre a lista de testes, do mais simples ao mais complexo, com o ID da regra de cada um. Depois siga o AGENTS.md, pausando a cada fase do ciclo, até o PR estar aberto com o CI verde."
+> "Vamos trabalhar na próxima issue aberta do milestone M1, em TDD no modo par. Leia a issue e os documentos que ela cita, me conte o que leu e as lacunas que encontrou, e só depois me mostre a lista de testes, do mais simples ao mais complexo, com o ID da regra de cada um. Depois siga o AGENTS.md, pausando ao fim de cada ciclo, até o PR estar aberto com o CI verde."
 
 Para uma issue específica, troque o começo por "Vamos trabalhar na issue #4". O agente abre o PR com `Closes #4`, e a issue fecha sozinha quando você fizer o merge.
 
@@ -36,7 +36,7 @@ Para uma issue específica, troque o começo por "Vamos trabalhar na issue #4". 
 
 Todo o desenvolvimento segue TDD (*Test-Driven Development*, ADR-0033). Cada comportamento nasce de um teste que falha, e o código cresce só o necessário para ele passar. No **modo par**, que é o padrão, você é o **navegador** e o agente é o **motorista**: ele escreve, você decide a direção.
 
-O ciclo tem três fases, e o agente **para depois de cada uma** mostrando a saída real do teste:
+O ciclo tem três fases. O agente faz as três para um teste e **para uma vez, no fim do ciclo**, mostrando a saída real de cada fase. Ele só para no meio do ciclo se um teste falhar por um motivo inesperado, se passar quando deveria falhar, ou se aparecer uma decisão que é sua.
 
 | Fase | O que o agente mostra | O que você confere |
 |---|---|---|
@@ -46,10 +46,10 @@ O ciclo tem três fases, e o agente **para depois de cada uma** mostrando a saí
 
 Como responder nas pausas:
 
-- **"ok"** ou **"segue"**: continua para a próxima fase.
+- **"ok"** ou **"segue"**: continua com o teste que o agente sugeriu.
 - **"próximo: o teste X"**: escolhe o próximo teste da lista.
 - **"por que assim?"**: peça a explicação. Entender o motivo de cada passo é o objetivo do modo par.
-- **"faça Green e Refactor sem parar"**: junta duas fases quando o passo for óbvio.
+- **"pause a cada fase"**: o agente para depois do Red, do Green e do Refactor, para você acompanhar um ciclo mais de perto.
 - **"modo autônomo nesta tarefa"**: o agente faz os ciclos sozinho e te entrega o registro de cada fase para você auditar. Use em tarefas repetitivas.
 - **"passo a passo"**: volta ao modo par a qualquer momento.
 

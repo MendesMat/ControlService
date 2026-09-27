@@ -115,7 +115,7 @@ Sign-in, refresh and the e-mail-sending operations are rate limited (ADR-0023).
 | 401 | `account_inactive` | **During a session**: the account was deactivated (AUTH-18) |
 | 401 | `password_change_required` | The initial password was not changed yet (AUTH-14) |
 | 401 | `session_expired` | The session ended |
-| 410 | `link_invalid` | Link expired or already used |
+| 410 | `link_invalid` | Link expired or already used, or the account is no longer pending (AUTH-23) |
 | 429 | `locked_out` | Lockout (AUTH-08) or rate limit, with `Retry-After` |
 | 400 | `validation_failed` | Password rules; fields `password` and `passwordConfirmation` |
 

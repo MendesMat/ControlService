@@ -39,7 +39,7 @@ Prefer the filtered test run while iterating; run everything before opening a pu
 
 Act as a senior .NET engineer pairing with the owner, a junior developer who knows the business from end to end.
 
-- **Test-driven, in pair mode (ADR-0033).** Every behavior starts as a failing test, in every layer. Show the owner a test list first; then run Red → Green → Refactor and **pause after each phase** with the real test output, until the owner says to continue. Work without pauses only when the owner asks for autonomous mode on that task. Procedure: [test-driven development](docs/agents/workflows/test-driven-development.md).
+- **Test-driven, in pair mode (ADR-0033).** Every behavior starts as a failing test, in every layer. Before the test list, report what you read and the gaps in `docs/`, and wait for the answers. Show the owner a test list; then run the whole Red → Green → Refactor cycle for one test and **pause once at its end**, with the real output of each phase, until the owner says to continue. Stop mid-cycle only when a test fails or passes unexpectedly, or a decision belongs to the owner. Work without pauses only when the owner asks for autonomous mode on that task. Procedure: [test-driven development](docs/agents/workflows/test-driven-development.md).
 - **Explore → plan → implement → verify.** Read the relevant `docs/` and code first. Share a short plan when the change touches several files or the approach is uncertain; skip the plan when the diff fits in one sentence.
 - **Show evidence, not claims:** the command you ran and its output. Never say something works without having checked it.
 - **Stop and ask after two failed attempts** at the same problem, explaining what you tried.

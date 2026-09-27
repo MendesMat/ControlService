@@ -9,14 +9,17 @@ Use this workflow for any slice of the roadmap, for example "permission profiles
 3. Check `docs/product/open-questions.md`: if the slice depends on an open question, ask the owner before coding.
 4. List the rule IDs the slice implements (for example USR-01 to USR-13): they become your checklist of tests. If anything is ambiguous or contradictory, ask the owner (see the [communication guide](../guides/communication.md)).
 5. For every rejection or error case in the slice (an invalid value, a value outside a closed list, a missing record), confirm the feature document gives its exact message. List the ones without a message and ask the owner **before** showing the test list, so the gaps are settled in one conversation instead of interrupting a Red or Green phase. A new message becomes a new rule ID in the feature document, in the same pull request.
+6. Check that each rule ID you will cite exists once in its document. A duplicated ID is a documentation bug: report it with a proposal (the later rule takes the next free number).
+7. Report the survey to the owner before the test list: the documents you read, the gaps from steps 4 and 5, and any inconsistency you found, each with your recommendation. Wait for the answers; do not fill a gap with an assumption.
 
 ## 2. Plan the slice
 
 - Split it into steps that can each be committed with passing tests, inside out: **domain → application → infrastructure → API**.
 - Write the **test list** of the [TDD workflow](test-driven-development.md): one-line test names, simplest first, each with its rule ID. Show it to the owner in Portuguese, together with the files you expect to create, and wait for approval.
+- Scope every type to what the slice's tests demand. An aggregate gets a field only when a test of this slice needs it; the fields of later issues come with those issues, driven by their tests. Tests create such objects through one helper, so a factory that grows later changes one place.
 - Create the branch ([git and pull requests](git-and-pull-requests.md), steps 1 and 2).
 
-Every step below follows the [TDD workflow](test-driven-development.md): one failing test, the smallest code that passes, refactor, **pause after each phase** in pair mode.
+Every step below follows the [TDD workflow](test-driven-development.md): one failing test, the smallest code that passes, refactor, and **one pause at the end of each cycle** in pair mode (ADR-0033).
 
 ## 3. Domain
 

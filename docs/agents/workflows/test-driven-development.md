@@ -4,7 +4,7 @@ All development in this repository is test-driven (ADR-0033). The goal is *clean
 
 ## Roles and modes
 
-**Pair mode is the default.** The owner is the **navigator**: chooses the next behavior to test and takes the design decisions. The agent is the **driver**: writes the test, the code and the refactoring, and **pauses after each phase** until the owner says to continue. The owner is learning TDD through this project, so the pauses are the point, not an overhead.
+**Pair mode is the default.** The owner is the **navigator**: chooses the next behavior to test and takes the design decisions. The agent is the **driver**: writes the test, the code and the refactoring, runs the **whole cycle** for one test (Red, Green and Refactor) and then **pauses once**, until the owner says to continue. The owner is learning TDD through this project, so the pauses are the point, not an overhead. On any task, the owner can ask for a pause after each phase ("pause a cada fase").
 
 **Autonomous mode** only when the owner explicitly asks for it, for a specific task ("faça sozinho", "modo autônomo", "sem pausas"). The phases and rules stay the same; the pauses are replaced by evidence (see below). The owner can say "passo a passo" at any moment to return to pair mode.
 
@@ -37,20 +37,31 @@ The owner may reorder, add or remove items. New behaviors discovered along the w
   ```
 
 - Confirm it fails **for the expected reason**: a wrong value, or a type or member that does not exist yet (a compile error is a valid Red). A typo or a broken test is not a Red; fix the test and run it again.
-- **Pause:** show the test, the failure and why it is the expected one. Ask "sigo para o Green?".
+- **Stop here** if the test fails for an unexpected reason, or passes when it should fail: show the output and ask before going on (see [step size](#step-size)). Otherwise continue to Green.
 
 ### Green
 - Write the **smallest** code that makes the test pass. Speed beats elegance in this phase. Choose a strategy and say which:
   - **Obvious implementation:** the real code, when it is simple and you are sure.
   - **Fake it:** return a constant, then replace it step by step.
   - **Triangulate:** generalize only when two or more examples demand it.
-- Run the filtered tests and show them green.
-- **Pause:** show the code, the strategy and the output. Ask "sigo para o Refactor?".
+- Run the filtered tests and keep the green output for the report.
 
 ### Refactor
 - With the tests green, remove the shortcuts and the duplication from the Green phase, in production code and in tests. Improve names, extract methods, apply the [coding conventions](../guides/coding-conventions.md). Never change behavior here.
-- Run the tests again and show them green. "Nothing to refactor" is a valid result: say so instead of inventing a change.
-- **Pause:** show what changed (or that nothing did) and propose the next two or three candidate tests from the list, simplest first. The owner chooses.
+- Run the tests again and keep them green. "Nothing to refactor" is a valid result: say so instead of inventing a change.
+
+### The pause at the end of the cycle
+
+Report each phase with its real output:
+
+- **Red:** the test, the failure and why it was the expected one.
+- **Green:** the code and the strategy.
+- **Refactor:** what changed, or that nothing did.
+- The suite status.
+
+Then propose the next two or three candidate tests from the list, simplest first. The owner chooses.
+
+Also stop in the middle of a cycle when a business rule or a design decision belongs to the owner.
 
 Commit when a cycle ends green, or after a few small cycles on the same behavior. Never commit a red build to a branch that you push.
 
@@ -61,6 +72,8 @@ Plan the test list and get it approved as above. Then, for every cycle, log comp
 ## Step size
 
 TDD is being *able* to take tiny steps, not always taking them. Use obvious implementation when you know what to type. When a test surprises you (it passes when it should fail, or fails in an unexpected way), shift down: fake it, triangulate, smaller steps.
+
+A test from the list may pass as soon as it is written, because an earlier cycle already covered the rule (for example, a mandatory case of ADR-0024). Check that it would fail if the rule broke. If so, keep it as documentation of the rule, say at the pause that it had no Red, and write that in the commit message. Never invent an artificial Red.
 
 ## Writing the tests
 
