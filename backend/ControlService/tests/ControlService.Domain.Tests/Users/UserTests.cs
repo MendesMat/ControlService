@@ -64,4 +64,15 @@ public class UserTests
         user.DeactivatedAt.ShouldBe(deactivatedAt);
         user.DeactivatedBy.ShouldBe(deactivatedBy);
     }
+
+    [Fact]
+    public void Deactivating_a_pending_user_makes_it_inactive() // USR-17
+    {
+        var user = User.Create();
+
+        var result = user.Deactivate(Guid.CreateVersion7(), DateTimeOffset.UtcNow);
+
+        result.IsSuccess.ShouldBeTrue();
+        user.Status.ShouldBe(UserStatus.Inactive);
+    }
 }
