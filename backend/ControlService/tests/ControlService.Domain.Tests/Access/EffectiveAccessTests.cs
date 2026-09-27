@@ -88,4 +88,15 @@ public class EffectiveAccessTests
 
         level.ShouldBe(AccessLevel.Editor);
     }
+
+    [Fact]
+    public void Manager_profile_results_in_manager_on_every_screen_including_new_ones() // PERM-06
+    {
+        var manager = PermissionProfile.CreateManagerProfile();
+
+        foreach (var screen in ScreenKeys.All)
+        {
+            EffectiveAccess.GetLevel([manager], ScreenKey.Create(screen).Value).ShouldBe(AccessLevel.Manager);
+        }
+    }
 }
