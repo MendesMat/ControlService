@@ -84,4 +84,14 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe(firstName);
     }
+
+    [Theory]
+    [InlineData("Li")]
+    [InlineData("")]
+    public void Name_shorter_than_3_characters_gives_no_suggestion(string fullName) // USR-15
+    {
+        var suggestion = LoginSuggestion.Suggest(fullName, takenLogins: []);
+
+        suggestion.ShouldBe(string.Empty);
+    }
 }
