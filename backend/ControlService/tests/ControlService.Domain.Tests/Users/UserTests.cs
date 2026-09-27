@@ -48,4 +48,20 @@ public class UserTests
         result.Error.Message.ShouldBe(
             "Este link não vale mais. Peça a quem cadastrou você para reenviar o acesso.");
     }
+
+    [Fact]
+    public void Deactivating_an_active_user_records_status_date_and_author() // USR-16, USR-17
+    {
+        var user = User.Create();
+        user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
+        var deactivatedBy = Guid.CreateVersion7();
+        var deactivatedAt = new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero);
+
+        var result = user.Deactivate(deactivatedBy, deactivatedAt);
+
+        result.IsSuccess.ShouldBeTrue();
+        user.Status.ShouldBe(UserStatus.Inactive);
+        user.DeactivatedAt.ShouldBe(deactivatedAt);
+        user.DeactivatedBy.ShouldBe(deactivatedBy);
+    }
 }

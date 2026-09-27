@@ -15,6 +15,10 @@ public sealed class User
 
     public DateTimeOffset? ActivatedAt { get; private set; }
 
+    public DateTimeOffset? DeactivatedAt { get; private set; }
+
+    public Guid? DeactivatedBy { get; private set; }
+
     public static User Create() => new(Guid.CreateVersion7());
 
     public Result Activate(DateTimeOffset now)
@@ -28,6 +32,14 @@ public sealed class User
 
         Status = UserStatus.Active;
         ActivatedAt = now;
+        return Result.Success();
+    }
+
+    public Result Deactivate(Guid by, DateTimeOffset now)
+    {
+        Status = UserStatus.Inactive;
+        DeactivatedAt = now;
+        DeactivatedBy = by;
         return Result.Success();
     }
 }
