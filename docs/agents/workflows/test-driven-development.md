@@ -1,10 +1,10 @@
 # Workflow: test-driven development
 
-All development in this repository is test-driven (ADR-0033, with the pause cadence of ADR-0034). The goal is *clean code that works*: every behavior starts as a failing test, and the code grows only as far as the tests demand.
+All development in this repository is test-driven (ADR-0033). The goal is *clean code that works*: every behavior starts as a failing test, and the code grows only as far as the tests demand.
 
 ## Roles and modes
 
-**Pair mode is the default.** The owner is the **navigator**: chooses the next behavior to test and takes the design decisions. The agent is the **driver**: writes the test, the code and the refactoring, runs the **whole cycle** for one test (Red, Green and Refactor) and then **pauses once**, until the owner says to continue (ADR-0034). The owner is learning TDD through this project, so the pauses are the point, not an overhead. On any task, the owner can ask for a pause after each phase ("pause a cada fase").
+**Pair mode is the default.** The owner is the **navigator**: chooses the next behavior to test and takes the design decisions. The agent is the **driver**: writes the test, the code and the refactoring, runs the **whole cycle** for one test (Red, Green and Refactor) and then **pauses once**, until the owner says to continue. The owner is learning TDD through this project, so the pauses are the point, not an overhead. On any task, the owner can ask for a pause after each phase ("pause a cada fase").
 
 **Autonomous mode** only when the owner explicitly asks for it, for a specific task ("faça sozinho", "modo autônomo", "sem pausas"). The phases and rules stay the same; the pauses are replaced by evidence (see below). The owner can say "passo a passo" at any moment to return to pair mode.
 

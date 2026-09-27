@@ -19,7 +19,7 @@ Use this workflow for any slice of the roadmap, for example "permission profiles
 - Scope every type to what the slice's tests demand. An aggregate gets a field only when a test of this slice needs it; the fields of later issues come with those issues, driven by their tests. Tests create such objects through one helper, so a factory that grows later changes one place.
 - Create the branch ([git and pull requests](git-and-pull-requests.md), steps 1 and 2).
 
-Every step below follows the [TDD workflow](test-driven-development.md): one failing test, the smallest code that passes, refactor, and **one pause at the end of each cycle** in pair mode (ADR-0034).
+Every step below follows the [TDD workflow](test-driven-development.md): one failing test, the smallest code that passes, refactor, and **one pause at the end of each cycle** in pair mode (ADR-0033).
 
 ## 3. Domain
 

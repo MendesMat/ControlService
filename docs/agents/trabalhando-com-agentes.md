@@ -34,7 +34,7 @@ Para uma issue específica, troque o começo por "Vamos trabalhar na issue #4". 
 
 ## TDD no modo par: o seu papel
 
-Todo o desenvolvimento segue TDD (*Test-Driven Development*, ADR-0033 e ADR-0034). Cada comportamento nasce de um teste que falha, e o código cresce só o necessário para ele passar. No **modo par**, que é o padrão, você é o **navegador** e o agente é o **motorista**: ele escreve, você decide a direção.
+Todo o desenvolvimento segue TDD (*Test-Driven Development*, ADR-0033). Cada comportamento nasce de um teste que falha, e o código cresce só o necessário para ele passar. No **modo par**, que é o padrão, você é o **navegador** e o agente é o **motorista**: ele escreve, você decide a direção.
 
 O ciclo tem três fases. O agente faz as três para um teste e **para uma vez, no fim do ciclo**, mostrando a saída real de cada fase. Ele só para no meio do ciclo se um teste falhar por um motivo inesperado, se passar quando deveria falhar, ou se aparecer uma decisão que é sua.
 
