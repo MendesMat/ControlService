@@ -39,4 +39,17 @@ public class EffectiveAccessTests
 
         level.ShouldBe(AccessLevel.Denied);
     }
+
+    [Fact]
+    public void Denied_in_one_profile_and_editor_in_another_results_in_editor() // PERM-05, PERM-07
+    {
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        var deniedProfile = PermissionProfile.Create();
+        var editorProfile = PermissionProfile.Create();
+        editorProfile.SetLevel(users, AccessLevel.Editor);
+
+        var level = EffectiveAccess.GetLevel([deniedProfile, editorProfile], users);
+
+        level.ShouldBe(AccessLevel.Editor);
+    }
 }
