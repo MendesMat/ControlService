@@ -212,7 +212,7 @@ Minimum levels follow [permission profiles](permission-profiles.md#what-each-lev
 | 404 | `not_found` | Unknown user id |
 | 409 | `concurrency_conflict` | CNV-13; `details.updatedByName` says who changed it |
 | 409 | `system_record` | Changing or deactivating the Admin (USR-23, USR-28) |
-| 409 | `self_deactivation` | USR-19 |
+| 409 | `self_deactivation` | USR-19, USR-27 |
 | 409 | `not_pending` | Resending access to a user who is not pending |
 | 409 | `email_missing` | Resending access to a user without an e-mail |
-| 409 | `not_inactive` | Reactivating a user who is not deactivated |
+| 409 | `not_inactive` | Reactivating a user who is not deactivated (USR-18, USR-29) |
