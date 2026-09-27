@@ -74,4 +74,18 @@ public class EffectiveAccessTests
         EffectiveAccess.GetLevel(carlasProfiles, accountsReceivable).ShouldBe(AccessLevel.Manager);
         EffectiveAccess.GetLevel(carlasProfiles, users).ShouldBe(AccessLevel.Denied);
     }
+
+    [Fact]
+    public void Unknown_profile_id_is_ignored() // PERM-05
+    {
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        var known = PermissionProfile.Create();
+        known.SetLevel(users, AccessLevel.Editor);
+        var profilesById = new Dictionary<Guid, PermissionProfile> { [known.Id] = known };
+        Guid[] profileIds = [known.Id, Guid.CreateVersion7()];
+
+        var level = EffectiveAccess.GetLevel(profileIds, profilesById, users);
+
+        level.ShouldBe(AccessLevel.Editor);
+    }
 }
