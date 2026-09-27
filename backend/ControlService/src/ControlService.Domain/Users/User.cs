@@ -4,12 +4,16 @@ namespace ControlService.Domain.Users;
 
 public sealed class User
 {
+    private readonly List<Guid> _profileIds = [];
+
     private User(Guid id)
     {
         Id = id;
     }
 
     public Guid Id { get; }
+
+    public IReadOnlyCollection<Guid> ProfileIds => _profileIds;
 
     public UserStatus Status { get; private set; } = UserStatus.Pending;
 

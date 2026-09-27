@@ -158,4 +158,12 @@ public class UserTests
         result.Error.Code.ShouldBe("not_inactive");
         result.Error.Message.ShouldBe("Só é possível reativar um acesso desativado.");
     }
+
+    [Fact]
+    public void User_may_have_no_profiles() // USR-21, USR-13
+    {
+        var user = User.Create();
+
+        user.ProfileIds.ShouldBeEmpty();
+    }
 }
