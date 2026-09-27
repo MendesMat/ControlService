@@ -1,3 +1,4 @@
+using ControlService.Domain.Common;
 using ControlService.Domain.Users;
 
 namespace ControlService.Domain.Tests.Users;
@@ -178,5 +179,16 @@ public class UserTests
         user.AssignProfiles([second, second]);
 
         user.ProfileIds.ShouldBe([second]);
+    }
+
+    [Fact]
+    public void Admin_is_a_system_record_with_the_manager_profile() // USR-23, USR-24
+    {
+        var admin = User.CreateAdmin();
+
+        admin.Id.ShouldBe(SystemIds.AdminUser);
+        admin.IsSystem.ShouldBeTrue();
+        admin.Status.ShouldBe(UserStatus.Active);
+        admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
     }
 }

@@ -6,16 +6,20 @@ public sealed class User
 {
     private readonly List<Guid> _profileIds = [];
 
-    private User(Guid id)
+    private User(Guid id, bool isSystem, UserStatus status)
     {
         Id = id;
+        IsSystem = isSystem;
+        Status = status;
     }
 
     public Guid Id { get; }
 
+    public bool IsSystem { get; }
+
     public IReadOnlyCollection<Guid> ProfileIds => _profileIds;
 
-    public UserStatus Status { get; private set; } = UserStatus.Pending;
+    public UserStatus Status { get; private set; }
 
     public DateTimeOffset? ActivatedAt { get; private set; }
 
@@ -23,7 +27,14 @@ public sealed class User
 
     public Guid? DeactivatedBy { get; private set; }
 
-    public static User Create() => new(Guid.CreateVersion7());
+    public static User Create() => new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending);
+
+    public static User CreateAdmin()
+    {
+        var admin = new User(SystemIds.AdminUser, isSystem: true, UserStatus.Active);
+        admin.AssignProfiles([SystemIds.ManagerProfile]);
+        return admin;
+    }
 
     public Result Activate(DateTimeOffset now)
     {
