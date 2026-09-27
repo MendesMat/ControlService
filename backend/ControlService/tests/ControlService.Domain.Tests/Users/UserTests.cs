@@ -140,4 +140,22 @@ public class UserTests
         user.DeactivatedAt.ShouldBeNull();
         user.DeactivatedBy.ShouldBeNull();
     }
+
+    [Theory]
+    [InlineData(false)] // pending
+    [InlineData(true)] // active
+    public void Reactivating_a_user_who_is_not_inactive_is_refused(bool activateFirst) // USR-18, USR-29
+    {
+        var user = User.Create();
+        if (activateFirst)
+        {
+            user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
+        }
+
+        var result = user.Reactivate(DateTimeOffset.UtcNow);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("not_inactive");
+        result.Error.Message.ShouldBe("Só é possível reativar um acesso desativado.");
+    }
 }

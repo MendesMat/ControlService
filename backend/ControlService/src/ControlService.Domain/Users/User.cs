@@ -57,6 +57,13 @@ public sealed class User
 
     public Result Reactivate(DateTimeOffset now)
     {
+        if (Status != UserStatus.Inactive)
+        {
+            return Result.Failure(new Error(
+                "not_inactive",
+                "Só é possível reativar um acesso desativado."));
+        }
+
         Status = ActivatedAt.HasValue ? UserStatus.Active : UserStatus.Pending;
         DeactivatedAt = null;
         DeactivatedBy = null;

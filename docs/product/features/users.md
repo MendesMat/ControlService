@@ -132,6 +132,7 @@ In a new record, the login is suggested while the full name is typed, until some
 | USR-16 | Users are **never deleted**, only deactivated: authorship and activity records point to users, and deleting one would leave them without an owner (ADR-0016). |
 | USR-17 | Deactivating a user: status becomes `inactive`, with date and author of the deactivation; the person is signed out on their next action and cannot sign in again (AUTH-18, AUTH-09); pending links stop working (AUTH-21); the login and display name stay reserved; the name keeps appearing in history and authorship. |
 | USR-18 | A deactivated user can be reactivated with **Reativar usuário**, without a confirmation. If they had created a password, they become `active` again with the same password. If they were still pending, they become `pending` again and a new activation link is sent. |
+| USR-29 | Reactivating a user who is not `inactive` is refused with the message *"Só é possível reativar um acesso desativado."* |
 | USR-19 | Nobody can deactivate themselves, so nobody loses access by mistake. The Admin can never be deactivated. |
 | USR-27 | Trying to deactivate one's own account is refused with the message *"Você não pode desativar o seu próprio acesso."* |
 | USR-20 | The list's **Situação** filter starts at "Ativos e pendentes", hiding deactivated users. The other options are "Só pendentes", "Só desativados" and "Todos". |
