@@ -176,8 +176,9 @@ public class UserTests
         var second = Guid.CreateVersion7();
         user.AssignProfiles([first]);
 
-        user.AssignProfiles([second, second]);
+        var result = user.AssignProfiles([second, second]);
 
+        result.IsSuccess.ShouldBeTrue();
         user.ProfileIds.ShouldBe([second]);
     }
 
@@ -203,5 +204,18 @@ public class UserTests
         result.Error.Code.ShouldBe("system_record");
         result.Error.Message.ShouldBe("O usuário Admin é do sistema e não pode ser alterado nem desativado.");
         admin.Status.ShouldBe(UserStatus.Active);
+    }
+
+    [Fact]
+    public void Admin_profiles_cannot_change() // USR-24, USR-28
+    {
+        var admin = User.CreateAdmin();
+
+        var result = admin.AssignProfiles([Guid.CreateVersion7()]);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("system_record");
+        result.Error.Message.ShouldBe("O usuário Admin é do sistema e não pode ser alterado nem desativado.");
+        admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
     }
 }

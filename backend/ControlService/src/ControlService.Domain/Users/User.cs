@@ -32,7 +32,7 @@ public sealed class User
     public static User CreateAdmin()
     {
         var admin = new User(SystemIds.AdminUser, isSystem: true, UserStatus.Active);
-        admin.AssignProfiles([SystemIds.ManagerProfile]);
+        admin.ReplaceProfiles([SystemIds.ManagerProfile]);
         return admin;
     }
 
@@ -52,11 +52,10 @@ public sealed class User
 
     public Result Deactivate(Guid by, DateTimeOffset now)
     {
-        if (IsSystem)
+        var systemCheck = EnsureNotSystem();
+        if (systemCheck.IsFailure)
         {
-            return Result.Failure(new Error(
-                "system_record",
-                "O usuário Admin é do sistema e não pode ser alterado nem desativado."));
+            return systemCheck;
         }
 
         if (by == Id)
@@ -77,11 +76,29 @@ public sealed class User
         return Result.Success();
     }
 
-    public void AssignProfiles(IEnumerable<Guid> profileIds)
+    public Result AssignProfiles(IEnumerable<Guid> profileIds)
+    {
+        var systemCheck = EnsureNotSystem();
+        if (systemCheck.IsFailure)
+        {
+            return systemCheck;
+        }
+
+        ReplaceProfiles(profileIds);
+        return Result.Success();
+    }
+
+    private void ReplaceProfiles(IEnumerable<Guid> profileIds)
     {
         _profileIds.Clear();
         _profileIds.AddRange(profileIds.Distinct());
     }
+
+    private Result EnsureNotSystem() => IsSystem
+        ? Result.Failure(new Error(
+            "system_record",
+            "O usuário Admin é do sistema e não pode ser alterado nem desativado."))
+        : Result.Success();
 
     public Result Reactivate(DateTimeOffset now)
     {
