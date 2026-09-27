@@ -11,7 +11,14 @@ public static partial class LoginSuggestion
         var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var baseLogin = parts.Length == 1 ? parts[0] : $"{parts[0]}.{parts[^1]}";
         var normalized = TextNormalization.Normalize(baseLogin);
-        return DisallowedCharacters().Replace(normalized, string.Empty);
+        var candidate = DisallowedCharacters().Replace(normalized, string.Empty);
+
+        if (!takenLogins.Contains(candidate))
+        {
+            return candidate;
+        }
+
+        return $"{candidate}2";
     }
 
     [GeneratedRegex("[^a-z0-9._-]")]

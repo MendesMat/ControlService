@@ -37,4 +37,12 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe(expected);
     }
+
+    [Fact]
+    public void Taken_login_gets_number_2() // USR-14
+    {
+        var suggestion = LoginSuggestion.Suggest("Ana Souza", takenLogins: ["ana.souza"]);
+
+        suggestion.ShouldBe("ana.souza2");
+    }
 }
