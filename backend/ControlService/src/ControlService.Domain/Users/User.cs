@@ -37,6 +37,11 @@ public sealed class User
 
     public Result Deactivate(Guid by, DateTimeOffset now)
     {
+        if (Status == UserStatus.Inactive)
+        {
+            return Result.Success();
+        }
+
         Status = UserStatus.Inactive;
         DeactivatedAt = now;
         DeactivatedBy = by;

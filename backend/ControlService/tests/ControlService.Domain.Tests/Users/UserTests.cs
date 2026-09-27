@@ -75,4 +75,19 @@ public class UserTests
         result.IsSuccess.ShouldBeTrue();
         user.Status.ShouldBe(UserStatus.Inactive);
     }
+
+    [Fact]
+    public void Deactivating_an_inactive_user_keeps_the_first_date_and_author() // USR-30
+    {
+        var user = User.Create();
+        var firstBy = Guid.CreateVersion7();
+        var firstAt = new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero);
+        user.Deactivate(firstBy, firstAt);
+
+        var result = user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+
+        result.IsSuccess.ShouldBeTrue();
+        user.DeactivatedAt.ShouldBe(firstAt);
+        user.DeactivatedBy.ShouldBe(firstBy);
+    }
 }
