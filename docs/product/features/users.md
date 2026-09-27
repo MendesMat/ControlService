@@ -153,6 +153,7 @@ The deactivation confirmation is: *{Nome} não vai mais conseguir entrar no sist
 |---|---|
 | USR-23 | The **Admin** user always exists and cannot be changed, deactivated or deleted. It is stored in the database with a fixed id and marked `isSystem: true`, which makes the interface show it read-only with a notice explaining why (ADR-0022). |
 | USR-24 | The Admin always has the Gerenciador profile and cannot lose it. Its e-mail and initial password come from the server configuration. |
+| USR-28 | Changing or deactivating the Admin is refused with the message *"O usuário Admin é do sistema e não pode ser alterado nem desativado."* |
 
 | Field | Value |
 |---|---|
@@ -209,7 +210,7 @@ Minimum levels follow [permission profiles](permission-profiles.md#what-each-lev
 | 403 | `forbidden` | Operation above the person's level |
 | 404 | `not_found` | Unknown user id |
 | 409 | `concurrency_conflict` | CNV-13; `details.updatedByName` says who changed it |
-| 409 | `system_record` | Changing or deactivating the Admin (USR-23) |
+| 409 | `system_record` | Changing or deactivating the Admin (USR-23, USR-28) |
 | 409 | `self_deactivation` | USR-19 |
 | 409 | `not_pending` | Resending access to a user who is not pending |
 | 409 | `email_missing` | Resending access to a user without an e-mail |

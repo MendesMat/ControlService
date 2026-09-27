@@ -191,4 +191,17 @@ public class UserTests
         admin.Status.ShouldBe(UserStatus.Active);
         admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
     }
+
+    [Fact]
+    public void Admin_cannot_be_deactivated() // USR-19, USR-23, USR-28
+    {
+        var admin = User.CreateAdmin();
+
+        var result = admin.Deactivate(Guid.CreateVersion7(), DateTimeOffset.UtcNow);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("system_record");
+        result.Error.Message.ShouldBe("O usuário Admin é do sistema e não pode ser alterado nem desativado.");
+        admin.Status.ShouldBe(UserStatus.Active);
+    }
 }

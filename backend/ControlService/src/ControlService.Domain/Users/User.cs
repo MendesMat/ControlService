@@ -52,6 +52,13 @@ public sealed class User
 
     public Result Deactivate(Guid by, DateTimeOffset now)
     {
+        if (IsSystem)
+        {
+            return Result.Failure(new Error(
+                "system_record",
+                "O usuário Admin é do sistema e não pode ser alterado nem desativado."));
+        }
+
         if (by == Id)
         {
             return Result.Failure(new Error(
