@@ -94,4 +94,12 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe(string.Empty);
     }
+
+    [Fact]
+    public void Name_suffix_is_taken_literally() // USR-31
+    {
+        var suggestion = LoginSuggestion.Suggest("João Souza Filho", takenLogins: []);
+
+        suggestion.ShouldBe("joao.filho");
+    }
 }
