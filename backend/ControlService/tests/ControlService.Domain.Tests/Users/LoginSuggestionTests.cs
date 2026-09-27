@@ -27,4 +27,14 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe("madalena");
     }
+
+    [Theory]
+    [InlineData("Joana D'Ávila", "joana.davila")]
+    [InlineData("  Ana   Souza  ", "ana.souza")]
+    public void Characters_outside_the_login_rule_are_removed(string fullName, string expected) // USR-15
+    {
+        var suggestion = LoginSuggestion.Suggest(fullName, takenLogins: []);
+
+        suggestion.ShouldBe(expected);
+    }
 }
