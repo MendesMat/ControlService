@@ -22,7 +22,7 @@ public class BloodTypeTests
     }
 
     [Fact]
-    public void BloodType_rejects_value_outside_the_list() // USR-14
+    public void BloodType_rejects_value_outside_the_list() // USR-26
     {
         var result = BloodType.Create("X+");
 

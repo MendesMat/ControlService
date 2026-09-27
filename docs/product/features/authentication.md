@@ -66,6 +66,7 @@ When a session ends, the sign-in screen appears **over** the system without clos
 | AUTH-20 | Links carry only a random token. Tokens travel in the request body, never in the URL, and are never written to logs (ADR-0030). |
 | AUTH-21 | Deactivating a user invalidates their pending links and revokes their refresh tokens. |
 | AUTH-22 | Every duration and limit in this document is an initial value, adjustable in the server configuration. |
+| AUTH-23 | Activating a user who is not `pending` (for example, opening the link after the account became active or was deactivated) is refused like any other invalid link, with the message *"Este link não vale mais. Peça a quem cadastrou você para reenviar o acesso."* |
 
 ## Messages
 

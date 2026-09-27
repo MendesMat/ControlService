@@ -142,6 +142,7 @@ The delete confirmation is **Excluir este perfil?** *O perfil {nome} será apaga
 |---|---|
 | PERM-22 | The **Gerenciador** profile always exists and cannot be changed or deleted. It is stored in the database with a fixed id and marked `isSystem: true` (ADR-0022). |
 | PERM-23 | Its levels are **not stored**. The server computes `gerenciador` for every screen of the catalog and returns the full `levels` list like any other profile, so a new screen is covered without data changes. |
+| PERM-25 | Changing a level or deleting the Gerenciador profile is refused with the message *"O perfil Gerenciador é do sistema e não pode ser alterado nem excluído."* |
 
 | Field | Value |
 |---|---|
@@ -180,4 +181,4 @@ The effective level of the signed-in person on every screen comes from `me()` ([
 | 404 | `not_found` | Unknown profile id |
 | 409 | `concurrency_conflict` | CNV-13 |
 | 409 | `profile_in_use` | PERM-20; `details.userNames` lists who has it |
-| 409 | `system_record` | Changing or deleting the Gerenciador profile (PERM-22) |
+| 409 | `system_record` | Changing or deleting the Gerenciador profile (PERM-22, PERM-25) |

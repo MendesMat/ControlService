@@ -108,7 +108,7 @@ Messages are verbatim, in Portuguese (CNV-16). The error path of each field is t
 | USR-11 | `address.cep` | When filled in, 8 digits. | O CEP precisa ter 8 números. |
 | USR-12 | `emergencyContact.phone` | Same rule as USR-10. | Digite o telefone com DDD. Ex.: (21) 98765-4321. |
 | USR-13 | `profileIds` | May be empty. Ids of profiles that do not exist are discarded on save. | — |
-| USR-14 | `bloodType` | When filled in, must be one of the closed list `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`, `O+`, `O-`. | Este tipo sanguíneo não é válido. |
+| USR-26 | `bloodType` | When filled in, must be one of the closed list `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`, `O+`, `O-`. | Este tipo sanguíneo não é válido. |
 
 Duplicates (USR-03, USR-06) are validation errors like the others, shown under the field (ADR-0009).
 
@@ -122,6 +122,7 @@ For the first check digit, multiply the first 9 digits by the weights 10, 9, 8, 
 |---|---|
 | USR-14 | When registering a user, the system suggests a login from the full name: first and last names, without accents, lowercase, separated by a dot. "Ana Paula Souza" gives `ana.souza`. If it is taken, a number is appended: `ana.souza2`, `ana.souza3`. The person may accept it or type another login. |
 | USR-15 | Special cases: a one-word name gives that word ("Madalena" → `madalena`); characters outside the login rule (apostrophes, extra spaces, symbols) are removed ("Joana D'Ávila" → `joana.davila`); a long result is cut to fit 30 characters **including** the appended number; a result shorter than 3 characters gives no suggestion ("Li"). |
+| USR-31 | Name suffixes ("Filho", "Júnior", "Neto") are taken literally, as part of the last name: "João Souza Filho" gives `joao.filho`. When cutting a long result to fit 30 characters (USR-15) leaves a trailing `.`, `-` or `_`, that character is also removed. |
 
 In a new record, the login is suggested while the full name is typed, until someone types a login of their own. The save button of a new record is **Cadastrar e enviar acesso**.
 
@@ -132,8 +133,11 @@ In a new record, the login is suggested while the full name is typed, until some
 | USR-16 | Users are **never deleted**, only deactivated: authorship and activity records point to users, and deleting one would leave them without an owner (ADR-0016). |
 | USR-17 | Deactivating a user: status becomes `inactive`, with date and author of the deactivation; the person is signed out on their next action and cannot sign in again (AUTH-18, AUTH-09); pending links stop working (AUTH-21); the login and display name stay reserved; the name keeps appearing in history and authorship. |
 | USR-18 | A deactivated user can be reactivated with **Reativar usuário**, without a confirmation. If they had created a password, they become `active` again with the same password. If they were still pending, they become `pending` again and a new activation link is sent. |
+| USR-29 | Reactivating a user who is not `inactive` is refused with the message *"Só é possível reativar um acesso desativado."* |
 | USR-19 | Nobody can deactivate themselves, so nobody loses access by mistake. The Admin can never be deactivated. |
+| USR-27 | Trying to deactivate one's own account is refused with the message *"Você não pode desativar o seu próprio acesso."* |
 | USR-20 | The list's **Situação** filter starts at "Ativos e pendentes", hiding deactivated users. The other options are "Só pendentes", "Só desativados" and "Todos". |
+| USR-30 | Deactivating a user who is already deactivated changes nothing: the status stays `inactive`, and the date and author of the **first** deactivation are kept. |
 
 The deactivation confirmation is: *{Nome} não vai mais conseguir entrar no sistema. Você pode reativar depois.* If the record has unsaved changes, it adds: *As alterações não salvas neste cadastro serão descartadas.* After deactivating or reactivating, the tab goes back to the list.
 
@@ -150,6 +154,7 @@ The deactivation confirmation is: *{Nome} não vai mais conseguir entrar no sist
 |---|---|
 | USR-23 | The **Admin** user always exists and cannot be changed, deactivated or deleted. It is stored in the database with a fixed id and marked `isSystem: true`, which makes the interface show it read-only with a notice explaining why (ADR-0022). |
 | USR-24 | The Admin always has the Gerenciador profile and cannot lose it. Its e-mail and initial password come from the server configuration. |
+| USR-28 | Changing or deactivating the Admin is refused with the message *"O usuário Admin é do sistema e não pode ser alterado nem desativado."* |
 
 | Field | Value |
 |---|---|
@@ -206,8 +211,8 @@ Minimum levels follow [permission profiles](permission-profiles.md#what-each-lev
 | 403 | `forbidden` | Operation above the person's level |
 | 404 | `not_found` | Unknown user id |
 | 409 | `concurrency_conflict` | CNV-13; `details.updatedByName` says who changed it |
-| 409 | `system_record` | Changing or deactivating the Admin (USR-23) |
-| 409 | `self_deactivation` | USR-19 |
+| 409 | `system_record` | Changing or deactivating the Admin (USR-23, USR-28) |
+| 409 | `self_deactivation` | USR-19, USR-27 |
 | 409 | `not_pending` | Resending access to a user who is not pending |
 | 409 | `email_missing` | Resending access to a user without an e-mail |
-| 409 | `not_inactive` | Reactivating a user who is not deactivated |
+| 409 | `not_inactive` | Reactivating a user who is not deactivated (USR-18, USR-29) |

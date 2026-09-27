@@ -22,4 +22,13 @@ public class ScreenKeyTests
         result.Error.Code.ShouldBe("validation_failed");
         result.Error.Message.ShouldBe("Esta tela não existe mais no sistema. Atualize a página e tente de novo.");
     }
+
+    [Fact]
+    public void Screen_keys_with_the_same_value_are_equal() // ADR-0021
+    {
+        var first = ScreenKey.Create("gerenciamento/usuarios").Value;
+        var second = ScreenKey.Create("gerenciamento/usuarios").Value;
+
+        first.ShouldBe(second);
+    }
 }
