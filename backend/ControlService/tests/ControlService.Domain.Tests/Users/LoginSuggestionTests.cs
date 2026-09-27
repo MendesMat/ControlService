@@ -38,6 +38,16 @@ public class LoginSuggestionTests
         suggestion.ShouldBe(expected);
     }
 
+    [Theory]
+    [InlineData("Ana Souza '", "ana.souza")]
+    [InlineData("' Ana Souza", "ana.souza")]
+    public void Word_made_only_of_removed_characters_is_ignored(string fullName, string expected) // USR-15
+    {
+        var suggestion = LoginSuggestion.Suggest(fullName, takenLogins: []);
+
+        suggestion.ShouldBe(expected);
+    }
+
     [Fact]
     public void Taken_login_gets_number_2() // USR-14
     {
