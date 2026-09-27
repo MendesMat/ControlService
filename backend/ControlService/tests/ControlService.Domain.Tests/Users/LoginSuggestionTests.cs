@@ -85,6 +85,14 @@ public class LoginSuggestionTests
         suggestion.ShouldBe(firstName);
     }
 
+    [Fact]
+    public void Separator_at_the_end_is_kept_when_there_is_no_cut() // USR-31
+    {
+        var suggestion = LoginSuggestion.Suggest("Ana Souza-", takenLogins: []);
+
+        suggestion.ShouldBe("ana.souza-");
+    }
+
     [Theory]
     [InlineData("Li")]
     [InlineData("")]

@@ -40,8 +40,13 @@ public static partial class LoginSuggestion
     private static string BuildCandidate(string baseLogin, string suffix)
     {
         var maxBaseLength = MaxLength - suffix.Length;
-        var truncatedBase = baseLogin.Length > maxBaseLength ? baseLogin[..maxBaseLength] : baseLogin;
-        return truncatedBase.TrimEnd('.', '-', '_') + suffix;
+        if (baseLogin.Length <= maxBaseLength)
+        {
+            return baseLogin + suffix;
+        }
+
+        // USR-31: only a separator left by the cut is dropped.
+        return baseLogin[..maxBaseLength].TrimEnd('.', '-', '_') + suffix;
     }
 
     [GeneratedRegex("[^a-z0-9._-]")]
