@@ -116,4 +116,16 @@ public class UserTests
         result.IsSuccess.ShouldBeTrue();
         user.Status.ShouldBe(UserStatus.Active);
     }
+
+    [Fact]
+    public void Reactivating_a_user_who_never_had_a_password_makes_it_pending() // USR-18
+    {
+        var user = User.Create();
+        user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
+
+        var result = user.Reactivate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+
+        result.IsSuccess.ShouldBeTrue();
+        user.Status.ShouldBe(UserStatus.Pending);
+    }
 }

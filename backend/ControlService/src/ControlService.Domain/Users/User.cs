@@ -57,7 +57,7 @@ public sealed class User
 
     public Result Reactivate(DateTimeOffset now)
     {
-        Status = UserStatus.Active;
+        Status = ActivatedAt.HasValue ? UserStatus.Active : UserStatus.Pending;
         return Result.Success();
     }
 }
