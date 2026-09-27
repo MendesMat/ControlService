@@ -14,4 +14,16 @@ public class EffectiveAccessTests
 
         level.ShouldBe(AccessLevel.Denied);
     }
+
+    [Fact]
+    public void One_profile_gives_its_level() // PERM-05
+    {
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        var profile = PermissionProfile.Create();
+        profile.SetLevel(users, AccessLevel.Editor);
+
+        var level = EffectiveAccess.GetLevel([profile], users);
+
+        level.ShouldBe(AccessLevel.Editor);
+    }
 }

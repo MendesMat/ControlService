@@ -5,6 +5,9 @@ namespace ControlService.Domain.Access;
 /// <summary>Highest access level among a user's permission profiles, screen by screen (PERM-05, PERM-06).</summary>
 public static class EffectiveAccess
 {
-    public static AccessLevel GetLevel(IEnumerable<PermissionProfile> profiles, ScreenKey screen) =>
-        AccessLevel.Denied;
+    public static AccessLevel GetLevel(IEnumerable<PermissionProfile> profiles, ScreenKey screen)
+    {
+        var levels = profiles.Select(profile => profile.GetLevel(screen));
+        return levels.DefaultIfEmpty(AccessLevel.Denied).Max();
+    }
 }
