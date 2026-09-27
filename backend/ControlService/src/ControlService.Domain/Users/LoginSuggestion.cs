@@ -30,7 +30,7 @@ public static partial class LoginSuggestion
     {
         var maxBaseLength = MaxLength - suffix.Length;
         var truncatedBase = baseLogin.Length > maxBaseLength ? baseLogin[..maxBaseLength] : baseLogin;
-        return truncatedBase + suffix;
+        return truncatedBase.TrimEnd('.', '-', '_') + suffix;
     }
 
     [GeneratedRegex("[^a-z0-9._-]")]

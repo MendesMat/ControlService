@@ -74,4 +74,14 @@ public class LoginSuggestionTests
         suggestion.Length.ShouldBe(30);
         suggestion.ShouldBe($"{baseLogin[..29]}2");
     }
+
+    [Fact]
+    public void Cut_that_ends_in_a_separator_drops_it() // USR-31
+    {
+        var firstName = new string('a', 29);
+
+        var suggestion = LoginSuggestion.Suggest($"{firstName} b", takenLogins: []);
+
+        suggestion.ShouldBe(firstName);
+    }
 }

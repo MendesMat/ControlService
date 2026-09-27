@@ -108,7 +108,7 @@ Messages are verbatim, in Portuguese (CNV-16). The error path of each field is t
 | USR-11 | `address.cep` | When filled in, 8 digits. | O CEP precisa ter 8 números. |
 | USR-12 | `emergencyContact.phone` | Same rule as USR-10. | Digite o telefone com DDD. Ex.: (21) 98765-4321. |
 | USR-13 | `profileIds` | May be empty. Ids of profiles that do not exist are discarded on save. | — |
-| USR-14 | `bloodType` | When filled in, must be one of the closed list `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`, `O+`, `O-`. | Este tipo sanguíneo não é válido. |
+| USR-26 | `bloodType` | When filled in, must be one of the closed list `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`, `O+`, `O-`. | Este tipo sanguíneo não é válido. |
 
 Duplicates (USR-03, USR-06) are validation errors like the others, shown under the field (ADR-0009).
 
@@ -122,6 +122,7 @@ For the first check digit, multiply the first 9 digits by the weights 10, 9, 8, 
 |---|---|
 | USR-14 | When registering a user, the system suggests a login from the full name: first and last names, without accents, lowercase, separated by a dot. "Ana Paula Souza" gives `ana.souza`. If it is taken, a number is appended: `ana.souza2`, `ana.souza3`. The person may accept it or type another login. |
 | USR-15 | Special cases: a one-word name gives that word ("Madalena" → `madalena`); characters outside the login rule (apostrophes, extra spaces, symbols) are removed ("Joana D'Ávila" → `joana.davila`); a long result is cut to fit 30 characters **including** the appended number; a result shorter than 3 characters gives no suggestion ("Li"). |
+| USR-31 | Name suffixes ("Filho", "Júnior", "Neto") are taken literally, as part of the last name: "João Souza Filho" gives `joao.filho`. When cutting a long result to fit 30 characters (USR-15) leaves a trailing `.`, `-` or `_`, that character is also removed. |
 
 In a new record, the login is suggested while the full name is typed, until someone types a login of their own. The save button of a new record is **Cadastrar e enviar acesso**.
 
