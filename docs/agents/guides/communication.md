@@ -24,6 +24,8 @@ If the owner answers "I don't know" or asks for more detail, explain both sides 
 
 The owner is the domain expert. When `docs/` does not answer a question, ask the owner, in business terms ("Um usuário desativado pode continuar aparecendo como responsável por um cliente?"), not in implementation terms. Record the answer in `docs/` in the same pull request.
 
+Apply each rule **literally**. When the code would do more or less than the documented rule (for example, trimming a character the rule only trims in one case), point it out and let the owner choose; do not widen or narrow a rule silently.
+
 ## Reporting results
 
 - Lead with the outcome: what changed, and whether it works.

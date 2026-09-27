@@ -5,6 +5,7 @@ accepted: 2026-09-25
 scope: back-end
 tags: [process, testing, quality]
 amends: ADR-0024 (test doubles and when tests are written)
+superseded-by: ADR-0034 (pause after each phase only)
 ---
 
 # ADR-0033: Develop test-first, in pair mode, with in-memory fakes
