@@ -43,8 +43,6 @@ public sealed class PermissionProfile
         return Result.Success();
     }
 
-    /// <summary>Guards the invariant that the Gerenciador profile can never be deleted (PERM-22).
-    /// Whether the profile is still in use by a user (PERM-20) is checked by the handler.</summary>
     public Result Delete() => EnsureNotSystem();
 
     private Result EnsureNotSystem() => IsSystem
