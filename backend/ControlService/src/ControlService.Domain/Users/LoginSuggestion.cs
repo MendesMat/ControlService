@@ -12,14 +12,15 @@ public static partial class LoginSuggestion
         var baseLogin = parts.Length == 1 ? parts[0] : $"{parts[0]}.{parts[^1]}";
         var normalized = TextNormalization.Normalize(baseLogin);
         var candidate = DisallowedCharacters().Replace(normalized, string.Empty);
+        var takenLoginsIgnoringCase = takenLogins.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (!takenLogins.Contains(candidate))
+        if (!takenLoginsIgnoringCase.Contains(candidate))
         {
             return candidate;
         }
 
         var suffix = 2;
-        while (takenLogins.Contains($"{candidate}{suffix}"))
+        while (takenLoginsIgnoringCase.Contains($"{candidate}{suffix}"))
         {
             suffix++;
         }

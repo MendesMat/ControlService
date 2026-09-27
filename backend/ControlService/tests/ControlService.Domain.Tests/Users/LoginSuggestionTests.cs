@@ -53,4 +53,12 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe("ana.souza3");
     }
+
+    [Fact]
+    public void Taken_logins_are_compared_ignoring_case() // USR-06
+    {
+        var suggestion = LoginSuggestion.Suggest("Ana Souza", takenLogins: ["ANA.SOUZA"]);
+
+        suggestion.ShouldBe("ana.souza2");
+    }
 }
