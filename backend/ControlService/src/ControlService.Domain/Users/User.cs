@@ -54,4 +54,10 @@ public sealed class User
         DeactivatedBy = by;
         return Result.Success();
     }
+
+    public Result Reactivate(DateTimeOffset now)
+    {
+        Status = UserStatus.Active;
+        return Result.Success();
+    }
 }

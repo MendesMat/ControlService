@@ -103,4 +103,17 @@ public class UserTests
         result.Error.Message.ShouldBe("Você não pode desativar o seu próprio acesso.");
         user.Status.ShouldBe(UserStatus.Pending);
     }
+
+    [Fact]
+    public void Reactivating_a_user_who_had_a_password_makes_it_active() // USR-18
+    {
+        var user = User.Create();
+        user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
+        user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
+
+        var result = user.Reactivate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+
+        result.IsSuccess.ShouldBeTrue();
+        user.Status.ShouldBe(UserStatus.Active);
+    }
 }
