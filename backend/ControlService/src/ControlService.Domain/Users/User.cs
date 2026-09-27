@@ -88,19 +88,7 @@ public sealed class User
         return Result.Success();
     }
 
-    private void ReplaceProfiles(IEnumerable<Guid> profileIds)
-    {
-        _profileIds.Clear();
-        _profileIds.AddRange(profileIds.Distinct());
-    }
-
-    private Result EnsureNotSystem() => IsSystem
-        ? Result.Failure(new Error(
-            "system_record",
-            "O usuário Admin é do sistema e não pode ser alterado nem desativado."))
-        : Result.Success();
-
-    public Result Reactivate(DateTimeOffset now)
+    public Result Reactivate()
     {
         if (Status != UserStatus.Inactive)
         {
@@ -114,4 +102,16 @@ public sealed class User
         DeactivatedBy = null;
         return Result.Success();
     }
+
+    private void ReplaceProfiles(IEnumerable<Guid> profileIds)
+    {
+        _profileIds.Clear();
+        _profileIds.AddRange(profileIds.Distinct());
+    }
+
+    private Result EnsureNotSystem() => IsSystem
+        ? Result.Failure(new Error(
+            "system_record",
+            "O usuário Admin é do sistema e não pode ser alterado nem desativado."))
+        : Result.Success();
 }

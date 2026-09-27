@@ -51,6 +51,19 @@ public class UserTests
     }
 
     [Fact]
+    public void Activating_an_inactive_user_is_refused_as_invalid_link() // AUTH-23, AUTH-21
+    {
+        var user = User.Create();
+        user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
+
+        var result = user.Activate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("link_invalid");
+        user.Status.ShouldBe(UserStatus.Inactive);
+    }
+
+    [Fact]
     public void Deactivating_an_active_user_records_status_date_and_author() // USR-16, USR-17
     {
         var user = User.Create();
@@ -112,7 +125,7 @@ public class UserTests
         user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
-        var result = user.Reactivate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+        var result = user.Reactivate();
 
         result.IsSuccess.ShouldBeTrue();
         user.Status.ShouldBe(UserStatus.Active);
@@ -124,7 +137,7 @@ public class UserTests
         var user = User.Create();
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
-        var result = user.Reactivate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+        var result = user.Reactivate();
 
         result.IsSuccess.ShouldBeTrue();
         user.Status.ShouldBe(UserStatus.Pending);
@@ -136,7 +149,7 @@ public class UserTests
         var user = User.Create();
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
-        user.Reactivate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+        user.Reactivate();
 
         user.DeactivatedAt.ShouldBeNull();
         user.DeactivatedBy.ShouldBeNull();
@@ -153,7 +166,7 @@ public class UserTests
             user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
         }
 
-        var result = user.Reactivate(DateTimeOffset.UtcNow);
+        var result = user.Reactivate();
 
         result.IsFailure.ShouldBeTrue();
         result.Error.Code.ShouldBe("not_inactive");
