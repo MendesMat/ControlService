@@ -14,4 +14,6 @@ public sealed class PermissionProfile
 
     public AccessLevel GetLevel(ScreenKey screen) =>
         _levels.TryGetValue(screen, out var level) ? level : AccessLevel.Denied;
+
+    public void SetLevel(ScreenKey screen, AccessLevel level) => _levels[screen] = level;
 }

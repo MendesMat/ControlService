@@ -15,4 +15,17 @@ public class PermissionProfileTests
             profile.GetLevel(ScreenKey.Create(screen).Value).ShouldBe(AccessLevel.Denied);
         }
     }
+
+    [Fact]
+    public void SetLevel_changes_only_that_screen() // ADR-0006
+    {
+        var profile = PermissionProfile.Create();
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        var customers = ScreenKey.Create(ScreenKeys.Customers).Value;
+
+        profile.SetLevel(users, AccessLevel.Editor);
+
+        profile.GetLevel(users).ShouldBe(AccessLevel.Editor);
+        profile.GetLevel(customers).ShouldBe(AccessLevel.Denied);
+    }
 }
