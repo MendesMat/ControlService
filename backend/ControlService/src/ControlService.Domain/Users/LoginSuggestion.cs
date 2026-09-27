@@ -12,15 +12,17 @@ public static partial class LoginSuggestion
 
     public static string Suggest(string fullName, IReadOnlyCollection<string> takenLogins)
     {
-        var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length == 0)
+        // USR-15: clean each word first, so a word made only of removed characters is ignored.
+        var words = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => DisallowedCharacters().Replace(TextNormalization.Normalize(word), string.Empty))
+            .Where(word => word.Length > 0)
+            .ToArray();
+        if (words.Length == 0)
         {
             return string.Empty;
         }
 
-        var baseLogin = parts.Length == 1 ? parts[0] : $"{parts[0]}.{parts[^1]}";
-        var normalized = TextNormalization.Normalize(baseLogin);
-        var cleanedBase = DisallowedCharacters().Replace(normalized, string.Empty);
+        var cleanedBase = words.Length == 1 ? words[0] : $"{words[0]}.{words[^1]}";
         if (cleanedBase.Length < MinLength)
         {
             return string.Empty;
