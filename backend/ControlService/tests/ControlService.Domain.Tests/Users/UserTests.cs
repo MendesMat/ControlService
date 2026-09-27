@@ -11,4 +11,14 @@ public class UserTests
 
         user.Status.ShouldBe(UserStatus.Pending);
     }
+
+    [Fact]
+    public void New_user_gets_a_version_7_id() // CNV-04, ADR-0012
+    {
+        var user = User.Create();
+
+        user.Id.ShouldNotBe(Guid.Empty);
+        var versionNibble = user.Id.ToByteArray()[7] >> 4;
+        versionNibble.ShouldBe(7);
+    }
 }
