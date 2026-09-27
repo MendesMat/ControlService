@@ -90,4 +90,17 @@ public class UserTests
         user.DeactivatedAt.ShouldBe(firstAt);
         user.DeactivatedBy.ShouldBe(firstBy);
     }
+
+    [Fact]
+    public void Nobody_deactivates_themselves() // USR-19, USR-27
+    {
+        var user = User.Create();
+
+        var result = user.Deactivate(user.Id, DateTimeOffset.UtcNow);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("self_deactivation");
+        result.Error.Message.ShouldBe("Você não pode desativar o seu próprio acesso.");
+        user.Status.ShouldBe(UserStatus.Pending);
+    }
 }

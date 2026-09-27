@@ -37,6 +37,13 @@ public sealed class User
 
     public Result Deactivate(Guid by, DateTimeOffset now)
     {
+        if (by == Id)
+        {
+            return Result.Failure(new Error(
+                "self_deactivation",
+                "Você não pode desativar o seu próprio acesso."));
+        }
+
         if (Status == UserStatus.Inactive)
         {
             return Result.Success();
