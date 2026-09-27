@@ -11,4 +11,12 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe("ana.souza");
     }
+
+    [Fact]
+    public void Suggestion_has_no_accents_and_is_lowercase() // USR-14
+    {
+        var suggestion = LoginSuggestion.Suggest("Ângela Brandão", takenLogins: []);
+
+        suggestion.ShouldBe("angela.brandao");
+    }
 }
