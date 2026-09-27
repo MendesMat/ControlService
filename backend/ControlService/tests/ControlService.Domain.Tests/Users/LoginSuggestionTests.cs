@@ -61,4 +61,17 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe("ana.souza2");
     }
+
+    [Fact]
+    public void Long_suggestion_is_cut_to_30_characters_including_the_number() // USR-15
+    {
+        var firstName = new string('a', 15);
+        var lastName = new string('b', 14);
+        var baseLogin = $"{firstName}.{lastName}"; // exactly 30 characters
+
+        var suggestion = LoginSuggestion.Suggest($"{firstName} {lastName}", takenLogins: [baseLogin]);
+
+        suggestion.Length.ShouldBe(30);
+        suggestion.ShouldBe($"{baseLogin[..29]}2");
+    }
 }
