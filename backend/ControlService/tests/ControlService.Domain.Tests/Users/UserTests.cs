@@ -128,4 +128,16 @@ public class UserTests
         result.IsSuccess.ShouldBeTrue();
         user.Status.ShouldBe(UserStatus.Pending);
     }
+
+    [Fact]
+    public void Reactivated_user_has_no_deactivation_date_or_author() // users.md data model
+    {
+        var user = User.Create();
+        user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
+
+        user.Reactivate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
+
+        user.DeactivatedAt.ShouldBeNull();
+        user.DeactivatedBy.ShouldBeNull();
+    }
 }
