@@ -24,8 +24,9 @@ public class PermissionProfileTests
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
         var customers = ScreenKey.Create(ScreenKeys.Customers).Value;
 
-        profile.SetLevel(users, AccessLevel.Editor);
+        var result = profile.SetLevel(users, AccessLevel.Editor);
 
+        result.IsSuccess.ShouldBeTrue();
         profile.GetLevel(users).ShouldBe(AccessLevel.Editor);
         profile.GetLevel(customers).ShouldBe(AccessLevel.Denied);
     }
@@ -48,5 +49,19 @@ public class PermissionProfileTests
         {
             profile.GetLevel(ScreenKey.Create(screen).Value).ShouldBe(AccessLevel.Manager);
         }
+    }
+
+    [Fact]
+    public void SetLevel_on_the_manager_profile_is_refused() // PERM-22, PERM-25
+    {
+        var profile = PermissionProfile.CreateManagerProfile();
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+
+        var result = profile.SetLevel(users, AccessLevel.Editor);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("system_record");
+        result.Error.Message.ShouldBe("O perfil Gerenciador é do sistema e não pode ser alterado nem excluído.");
+        profile.GetLevel(users).ShouldBe(AccessLevel.Manager);
     }
 }

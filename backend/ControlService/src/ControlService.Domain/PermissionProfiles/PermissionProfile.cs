@@ -31,5 +31,16 @@ public sealed class PermissionProfile
         return _levels.TryGetValue(screen, out var level) ? level : AccessLevel.Denied;
     }
 
-    public void SetLevel(ScreenKey screen, AccessLevel level) => _levels[screen] = level;
+    public Result SetLevel(ScreenKey screen, AccessLevel level)
+    {
+        if (IsSystem)
+        {
+            return Result.Failure(new Error(
+                "system_record",
+                "O perfil Gerenciador é do sistema e não pode ser alterado nem excluído."));
+        }
+
+        _levels[screen] = level;
+        return Result.Success();
+    }
 }
