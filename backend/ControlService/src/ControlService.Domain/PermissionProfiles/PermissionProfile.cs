@@ -21,8 +21,15 @@ public sealed class PermissionProfile
 
     public static PermissionProfile CreateManagerProfile() => new(SystemIds.ManagerProfile, isSystem: true);
 
-    public AccessLevel GetLevel(ScreenKey screen) =>
-        _levels.TryGetValue(screen, out var level) ? level : AccessLevel.Denied;
+    public AccessLevel GetLevel(ScreenKey screen)
+    {
+        if (IsSystem)
+        {
+            return AccessLevel.Manager;
+        }
+
+        return _levels.TryGetValue(screen, out var level) ? level : AccessLevel.Denied;
+    }
 
     public void SetLevel(ScreenKey screen, AccessLevel level) => _levels[screen] = level;
 }

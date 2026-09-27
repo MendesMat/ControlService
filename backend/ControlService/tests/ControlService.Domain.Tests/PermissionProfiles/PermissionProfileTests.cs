@@ -38,4 +38,15 @@ public class PermissionProfileTests
         profile.Id.ShouldBe(SystemIds.ManagerProfile);
         profile.IsSystem.ShouldBeTrue();
     }
+
+    [Fact]
+    public void Manager_profile_has_manager_on_every_screen_of_the_catalog() // PERM-23
+    {
+        var profile = PermissionProfile.CreateManagerProfile();
+
+        foreach (var screen in ScreenKeys.All)
+        {
+            profile.GetLevel(ScreenKey.Create(screen).Value).ShouldBe(AccessLevel.Manager);
+        }
+    }
 }
