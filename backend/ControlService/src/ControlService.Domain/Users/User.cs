@@ -59,6 +59,12 @@ public sealed class User
         return Result.Success();
     }
 
+    public void AssignProfiles(IEnumerable<Guid> profileIds)
+    {
+        _profileIds.Clear();
+        _profileIds.AddRange(profileIds.Distinct());
+    }
+
     public Result Reactivate(DateTimeOffset now)
     {
         if (Status != UserStatus.Inactive)

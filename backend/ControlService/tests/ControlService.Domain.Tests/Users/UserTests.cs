@@ -166,4 +166,17 @@ public class UserTests
 
         user.ProfileIds.ShouldBeEmpty();
     }
+
+    [Fact]
+    public void Assigning_profiles_replaces_them_and_ignores_repeated_ids() // ADR-0006
+    {
+        var user = User.Create();
+        var first = Guid.CreateVersion7();
+        var second = Guid.CreateVersion7();
+        user.AssignProfiles([first]);
+
+        user.AssignProfiles([second, second]);
+
+        user.ProfileIds.ShouldBe([second]);
+    }
 }
