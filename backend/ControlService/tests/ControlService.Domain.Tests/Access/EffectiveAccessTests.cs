@@ -52,4 +52,26 @@ public class EffectiveAccessTests
 
         level.ShouldBe(AccessLevel.Editor);
     }
+
+    [Fact]
+    public void Highest_level_wins_screen_by_screen() // PERM-05, the Carla example in permission-profiles.md
+    {
+        var customers = ScreenKey.Create(ScreenKeys.Customers).Value;
+        var accountsReceivable = ScreenKey.Create(ScreenKeys.AccountsReceivable).Value;
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+
+        var vendedor = PermissionProfile.Create();
+        vendedor.SetLevel(customers, AccessLevel.Editor);
+        vendedor.SetLevel(accountsReceivable, AccessLevel.Reader);
+
+        var financeiro = PermissionProfile.Create();
+        financeiro.SetLevel(customers, AccessLevel.Reader);
+        financeiro.SetLevel(accountsReceivable, AccessLevel.Manager);
+
+        PermissionProfile[] carlasProfiles = [vendedor, financeiro];
+
+        EffectiveAccess.GetLevel(carlasProfiles, customers).ShouldBe(AccessLevel.Editor);
+        EffectiveAccess.GetLevel(carlasProfiles, accountsReceivable).ShouldBe(AccessLevel.Manager);
+        EffectiveAccess.GetLevel(carlasProfiles, users).ShouldBe(AccessLevel.Denied);
+    }
 }
