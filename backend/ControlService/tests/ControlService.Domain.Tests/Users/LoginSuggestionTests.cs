@@ -19,4 +19,12 @@ public class LoginSuggestionTests
 
         suggestion.ShouldBe("angela.brandao");
     }
+
+    [Fact]
+    public void One_word_name_gives_that_word() // USR-15
+    {
+        var suggestion = LoginSuggestion.Suggest("Madalena", takenLogins: []);
+
+        suggestion.ShouldBe("madalena");
+    }
 }

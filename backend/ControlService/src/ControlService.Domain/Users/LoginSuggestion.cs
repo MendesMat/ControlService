@@ -8,6 +8,7 @@ public static class LoginSuggestion
     public static string Suggest(string fullName, IReadOnlyCollection<string> takenLogins)
     {
         var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return TextNormalization.Normalize($"{parts[0]}.{parts[^1]}");
+        var baseLogin = parts.Length == 1 ? parts[0] : $"{parts[0]}.{parts[^1]}";
+        return TextNormalization.Normalize(baseLogin);
     }
 }
