@@ -17,4 +17,14 @@ public class HttpCurrentUserTests
 
         currentUser.UserId.ShouldBe(userId);
     }
+
+    [Fact]
+    public void Request_without_a_signed_in_user_has_no_current_user() // CNV-20
+    {
+        var accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
+
+        var currentUser = new HttpCurrentUser(accessor);
+
+        currentUser.UserId.ShouldBeNull();
+    }
 }
