@@ -7,33 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ControlService.Api.IntegrationTests.Common;
 
-// Unit tests of the pure Error -> Problem Details mapping (ADR-0009, API-12, API-13).
-// The real HTTP pipeline that calls it is covered by ApiStartupTests and RouteGroupTests.
-public class ErrorResultsTests
+// Unit tests of the Error -> Problem Details mapping itself (ADR-0009). The full JSON shape, traceId
+// and the generic 500 are checked through the real HTTP pipeline in ErrorResponseTests.
+public sealed class ErrorResultsTests
 {
-    [Fact]
-    public async Task Validation_failure_becomes_400_with_the_documented_json_shape() // API-12, API-13, ADR-0009
-    {
-        var error = new Error(
-            "validation_failed",
-            "Alguns campos precisam ser corrigidos.",
-            Fields: new Dictionary<string, string[]>
-            {
-                ["login"] = ["Já existe um usuário com o login “ana.souza”. Escolha outro."]
-            });
-
-        var body = await ExecuteAsync(error);
-
-        body.GetProperty("type").GetString().ShouldBe("https://tools.ietf.org/html/rfc9110#section-15.5.1");
-        body.GetProperty("title").GetString().ShouldBe("Bad Request");
-        body.GetProperty("status").GetInt32().ShouldBe(400);
-        body.GetProperty("code").GetString().ShouldBe("validation_failed");
-        body.GetProperty("message").GetString().ShouldBe("Alguns campos precisam ser corrigidos.");
-        body.GetProperty("errors").GetProperty("login")[0].GetString()
-            .ShouldBe("Já existe um usuário com o login “ana.souza”. Escolha outro.");
-        body.GetProperty("traceId").GetString().ShouldNotBeNullOrEmpty();
-    }
-
     // Every row of the ADR-0009 table. account_inactive defaults to 401 (during a session);
     // the sign-in endpoint returns its 403 explicitly.
     [Theory]
@@ -93,17 +70,6 @@ public class ErrorResultsTests
         var exception = Should.Throw<InvalidOperationException>(() => error.ToProblem());
 
         exception.Message.ShouldContain("not_in_table");
-    }
-
-    [Theory]
-    [InlineData("validation_failed")]
-    [InlineData("not_found")]
-    [InlineData("concurrency_conflict")]
-    public async Task Every_error_response_includes_the_traceId(string code) // ADR-0028
-    {
-        var body = await ExecuteAsync(new Error(code, "Mensagem de teste."));
-
-        body.GetProperty("traceId").GetString().ShouldNotBeNullOrEmpty();
     }
 
     private static readonly IServiceProvider Services = new ServiceCollection()
