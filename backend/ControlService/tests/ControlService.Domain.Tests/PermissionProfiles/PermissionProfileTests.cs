@@ -16,6 +16,14 @@ public class PermissionProfileTests
     }
 
     [Fact]
+    public void Normalized_profile_name_ignores_case_accents_and_surrounding_spaces() // CNV-09, PERM-17
+    {
+        var profile = PermissionProfile.Create("Fínanceiro ", "Equipe financeira");
+
+        profile.NormalizedName.ShouldBe("financeiro");
+    }
+
+    [Fact]
     public void New_profile_has_every_screen_denied() // PERM-18
     {
         var profile = TestData.NewProfile();

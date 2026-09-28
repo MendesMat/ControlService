@@ -12,6 +12,7 @@ public sealed class PermissionProfile
         Id = id;
         IsSystem = isSystem;
         Name = name.Trim();
+        NormalizedName = TextNormalization.Normalize(Name);
         Description = description.Trim();
     }
 
@@ -20,6 +21,8 @@ public sealed class PermissionProfile
     public bool IsSystem { get; }
 
     public string Name { get; }
+
+    public string NormalizedName { get; }
 
     public string Description { get; }
 
