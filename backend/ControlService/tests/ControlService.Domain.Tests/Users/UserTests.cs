@@ -21,6 +21,18 @@ public class UserTests
     }
 
     [Fact]
+    public void Created_user_stores_names_without_surrounding_spaces() // CNV-03
+    {
+        var login = Login.Create("ana.souza").Value;
+        var email = EmailAddress.Create("ana.souza@example.com").Value;
+
+        var user = User.Create(login, email, "  Ana Souza  ", "  Ana Paula Souza  ");
+
+        user.DisplayName.ShouldBe("Ana Souza");
+        user.FullName.ShouldBe("Ana Paula Souza");
+    }
+
+    [Fact]
     public void New_user_is_pending() // AUTH-02
     {
         var user = TestData.NewUser();

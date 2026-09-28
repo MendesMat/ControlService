@@ -14,8 +14,8 @@ public sealed class User
         Status = status;
         Login = login;
         Email = email;
-        DisplayName = displayName;
-        FullName = fullName;
+        DisplayName = displayName.Trim();
+        FullName = fullName.Trim();
     }
 
     public Guid Id { get; }
