@@ -14,5 +14,5 @@ internal static class TestData
 
     public static User NewAdmin() => User.CreateAdmin(EmailAddress.Create("admin@example.com").Value);
 
-    public static PermissionProfile NewProfile() => PermissionProfile.Create();
+    public static PermissionProfile NewProfile() => PermissionProfile.Create("Test Profile", "Test profile description");
 }

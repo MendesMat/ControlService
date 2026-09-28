@@ -7,6 +7,15 @@ namespace ControlService.Domain.Tests.PermissionProfiles;
 public class PermissionProfileTests
 {
     [Fact]
+    public void Created_profile_keeps_name_and_description_without_surrounding_spaces() // CNV-03
+    {
+        var profile = PermissionProfile.Create(" Vendedor ", " Equipe comercial ");
+
+        profile.Name.ShouldBe("Vendedor");
+        profile.Description.ShouldBe("Equipe comercial");
+    }
+
+    [Fact]
     public void New_profile_has_every_screen_denied() // PERM-18
     {
         var profile = TestData.NewProfile();

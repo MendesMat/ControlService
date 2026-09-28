@@ -7,19 +7,27 @@ public sealed class PermissionProfile
 {
     private readonly Dictionary<ScreenKey, AccessLevel> _levels = [];
 
-    private PermissionProfile(Guid id, bool isSystem)
+    private PermissionProfile(Guid id, bool isSystem, string name, string description)
     {
         Id = id;
         IsSystem = isSystem;
+        Name = name.Trim();
+        Description = description.Trim();
     }
 
     public Guid Id { get; }
 
     public bool IsSystem { get; }
 
-    public static PermissionProfile Create() => new(Guid.CreateVersion7(), isSystem: false);
+    public string Name { get; }
 
-    public static PermissionProfile CreateManagerProfile() => new(SystemIds.ManagerProfile, isSystem: true);
+    public string Description { get; }
+
+    public static PermissionProfile Create(string name, string description) =>
+        new(Guid.CreateVersion7(), isSystem: false, name, description);
+
+    public static PermissionProfile CreateManagerProfile() =>
+        new(SystemIds.ManagerProfile, isSystem: true, "Gerenciador", "Acesso total a todas as telas do sistema.");
 
     public AccessLevel GetLevel(ScreenKey screen)
     {
