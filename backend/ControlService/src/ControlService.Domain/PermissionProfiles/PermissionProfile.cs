@@ -52,6 +52,12 @@ public sealed class PermissionProfile
             return systemCheck;
         }
 
+        if (level == AccessLevel.Denied)
+        {
+            _levels.Remove(screen);
+            return Result.Success();
+        }
+
         _levels[screen] = level;
         return Result.Success();
     }
