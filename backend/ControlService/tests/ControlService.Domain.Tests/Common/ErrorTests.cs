@@ -12,4 +12,27 @@ public class ErrorTests
         error.Code.ShouldBe("validation_failed");
         error.Message.ShouldBe("Alguns campos precisam ser corrigidos.");
     }
+
+    [Fact]
+    public void Error_can_be_created_with_field_errors() // ADR-0009
+    {
+        var fields = new Dictionary<string, string[]>
+        {
+            ["emergencyContact.phone"] = ["Digite o telefone com DDD. Ex.: (21) 98765-4321."]
+        };
+
+        var error = new Error("validation_failed", "Alguns campos precisam ser corrigidos.", Fields: fields);
+
+        error.Fields.ShouldBe(fields);
+    }
+
+    [Fact]
+    public void Error_can_be_created_with_details() // ADR-0009
+    {
+        var details = new Dictionary<string, object?> { ["updatedByName"] = "Bruno Lima" };
+
+        var error = new Error("concurrency_conflict", "Este cadastro foi alterado.", Details: details);
+
+        error.Details.ShouldBe(details);
+    }
 }
