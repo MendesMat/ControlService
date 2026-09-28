@@ -4,6 +4,7 @@ date: 2026-09-23
 accepted: 2026-09-25
 scope: back-end
 tags: [architecture]
+supersedes: ADR-0003 (validation through endpoint filters only)
 ---
 
 # ADR-0008: Validate input with FluentValidation
