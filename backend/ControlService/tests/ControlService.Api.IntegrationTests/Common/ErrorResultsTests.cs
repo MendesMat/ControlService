@@ -33,21 +33,38 @@ public class ErrorResultsTests
         body.GetProperty("traceId").GetString().ShouldNotBeNullOrEmpty();
     }
 
-    [Fact]
-    public async Task Not_found_failure_becomes_404() // ADR-0009
+    // Every row of the ADR-0009 table. account_inactive defaults to 401 (during a session);
+    // the sign-in endpoint returns its 403 explicitly.
+    [Theory]
+    [InlineData("validation_failed", 400, "https://tools.ietf.org/html/rfc9110#section-15.5.1", "Bad Request")]
+    [InlineData("session_expired", 401, "https://tools.ietf.org/html/rfc9110#section-15.5.2", "Unauthorized")]
+    [InlineData("invalid_credentials", 401, "https://tools.ietf.org/html/rfc9110#section-15.5.2", "Unauthorized")]
+    [InlineData("account_inactive", 401, "https://tools.ietf.org/html/rfc9110#section-15.5.2", "Unauthorized")]
+    [InlineData("password_change_required", 401, "https://tools.ietf.org/html/rfc9110#section-15.5.2", "Unauthorized")]
+    [InlineData("forbidden", 403, "https://tools.ietf.org/html/rfc9110#section-15.5.4", "Forbidden")]
+    [InlineData("not_found", 404, "https://tools.ietf.org/html/rfc9110#section-15.5.5", "Not Found")]
+    [InlineData("concurrency_conflict", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
+    [InlineData("profile_in_use", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
+    [InlineData("system_record", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
+    [InlineData("self_deactivation", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
+    [InlineData("not_pending", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
+    [InlineData("not_inactive", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
+    [InlineData("email_missing", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
+    [InlineData("link_invalid", 410, "https://tools.ietf.org/html/rfc9110#section-15.5.11", "Gone")]
+    [InlineData("locked_out", 429, "https://tools.ietf.org/html/rfc6585#section-4", "Too Many Requests")]
+    [InlineData("unexpected_error", 500, "https://tools.ietf.org/html/rfc9110#section-15.6.1", "Internal Server Error")]
+    public async Task Every_documented_error_code_maps_to_its_status(string code, int status, string type, string title) // ADR-0009, API-14
     {
-        var error = new Error("not_found", "Registro não encontrado.");
+        var body = await ExecuteAsync(new Error(code, "Mensagem de teste."));
 
-        var body = await ExecuteAsync(error);
-
-        body.GetProperty("status").GetInt32().ShouldBe(404);
-        body.GetProperty("title").GetString().ShouldBe("Not Found");
-        body.GetProperty("code").GetString().ShouldBe("not_found");
-        body.GetProperty("message").GetString().ShouldBe("Registro não encontrado.");
+        body.GetProperty("status").GetInt32().ShouldBe(status);
+        body.GetProperty("type").GetString().ShouldBe(type);
+        body.GetProperty("title").GetString().ShouldBe(title);
+        body.GetProperty("code").GetString().ShouldBe(code);
     }
 
     [Fact]
-    public async Task Conflict_failure_with_details_becomes_409_and_carries_the_details() // ADR-0009
+    public async Task Details_of_an_error_are_returned_under_details() // ADR-0009
     {
         var error = new Error(
             "concurrency_conflict",
@@ -56,9 +73,6 @@ public class ErrorResultsTests
 
         var body = await ExecuteAsync(error);
 
-        body.GetProperty("status").GetInt32().ShouldBe(409);
-        body.GetProperty("title").GetString().ShouldBe("Conflict");
-        body.GetProperty("code").GetString().ShouldBe("concurrency_conflict");
         body.GetProperty("details").GetProperty("updatedByName").GetString().ShouldBe("Bruno Lima");
     }
 
