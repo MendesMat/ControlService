@@ -33,6 +33,17 @@ public class UserTests
     }
 
     [Fact]
+    public void Normalized_display_name_ignores_case_accents_and_surrounding_spaces() // CNV-09, USR-03
+    {
+        var login = Login.Create("ana.souza").Value;
+        var email = EmailAddress.Create("ana.souza@example.com").Value;
+
+        var user = User.Create(login, email, " Ána SOUZA ", "Ana Paula Souza");
+
+        user.NormalizedDisplayName.ShouldBe("ana souza");
+    }
+
+    [Fact]
     public void New_user_is_pending() // AUTH-02
     {
         var user = TestData.NewUser();

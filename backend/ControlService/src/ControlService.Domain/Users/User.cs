@@ -15,6 +15,7 @@ public sealed class User
         Login = login;
         Email = email;
         DisplayName = displayName.Trim();
+        NormalizedDisplayName = TextNormalization.Normalize(DisplayName);
         FullName = fullName.Trim();
     }
 
@@ -27,6 +28,8 @@ public sealed class User
     public EmailAddress Email { get; }
 
     public string DisplayName { get; }
+
+    public string NormalizedDisplayName { get; }
 
     public string FullName { get; }
 
