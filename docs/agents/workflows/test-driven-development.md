@@ -15,7 +15,7 @@ All development in this repository is test-driven (ADR-0033). The goal is *clean
 
 ## Before the first cycle: the test list
 
-Read the issue and the feature document, then show the owner a short list of behaviors to test, as one-line test names, ordered from the simplest to the most complex, each with the rule ID it covers:
+Read the issue and the feature document, then show the owner a short list of behaviors to test, as one-line test names, ordered from the simplest to the most complex, each with the rule ID it covers. When the expected result is not obvious from the name (a status, a code, a message), write it next to the test: the plan comment carries it to the build session ([sessions](implement-a-feature.md#sessions)).
 
 ```
 1. Phone_with_11_digits_is_valid                     (USR-10)
@@ -57,13 +57,13 @@ Report each phase with its real output:
 - **Red:** the test, the failure and why it was the expected one.
 - **Green:** the code and the strategy.
 - **Refactor:** what changed, or that nothing did.
-- The suite status.
+- The suite status and the commit of the cycle.
 
 Then propose the next two or three candidate tests from the list, simplest first. The owner chooses.
 
 Also stop in the middle of a cycle when a business rule or a design decision belongs to the owner.
 
-Commit when a cycle ends green, or after a few small cycles on the same behavior. Never commit a red build to a branch that you push.
+Commit when a cycle ends green, before the pause, or after a few small cycles on the same behavior. Never commit a red build to a branch that you push.
 
 ### Evidence in autonomous mode
 

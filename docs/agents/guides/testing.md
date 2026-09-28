@@ -15,7 +15,13 @@ Framework: xUnit v3 on Microsoft.Testing.Platform, assertions with Shouldly. Com
 
 ## Commands
 
-Run from `backend/ControlService`:
+Run from `backend/ControlService`. `check.ps1` formats, builds and tests, printing only problems and summaries; a failing run keeps the whole output, as evidence of the Red:
+
+```bash
+powershell.exe -NoProfile -File check.ps1 -Project tests/ControlService.Domain.Tests -Filter '*Cpf*'
+```
+
+The plain commands, when you need their full output:
 
 ```bash
 dotnet test --solution ControlService.slnx

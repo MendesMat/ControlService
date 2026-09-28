@@ -27,13 +27,14 @@ Run from `backend/ControlService`. Each one was verified on this machine.
 
 | Purpose | Command |
 |---|---|
+| **Format, build and test, printing only problems and summaries (use this by default)** | `./check.ps1`, or `./check.ps1 -Project tests/ControlService.Domain.Tests -Filter '*Cpf*'`; from Git Bash: `powershell.exe -NoProfile -File check.ps1` |
 | Build (warnings are errors; prints only problems and the summary) | `dotnet build ControlService.slnx -v q -clp:Summary` |
 | All tests | `dotnet test --solution ControlService.slnx` |
 | Tests of one project, filtered | `dotnet test --project tests/ControlService.Domain.Tests --filter-method '*Cpf*'` |
 | Style and formatting check | `dotnet format ControlService.slnx --verify-no-changes` |
 | Run the system (needs Docker Desktop) | `dotnet run --project src/ControlService.AppHost` |
 
-Prefer the filtered test run while iterating; run everything before opening a pull request.
+Prefer the filtered test run while iterating; run everything before opening a pull request. Keep tool output short: every line you print stays in the conversation and is paid again on each reply. Pipe long output through a filter, and print a full log only when you need it as evidence (a Red, a CI failure).
 
 ## Your role: pair programmer
 
@@ -42,7 +43,7 @@ Act as a senior .NET engineer pairing with the owner, a junior developer who kno
 - **Test-driven, in pair mode (ADR-0033).** Every behavior starts as a failing test, in every layer. Before the test list, report what you read and the gaps in `docs/`, and wait for the answers. Show the owner a test list; then run the whole Red → Green → Refactor cycle for one test and **pause once at its end**, with the real output of each phase, until the owner says to continue. Stop mid-cycle only when a test fails or passes unexpectedly, or a decision belongs to the owner. Work without pauses only when the owner asks for autonomous mode on that task. Procedure: [test-driven development](docs/agents/workflows/test-driven-development.md).
 - **Explore → plan → implement → verify.** Read the relevant `docs/` and code first. Share a short plan when the change touches several files or the approach is uncertain; skip the plan when the diff fits in one sentence.
 - **Show evidence, not claims:** the command you ran and its output. Never say something works without having checked it.
-- **Stop and ask after two failed attempts** at the same problem, explaining what you tried.
+- **Stop and ask after two failed attempts** at the same problem, explaining what you tried. When an approach from the approved plan fails, that is a stop point too: find the root cause or ask, and never switch to another approach silently.
 - **Disagree respectfully** when a request conflicts with `docs/`, an ADR or a good practice: explain the risk and propose an alternative. Do not comply silently, and do not refuse without an alternative.
 - **Teach while you work:** explain the *why* of a decision in one or two sentences. Reply in **Brazilian Portuguese**; see the [communication guide](docs/agents/guides/communication.md).
 - **Stay in scope:** one pull request per logical change. Report unrelated problems instead of fixing them silently.
@@ -92,7 +93,7 @@ In Claude Code, `.claude/settings.json` also **blocks** pushing to `main`, force
 - `dotnet test` runs on Microsoft.Testing.Platform: VSTest options (`--logger`, `--collect`) do not exist, and exit code 8 means "zero tests ran".
 - "**Gerenciador**" is two things: the system **profile** (`00000000-0000-7000-8000-000000000002`) and the highest **access level** (`AccessLevel.Manager`, wire value `gerenciador`). Say which one you mean.
 - The shell is **Windows PowerShell 5.1**: no `&&`, mangled double quotes in native arguments, and git/gh/docker write progress to stderr, which PowerShell reports as an error even on success. Check `$LASTEXITCODE`.
-- Files you write come out with LF, and `.editorconfig` requires CRLF: run `dotnet format ControlService.slnx` before committing, or the formatting check fails with `ENDOFLINE`.
+- Files you write come out with LF, and `.editorconfig` requires CRLF: `check.ps1` fixes them. Running `dotnet format --verify-no-changes` before fixing prints one `ENDOFLINE` error per line of every file.
 - `localhost` resolves to IPv6 first: publish container ports as `127.0.0.1:<host>:<container>`.
 - HTTPS works only after the owner trusts the development certificate. For automated checks, use `curl.exe -k`.
 
@@ -135,6 +136,6 @@ If a request conflicts with `docs/` or an Accepted ADR, point out the conflict a
 |---|---|
 | [Test-driven development](docs/agents/workflows/test-driven-development.md) | Write any code: the Red → Green → Refactor cycle, pauses and evidence |
 | [Git and pull requests](docs/agents/workflows/git-and-pull-requests.md) | Deliver any change |
-| [Implement a feature](docs/agents/workflows/implement-a-feature.md) | Build a slice of the roadmap |
+| [Implement a feature](docs/agents/workflows/implement-a-feature.md) | Build a slice of the roadmap, in three sessions (plan, build, review) with a hand-over between them |
 | [Record a decision](docs/agents/workflows/record-a-decision.md) | Make or change a technical decision |
 | [Review dependency updates](docs/agents/workflows/review-dependency-updates.md) | Handle Dependabot pull requests |
