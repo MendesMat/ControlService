@@ -45,7 +45,7 @@ To list the accepted security records, for example: search the folder for `statu
 | ADR | Decision | Status |
 |---|---|---|
 | [0002](0002-use-dotnet-10-lts.md) | Use .NET 10 LTS and C# 14 | Accepted |
-| [0003](0003-use-minimal-apis-grouped-by-feature.md) | Use Minimal APIs grouped by feature | Accepted |
+| [0003](0003-use-minimal-apis-grouped-by-feature.md) | Use Minimal APIs grouped by feature | Accepted, validation through endpoint filters superseded by 0008 |
 | [0004](0004-use-built-in-openapi-with-scalar.md) | Use built-in OpenAPI generation with the Scalar UI | Accepted |
 
 ## Architecture

@@ -4,6 +4,7 @@ date: 2026-09-23
 accepted: 2026-09-24
 scope: back-end
 tags: [platform, api]
+superseded-by: ADR-0008 (validation through endpoint filters only)
 ---
 
 # ADR-0003: Use Minimal APIs grouped by feature
