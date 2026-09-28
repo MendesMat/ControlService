@@ -8,7 +8,7 @@ public class UserTests
     [Fact]
     public void New_user_is_pending() // AUTH-02
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
 
         user.Status.ShouldBe(UserStatus.Pending);
     }
@@ -16,7 +16,7 @@ public class UserTests
     [Fact]
     public void New_user_gets_a_version_7_id() // CNV-04, ADR-0012
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
 
         user.Id.ShouldNotBe(Guid.Empty);
         var versionNibble = user.Id.ToByteArray()[7] >> 4;
@@ -26,7 +26,7 @@ public class UserTests
     [Fact]
     public void Activating_a_pending_user_makes_it_active_with_the_activation_date() // AUTH-02
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         var now = new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero);
 
         var result = user.Activate(now);
@@ -39,7 +39,7 @@ public class UserTests
     [Fact]
     public void Activating_an_active_user_is_refused_as_invalid_link() // AUTH-23
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
 
         var result = user.Activate(new DateTimeOffset(2026, 9, 13, 8, 0, 0, TimeSpan.Zero));
@@ -53,7 +53,7 @@ public class UserTests
     [Fact]
     public void Activating_an_inactive_user_is_refused_as_invalid_link() // AUTH-23, AUTH-21
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
         var result = user.Activate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
@@ -66,7 +66,7 @@ public class UserTests
     [Fact]
     public void Deactivating_an_active_user_records_status_date_and_author() // USR-16, USR-17
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
         var deactivatedBy = Guid.CreateVersion7();
         var deactivatedAt = new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero);
@@ -82,7 +82,7 @@ public class UserTests
     [Fact]
     public void Deactivating_a_pending_user_makes_it_inactive() // USR-17
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
 
         var result = user.Deactivate(Guid.CreateVersion7(), DateTimeOffset.UtcNow);
 
@@ -93,7 +93,7 @@ public class UserTests
     [Fact]
     public void Deactivating_an_inactive_user_keeps_the_first_date_and_author() // USR-30
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         var firstBy = Guid.CreateVersion7();
         var firstAt = new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero);
         user.Deactivate(firstBy, firstAt);
@@ -108,7 +108,7 @@ public class UserTests
     [Fact]
     public void Nobody_deactivates_themselves() // USR-19, USR-27
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
 
         var result = user.Deactivate(user.Id, DateTimeOffset.UtcNow);
 
@@ -121,7 +121,7 @@ public class UserTests
     [Fact]
     public void Reactivating_a_user_who_had_a_password_makes_it_active() // USR-18
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
@@ -134,7 +134,7 @@ public class UserTests
     [Fact]
     public void Reactivating_a_user_who_never_had_a_password_makes_it_pending() // USR-18
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
         var result = user.Reactivate();
@@ -146,7 +146,7 @@ public class UserTests
     [Fact]
     public void Reactivated_user_has_no_deactivation_date_or_author() // users.md data model
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
         user.Reactivate();
@@ -160,7 +160,7 @@ public class UserTests
     [InlineData(true)] // active
     public void Reactivating_a_user_who_is_not_inactive_is_refused(bool activateFirst) // USR-18, USR-29
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         if (activateFirst)
         {
             user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
@@ -176,7 +176,7 @@ public class UserTests
     [Fact]
     public void User_may_have_no_profiles() // USR-21, USR-13
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
 
         user.ProfileIds.ShouldBeEmpty();
     }
@@ -184,7 +184,7 @@ public class UserTests
     [Fact]
     public void Assigning_profiles_replaces_them_and_ignores_repeated_ids() // ADR-0006
     {
-        var user = User.Create();
+        var user = TestData.NewUser();
         var first = Guid.CreateVersion7();
         var second = Guid.CreateVersion7();
         user.AssignProfiles([first]);
@@ -198,7 +198,7 @@ public class UserTests
     [Fact]
     public void Admin_is_a_system_record_with_the_manager_profile() // USR-23, USR-24
     {
-        var admin = User.CreateAdmin();
+        var admin = TestData.NewAdmin();
 
         admin.Id.ShouldBe(SystemIds.AdminUser);
         admin.IsSystem.ShouldBeTrue();
@@ -209,7 +209,7 @@ public class UserTests
     [Fact]
     public void Admin_cannot_be_deactivated() // USR-19, USR-23, USR-28
     {
-        var admin = User.CreateAdmin();
+        var admin = TestData.NewAdmin();
 
         var result = admin.Deactivate(Guid.CreateVersion7(), DateTimeOffset.UtcNow);
 
@@ -222,7 +222,7 @@ public class UserTests
     [Fact]
     public void Admin_profiles_cannot_change() // USR-24, USR-28
     {
-        var admin = User.CreateAdmin();
+        var admin = TestData.NewAdmin();
 
         var result = admin.AssignProfiles([Guid.CreateVersion7()]);
 

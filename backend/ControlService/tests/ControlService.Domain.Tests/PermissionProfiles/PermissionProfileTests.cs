@@ -9,7 +9,7 @@ public class PermissionProfileTests
     [Fact]
     public void New_profile_has_every_screen_denied() // PERM-18
     {
-        var profile = PermissionProfile.Create();
+        var profile = TestData.NewProfile();
 
         foreach (var screen in ScreenKeys.All)
         {
@@ -20,7 +20,7 @@ public class PermissionProfileTests
     [Fact]
     public void SetLevel_changes_only_that_screen() // ADR-0006
     {
-        var profile = PermissionProfile.Create();
+        var profile = TestData.NewProfile();
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
         var customers = ScreenKey.Create(ScreenKeys.Customers).Value;
 
@@ -68,7 +68,7 @@ public class PermissionProfileTests
     [Fact]
     public void Regular_profile_can_be_deleted() // PERM-20
     {
-        var profile = PermissionProfile.Create();
+        var profile = TestData.NewProfile();
 
         var result = profile.Delete();
 
