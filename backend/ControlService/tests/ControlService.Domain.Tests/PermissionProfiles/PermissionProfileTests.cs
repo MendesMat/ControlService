@@ -35,6 +35,19 @@ public class PermissionProfileTests
     }
 
     [Fact]
+    public void Setting_a_level_again_replaces_the_previous_one() // PERM-01
+    {
+        var profile = TestData.NewProfile();
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        profile.SetLevel(users, AccessLevel.Editor);
+
+        profile.SetLevel(users, AccessLevel.Reader);
+
+        profile.Levels.Count.ShouldBe(1);
+        profile.Levels[users].ShouldBe(AccessLevel.Reader);
+    }
+
+    [Fact]
     public void SetLevel_changes_only_that_screen() // ADR-0006
     {
         var profile = TestData.NewProfile();
