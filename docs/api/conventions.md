@@ -42,6 +42,7 @@ The front-end calls the API only through its `api` object. Replacing the prototy
 | API-12 | Expected failures return Problem Details (RFC 9457) with the extensions `code`, `message` (Portuguese, ready to show), `errors` and `details` when applicable, and `traceId` (ADR-0009). Unexpected failures return 500 with a generic Portuguese message; details go only to the logs. |
 | API-13 | Duplicated login, display name or profile name are validation errors (400 `validation_failed`) with the message under the field, like any other validation. |
 | API-14 | The generic message for an unexpected failure (500 `unexpected_error`) is **"Não foi possível concluir a operação. Tente de novo em alguns minutos."** The real cause never reaches the response, only the logs. |
+| API-15 | The `message` of a `validation_failed` response is **"Alguns campos precisam ser corrigidos."**; the message of each field is under `errors`. |
 
 ```json
 {

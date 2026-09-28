@@ -8,7 +8,7 @@ The strategy is in ADR-0024, and ADR-0033 makes all development test-first. Test
 |---|---|---|
 | `ControlService.Domain.Tests` | Value objects, aggregates, effective access | None: the domain has no dependencies |
 | `ControlService.Application.Tests` | Handlers and validators | Hand-written in-memory fakes of the Application interfaces (ADR-0033); NSubstitute only when a fake would be clearly heavier |
-| `ControlService.Api.IntegrationTests` | Real HTTP calls, authentication, authorization, persistence | `WebApplicationFactory`, Testcontainers (PostgreSQL, Mailpit) |
+| `ControlService.Api.IntegrationTests` | Real HTTP calls, authentication, authorization, persistence; also unit tests of the API's own helpers, such as the `Error` → Problem Details table (`Common/ErrorResultsTests.cs`), since there is no API unit test project | `WebApplicationFactory`, Testcontainers (PostgreSQL, Mailpit) |
 | `ControlService.ArchitectureTests` | Dependency rules between layers | None |
 
 Framework: xUnit v3 on Microsoft.Testing.Platform, assertions with Shouldly. Common packages come from `tests/Directory.Build.props`; do not repeat them in each project.
@@ -53,6 +53,8 @@ Account flows: activation link sent on creation; link expired after 72 hours; li
 
 Every endpoint: one allowed and one denied path for its minimum level; the 409 concurrency path for updates.
 
-## Temporary settings to remove
+## API tests without a feature endpoint
 
-`ControlService.Application.Tests.csproj` contains a line marked `TEMPORARY` that accepts exit code 8 (no tests yet). Delete that line in the pull request that adds its first test, as issue #4 did for `ControlService.Domain.Tests`.
+- **Test-only endpoints.** To exercise the real pipeline before a feature exists, register an `IStartupFilter` in a `WebApplicationFactory` (see `Common/ErrorEndpointsFactory.cs`). The filter receives a plain `ApplicationBuilder`, not an `IEndpointRouteBuilder`: call `next(app)`, then `app.UseRouting()` and `app.UseEndpoints(...)`. Those endpoints run after `UseExceptionHandler`, so a thrown exception gets the real 500 response.
+- **Executing an `IResult` without a server.** A bare `DefaultHttpContext` has no services; give it `RequestServices` built from `new ServiceCollection().AddLogging().AddProblemDetails()` and a `MemoryStream` as `Response.Body`.
+- A new test project with no tests yet fails with exit code 8 ("zero tests ran"). Add the first test in the same pull request that creates the project.

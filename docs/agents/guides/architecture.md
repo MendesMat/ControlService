@@ -47,17 +47,20 @@ Current features: `Access`, `Auth`, `Users`, `PermissionProfiles`, `Screens`. Sh
 ## Application layer (ADR-0007, ADR-0009)
 
 - One folder per use case with its command or query, handler and validator.
-- **Validation (ADR-0008):** each command has a FluentValidation `{UseCase}Validator` that checks shape and format (required fields, lengths, formats), with the Portuguese messages of the feature document and camelCase property paths (`emergencyContact.phone`). A validation decorator runs it before the handler. Rules that need the database (uniqueness) run in the handler; business invariants stay in the domain.
+- **Validation (ADR-0008):** each command has a FluentValidation `{UseCase}Validator` that checks shape and format (required fields, lengths, formats), with the Portuguese messages of the feature document. `ValidatingCommandHandler` (`Application/Common`) runs it before the handler and turns the failures into a `validation_failed` error whose `Fields` use camelCase paths (`emergencyContact.phone`). Handlers are registered by hand, each wrapped in the decorator (no Scrutor). Rules that need the database (uniqueness) run in the handler; business invariants stay in the domain.
+- **Field errors from the handler:** a uniqueness failure, or a value object that refuses a value, must reach the front-end under its field (API-13, CNV-18). Value objects return `validation_failed` without a field, so the handler returns a new `Error` with `Fields` set (`["cpf"] = [message]`); never pass a field-less `validation_failed` on to the API.
 - **Mapping (ADR-0010):** hand-written extension methods next to each feature's models, such as `user.ToResponse()` and `request.ToCommand()`. No AutoMapper; Mapperly only if mapping becomes repetitive, after asking the owner.
-- Handlers implement the in-house `ICommandHandler<TCommand, TResult>` / `IQueryHandler<TQuery, TResult>`. MediatR is not used.
-- Expected failures return `Result` / `Result<T>` with an `Error` (stable `code`, Portuguese `message`). Exceptions are only for unexpected failures.
+- Handlers implement the in-house `ICommandHandler<TCommand, TResponse>` / `IQueryHandler<TQuery, TResponse>` (`Application/Common`), which return `Task<Result<TResponse>>`. MediatR is not used.
+- Expected failures return `Result` / `Result<T>` with an `Error` (stable `code`, Portuguese `message`, optional `Fields` and `Details`). Exceptions are only for unexpected failures.
 - Handlers orchestrate; business decisions live in the domain.
 - Queries may project straight to response models with `AsNoTracking`.
 
 ## API layer (ADR-0003, ADR-0020)
 
 - One `{Feature}Endpoints.cs` per feature, with an extension method `Map{Feature}Endpoints` on the `/api/v1` group.
-- Endpoints are thin: bind the request, call the handler, translate the `Result` to typed results and Problem Details.
+- Endpoints are thin: bind the request, call the handler, translate the `Result` to typed results and Problem Details. A failure becomes `error.ToProblem()` (`API/Common/ErrorResults.cs`), a `ProblemHttpResult`, so endpoints declare `Results<Ok<T>, ProblemHttpResult>`.
+- `ErrorStatusCodes` maps every error code of ADR-0009 to its status. A new code needs a new row and a case in `ErrorResultsTests`; an unmapped code throws, and the exception handler answers with the generic 500 (API-12, API-14).
+- `account_inactive` maps to 401, its meaning during a session. The sign-in endpoint returns the 403 of that code explicitly (ADR-0009).
 - Every endpoint declares its permission: `.RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor)`, with the minimum level from the feature document's *Operations* table (PERM-03).
 - Routes, status codes and error codes must match the feature document and `docs/api/conventions.md` exactly: the front-end depends on them.
 

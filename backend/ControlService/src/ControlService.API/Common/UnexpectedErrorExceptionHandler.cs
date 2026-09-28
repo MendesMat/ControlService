@@ -14,7 +14,7 @@ public sealed class UnexpectedErrorExceptionHandler : IExceptionHandler
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        await UnexpectedError.ToProblem(httpContext).ExecuteAsync(httpContext);
+        await UnexpectedError.ToProblem().ExecuteAsync(httpContext);
         return true;
     }
 }
