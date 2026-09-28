@@ -24,13 +24,65 @@ Dicas:
 - **Diga o que não fazer**, quando importa ("sem pacote novo", "não mude as rotas").
 - **Perguntas abertas também valem**, quando você quer explorar: "o que você melhoraria neste arquivo?"
 
-## Começando a próxima tarefa
+## O fluxo de uma issue: três conversas
 
-O trabalho está organizado em issues no [milestone M1](https://github.com/MendesMat/ControlService/milestone/1), na ordem em que devem ser feitas. Numa conversa nova, cole:
+O trabalho está organizado em issues no [milestone M1](https://github.com/MendesMat/ControlService/milestone/1), na ordem em que devem ser feitas. Cada issue passa por **três conversas separadas**, cada uma com o modelo certo para o tipo de trabalho:
 
-> "Vamos trabalhar na próxima issue aberta do milestone M1, em TDD no modo par. Leia a issue e os documentos que ela cita, me conte o que leu e as lacunas que encontrou, e só depois me mostre a lista de testes, do mais simples ao mais complexo, com o ID da regra de cada um. Depois siga o AGENTS.md, pausando ao fim de cada ciclo, até o PR estar aberto com o CI verde."
+| Conversa | Modelo e esforço | O que você faz | Termina com |
+|---|---|---|---|
+| **1. Plano** | O mais forte (hoje, Opus 5.5), esforço **alto** | Responde às lacunas e aprova a lista de testes | O *comentário de plano* publicado na issue |
+| **2. Construção** | Intermediário (hoje, Sonnet 5), esforço **médio** | Navega os ciclos de TDD | O PR aberto, com o CI verde |
+| **3. Revisão** | O mais forte, esforço **alto**, numa conversa **nova** | Lê os achados e decide os que forem seus | Os achados corrigidos no mesmo PR; aí você faz o merge |
 
-Para uma issue específica, troque o começo por "Vamos trabalhar na issue #4". O agente abre o PR com `Closes #4`, e a issue fecha sozinha quando você fizer o merge.
+Por que três conversas, e não uma só:
+
+- **Custo.** A cada resposta, o agente relê a conversa inteira. Uma conversa que chega a centenas de milhares de tokens fica cara em cada "segue". Conversas curtas e focadas gastam menos.
+- **Cada modelo onde rende mais.** O plano e a revisão exigem julgamento: achar lacunas, conferir decisões contra as regras. A construção é trabalho repetitivo, guiado por uma lista de testes detalhada. Por isso o modelo mais forte fica nas pontas.
+- **Olhos frescos.** Um agente é tendencioso em relação ao código que ele mesmo escreveu. A revisão numa conversa nova pega o que a construção deixou passar.
+- **A revisão vem antes do merge.** No issue #6 ela veio depois, e as correções precisaram de um segundo PR.
+
+### O comentário de plano
+
+É a passagem de bastão entre as conversas. No fim do plano, o agente publica na issue as suas decisões, as mensagens novas, a lista de testes com o **resultado esperado** de cada teste, e o que fica fora do escopo. A conversa de construção lê esse comentário em vez de reler toda a documentação, e não precisa improvisar decisões. Detalhes para os agentes: [sessions](workflows/implement-a-feature.md#sessions).
+
+Revise o plano com atenção. No issue #6, uma decisão vaga do plano ("código fora da tabela vira 500") foi completada na construção de um jeito que contrariava a regra API-12.
+
+### O que colar em cada conversa
+
+**1. Plano** (Opus, alto):
+
+> "Sessão de plano da próxima issue aberta do milestone M1. Leia a issue e os documentos que ela cita, me conte o que leu e as lacunas que encontrou, e espere as minhas respostas. Depois me mostre a lista de testes, do mais simples ao mais complexo, com o ID da regra e o resultado esperado de cada um. Quando eu aprovar, publique o comentário de plano na issue e pare."
+
+**2. Construção** (Sonnet, médio):
+
+> "Sessão de construção da issue #N. Leia a issue e o comentário de plano, e siga o AGENTS.md em TDD no modo par, pausando ao fim de cada ciclo, até o PR estar aberto com o CI verde. Se algo do plano não funcionar, pare e me diga."
+
+Troque "no modo par" por "no modo autônomo" quando quiser menos pausas (veja abaixo quando vale a pena).
+
+**3. Revisão** (Opus, alto, conversa nova):
+
+> "Sessão de revisão do PR #N, antes do merge. Siga a etapa 9 do workflow implement-a-feature: confira o PR contra a issue, o comentário de plano, os documentos que eles citam e o AGENTS.md. Corrija no mesmo PR o que for correção, e me pergunte o que for decisão minha."
+
+Para uma issue específica, cite o número dela. O agente abre o PR com `Closes #N`, e a issue fecha sozinha quando você faz o merge.
+
+### Modo par ou modo autônomo
+
+- **Modo par** nas regras de negócio (domínio, validações, permissões). É onde você aprende TDD e onde as suas decisões mudam o resultado.
+- **Modo autônomo** na infraestrutura e na fiação (tratamento de erros, persistência, configuração), desde que o plano tenha o resultado esperado de cada teste. No issue #6, quase todas as pausas foram um "siga" sem decisão nenhuma.
+
+### Trocando de modelo no meio
+
+Se, na construção, uma abordagem do plano falhar ou surgir uma decisão de desenho, troque para o modelo mais forte **na mesma conversa**, pelo seletor de modelo, só para aquele passo. Depois, volte ao intermediário. Isso sai mais barato do que deixar o modelo intermediário improvisar, e mais barato do que uma revisão corrigindo depois.
+
+### Tarefas mecânicas
+
+Para sincronizar o git depois de um merge, revisar atualizações do Dependabot ou corrigir um erro de digitação na documentação, use o modelo mais leve (hoje, Haiku 4.5) ou o intermediário com esforço **baixo**.
+
+### Cuidando da cota
+
+- **Referência:** o issue #6 inteiro (plano, 13 ciclos, PR, revisão e dois PRs de correção) usou cerca de 5 pontos percentuais da cota semanal do plano Pro. Use isso para estimar se uma issue cabe na cota que sobrou; o agente consegue ler o seu uso atual se você pedir.
+- **Saída curta:** o agente usa o `check.ps1`, que formata, compila e testa mostrando só os problemas e o resumo. Saídas longas ficam na conversa e são pagas de novo a cada resposta; no issue #6, só o ruído de formatação encheu uma boa parte da conversa.
+- **Uma conversa por fase**, e uma fase por conversa: não junte perguntas soltas no meio da construção.
 
 ## TDD no modo par: o seu papel
 
@@ -61,7 +113,7 @@ Antes de uma fatia inteira (por exemplo, "desativação de usuários"), peça:
 
 > "Quero implementar [funcionalidade]. Me entreviste antes: pergunte sobre regras, casos de borda e decisões que eu talvez não tenha pensado. Depois escreva um plano com os arquivos que vai criar e como vamos verificar."
 
-Quando o plano estiver bom, **comece uma conversa nova** para implementar. A conversa nova começa limpa, focada só no plano.
+Essa entrevista é a conversa de plano. Quando o plano estiver bom, **comece uma conversa nova** para implementar: ela começa limpa, focada só no plano.
 
 ## Durante o trabalho
 
@@ -84,9 +136,7 @@ Para pedir ajustes, comente no próprio PR ou diga ao agente: "No PR #N, a mensa
 
 ## Revisão cruzada
 
-Um agente é tendencioso em relação ao código que ele mesmo escreveu. Para mudanças importantes (segurança, permissões, banco), abra uma **conversa nova** e peça:
-
-> "Revise o PR #N contra o documento da funcionalidade em `docs/product/features/` e o AGENTS.md. Aponte só problemas de correção ou regras não cumpridas (citando os IDs), não preferências de estilo."
+A terceira conversa do [fluxo de uma issue](#o-fluxo-de-uma-issue-três-conversas) é uma revisão cruzada. Faça uma também quando um PR fora do milestone mexer em segurança, permissões ou banco: abra uma conversa nova e cole o texto da revisão.
 
 ## O que o agente nunca faz, e por quê
 

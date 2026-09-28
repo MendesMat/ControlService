@@ -2,6 +2,29 @@
 
 Use this workflow for any slice of the roadmap, for example "permission profiles" or "user deactivation". A slice goes from the business rule to a pull request, in small steps that each leave the build green.
 
+## Sessions
+
+An issue is done in three conversations, so each one starts with a small, focused context. A long conversation is paid again on every reply, and a fresh reviewer is not biased by code it wrote.
+
+| Session | Sections | Ends with |
+|---|---|---|
+| **Plan** | 1 and 2 | The owner's answers and the approved test list, posted on the issue as the *plan comment* |
+| **Build** | 3 to 8 | The pull request open and CI green, following the plan comment |
+| **Review** | 9 | The findings fixed on the same branch; the owner merges |
+
+The owner chooses the model and effort of each session ([working with agents](../trabalhando-com-agentes.md)). If a conversation does not say which session it is, ask.
+
+**The plan comment** is the hand-over between sessions. It is written in English and posted with `gh issue comment <number> --body-file <file>` once the owner approves the test list. It contains:
+
+- the owner's decisions, each with the rule ID or ADR it settles;
+- the new messages and rule IDs to add to `docs/`;
+- the test list, in order: test name, rule ID and the **expected result** (the status, code, message or value the test asserts), so the build session does not have to decide it;
+- the files to create or change, and what is out of scope.
+
+Check every decision against the rule IDs it touches before posting. A vague decision ("an unmapped code becomes a 500") is filled in by guesswork later, and the guess can contradict a rule (API-12 in issue #6).
+
+The build session starts from the issue and its plan comment instead of repeating the survey, and reads the documents the plan cites. When the plan is wrong or incomplete, it stops and asks; it never replaces a planned approach silently.
+
 ## 1. Understand the rule
 
 1. Read the feature document in `docs/product/features/`, plus `docs/product/conventions.md` and `docs/api/conventions.md`. For a new screen without a document, create it from `docs/product/features/template.md` and have the owner confirm the rules before coding.
@@ -15,7 +38,7 @@ Use this workflow for any slice of the roadmap, for example "permission profiles
 ## 2. Plan the slice
 
 - Split it into steps that can each be committed with passing tests, inside out: **domain → application → infrastructure → API**.
-- Write the **test list** of the [TDD workflow](test-driven-development.md): one-line test names, simplest first, each with its rule ID. Show it to the owner in Portuguese, together with the files you expect to create, and wait for approval.
+- Write the **test list** of the [TDD workflow](test-driven-development.md): one-line test names, simplest first, each with its rule ID and expected result. Show it to the owner in Portuguese, together with the files you expect to create, and wait for approval. Then post the [plan comment](#sessions).
 - Scope every type to what the slice's tests demand. An aggregate gets a field only when a test of this slice needs it; the fields of later issues come with those issues, driven by their tests. Tests create such objects through one helper, so a factory that grows later changes one place.
 - Create the branch ([git and pull requests](git-and-pull-requests.md), steps 1 and 2).
 
@@ -53,4 +76,16 @@ Validation messages come verbatim from the feature document. Each rule ID must b
 ## 8. Document and deliver
 
 1. Update `docs/`, the ADRs and the README roadmap as described in the [documentation guide](../guides/documentation.md).
-2. Open the pull request and hand it over to the owner ([git and pull requests](git-and-pull-requests.md), steps 5 to 7).
+2. Open the pull request and hand it over to the owner ([git and pull requests](git-and-pull-requests.md), steps 5 to 7). The build session ends here.
+
+## 9. Review before merge
+
+The review session starts with a new conversation, before the owner merges. It reads the pull request (`gh pr view <number>`, `gh pr diff <number>`), the issue with its plan comment, and the documents they cite. It checks:
+
+1. Every rule ID of the plan is covered by a test, and the code does what the rule says, not only what the test asserts.
+2. The code matches `docs/` and the accepted ADRs. A mismatch is fixed in the code, or reported to the owner when the document may be the wrong one.
+3. What the pull request and the tests claim is true: a comment such as "covered by `ApiStartupTests`" names a test that really exercises that code.
+4. The scope of the issue is complete, and nothing outside it slipped in.
+5. The delivery rules: commits per green cycle, the author identity, no attribution lines in commits or in the pull request body.
+
+Fixes are new commits on the same branch, with the same TDD rules. Problems that belong to another issue are reported, not fixed. Then hand the pull request over again: the owner merges.
