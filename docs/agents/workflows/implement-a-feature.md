@@ -53,5 +53,4 @@ Validation messages come verbatim from the feature document. Each rule ID must b
 ## 8. Document and deliver
 
 1. Update `docs/`, the ADRs and the README roadmap as described in the [documentation guide](../guides/documentation.md).
-2. If the first test was added to a test project, remove its `TEMPORARY` exit-code line ([testing guide](../guides/testing.md)).
-3. Open the pull request and hand it over to the owner ([git and pull requests](git-and-pull-requests.md), steps 5 to 7).
+2. Open the pull request and hand it over to the owner ([git and pull requests](git-and-pull-requests.md), steps 5 to 7).
