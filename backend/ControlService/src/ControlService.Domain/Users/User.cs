@@ -6,16 +6,29 @@ public sealed class User
 {
     private readonly List<Guid> _profileIds = [];
 
-    private User(Guid id, bool isSystem, UserStatus status)
+    private User(
+        Guid id, bool isSystem, UserStatus status, Login login, EmailAddress email, string displayName, string fullName)
     {
         Id = id;
         IsSystem = isSystem;
         Status = status;
+        Login = login;
+        Email = email;
+        DisplayName = displayName;
+        FullName = fullName;
     }
 
     public Guid Id { get; }
 
     public bool IsSystem { get; }
+
+    public Login Login { get; }
+
+    public EmailAddress Email { get; }
+
+    public string DisplayName { get; }
+
+    public string FullName { get; }
 
     public IReadOnlyCollection<Guid> ProfileIds => _profileIds;
 
@@ -27,11 +40,14 @@ public sealed class User
 
     public Guid? DeactivatedBy { get; private set; }
 
-    public static User Create() => new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending);
+    public static User Create(Login login, EmailAddress email, string displayName, string fullName) =>
+        new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending, login, email, displayName, fullName);
 
     public static User CreateAdmin()
     {
-        var admin = new User(SystemIds.AdminUser, isSystem: true, UserStatus.Active);
+        var login = Login.Create("admin").Value;
+        var email = EmailAddress.Create("admin@example.com").Value;
+        var admin = new User(SystemIds.AdminUser, isSystem: true, UserStatus.Active, login, email, "Admin", "Administrador do sistema");
         admin.ReplaceProfiles([SystemIds.ManagerProfile]);
         return admin;
     }

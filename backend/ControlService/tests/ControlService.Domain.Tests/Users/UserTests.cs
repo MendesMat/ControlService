@@ -6,6 +6,21 @@ namespace ControlService.Domain.Tests.Users;
 public class UserTests
 {
     [Fact]
+    public void Created_user_keeps_login_email_display_name_and_full_name() // USR-01, USR-02, USR-04, USR-07
+    {
+        var login = Login.Create("ana.souza").Value;
+        var email = EmailAddress.Create("ana.souza@example.com").Value;
+
+        var user = User.Create(login, email, "Ana Souza", "Ana Paula Souza");
+
+        user.Login.Value.ShouldBe("ana.souza");
+        user.Email.Value.ShouldBe("ana.souza@example.com");
+        user.DisplayName.ShouldBe("Ana Souza");
+        user.FullName.ShouldBe("Ana Paula Souza");
+        user.Status.ShouldBe(UserStatus.Pending);
+    }
+
+    [Fact]
     public void New_user_is_pending() // AUTH-02
     {
         var user = TestData.NewUser();
