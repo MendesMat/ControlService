@@ -2,6 +2,7 @@ using System.Text.Json;
 using ControlService.API.Common;
 using ControlService.Domain.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ControlService.Api.IntegrationTests.Common;
@@ -77,11 +78,19 @@ public class ErrorResultsTests
     }
 
     [Fact]
+    public void An_error_becomes_a_typed_problem_result() // ADR-0003: typed results feed the OpenAPI document
+    {
+        ProblemHttpResult result = new Error("not_found", "Registro não encontrado.").ToProblem();
+
+        result.StatusCode.ShouldBe(404);
+    }
+
+    [Fact]
     public void Unmapped_error_code_is_an_unexpected_failure() // API-12
     {
         var error = new Error("not_in_table", "Erro sem mapeamento.");
 
-        var exception = Should.Throw<InvalidOperationException>(() => error.ToProblem(new DefaultHttpContext()));
+        var exception = Should.Throw<InvalidOperationException>(() => error.ToProblem());
 
         exception.Message.ShouldContain("not_in_table");
     }
@@ -110,7 +119,7 @@ public class ErrorResultsTests
             Response = { Body = new MemoryStream() },
         };
 
-        await error.ToProblem(httpContext).ExecuteAsync(httpContext);
+        await error.ToProblem().ExecuteAsync(httpContext);
 
         httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
         return await JsonSerializer.DeserializeAsync<JsonElement>(httpContext.Response.Body);

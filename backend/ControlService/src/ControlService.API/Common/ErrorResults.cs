@@ -1,4 +1,5 @@
 using ControlService.Domain.Common;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlService.API.Common;
@@ -7,7 +8,7 @@ namespace ControlService.API.Common;
 /// in ADR-0009 and `docs/api/conventions.md#errors` (API-12, API-13).</summary>
 public static class ErrorResults
 {
-    public static IResult ToProblem(this Error error, HttpContext httpContext)
+    public static ProblemHttpResult ToProblem(this Error error)
     {
         // An unmapped code is a bug: the exception handler logs it and answers with the generic 500 (API-12).
         var status = ErrorStatusCodes.For(error.Code)
@@ -35,6 +36,6 @@ public static class ErrorResults
             problemDetails.Extensions["details"] = error.Details;
         }
 
-        return Results.Problem(problemDetails);
+        return TypedResults.Problem(problemDetails);
     }
 }
