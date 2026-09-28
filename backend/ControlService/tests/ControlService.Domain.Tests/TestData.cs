@@ -12,7 +12,7 @@ internal static class TestData
         "Test User",
         "Test User Full Name");
 
-    public static User NewAdmin() => User.CreateAdmin();
+    public static User NewAdmin() => User.CreateAdmin(EmailAddress.Create("admin@example.com").Value);
 
     public static PermissionProfile NewProfile() => PermissionProfile.Create();
 }

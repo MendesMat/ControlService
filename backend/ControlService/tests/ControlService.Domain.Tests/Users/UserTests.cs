@@ -234,14 +234,21 @@ public class UserTests
     }
 
     [Fact]
-    public void Admin_is_a_system_record_with_the_manager_profile() // USR-23, USR-24
+    public void Admin_has_the_fixed_system_values_and_the_configured_email() // USR-23, USR-24, USR-32
     {
-        var admin = TestData.NewAdmin();
+        var email = EmailAddress.Create("admin@example.com").Value;
+
+        var admin = User.CreateAdmin(email);
 
         admin.Id.ShouldBe(SystemIds.AdminUser);
-        admin.IsSystem.ShouldBeTrue();
+        admin.Login.Value.ShouldBe("admin");
+        admin.DisplayName.ShouldBe("Admin");
+        admin.FullName.ShouldBe("Administrador do sistema");
+        admin.Email.ShouldBe(email);
         admin.Status.ShouldBe(UserStatus.Active);
+        admin.IsSystem.ShouldBeTrue();
         admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
+        admin.ActivatedAt.ShouldBeNull();
     }
 
     [Fact]

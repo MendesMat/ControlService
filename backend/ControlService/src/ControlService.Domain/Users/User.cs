@@ -46,10 +46,9 @@ public sealed class User
     public static User Create(Login login, EmailAddress email, string displayName, string fullName) =>
         new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending, login, email, displayName, fullName);
 
-    public static User CreateAdmin()
+    public static User CreateAdmin(EmailAddress email)
     {
         var login = Login.Create("admin").Value;
-        var email = EmailAddress.Create("admin@example.com").Value;
         var admin = new User(SystemIds.AdminUser, isSystem: true, UserStatus.Active, login, email, "Admin", "Administrador do sistema");
         admin.ReplaceProfiles([SystemIds.ManagerProfile]);
         return admin;
