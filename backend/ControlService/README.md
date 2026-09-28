@@ -35,6 +35,12 @@ Para rodar os testes:
 dotnet test --solution ControlService.slnx
 ```
 
+Para formatar, compilar e testar de uma vez, vendo só os problemas e o resumo (é o que os agentes usam):
+
+```powershell
+./check.ps1
+```
+
 ## Docker: o que é cada coisa
 
 Tudo o que o projeto cria no Docker começa com **`controlservice-`**, para ser fácil de achar no Docker Desktop.

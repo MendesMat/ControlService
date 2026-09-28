@@ -60,14 +60,10 @@ all-equal-digits rule are enforced (USR-08); uniqueness is not required.
 
 ## 4. Verify locally
 
-From `backend/ControlService`, both must succeed with zero warnings:
+From `backend/ControlService`, the check must end with zero warnings, all tests green and exit code 0. It also fixes the formatting, so commit any file it changed:
 
 ```bash
-dotnet build ControlService.slnx -v q -clp:Summary
-```
-
-```bash
-dotnet test --solution ControlService.slnx
+powershell.exe -NoProfile -File check.ps1
 ```
 
 ## 5. Push and open the pull request
