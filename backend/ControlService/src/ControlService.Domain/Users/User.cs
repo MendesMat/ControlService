@@ -2,9 +2,9 @@ using ControlService.Domain.Common;
 
 namespace ControlService.Domain.Users;
 
-public sealed class User
+public sealed class User : AuditedAggregate
 {
-    private readonly List<Guid> _profileIds = [];
+    private readonly List<ProfileAssignment> _profileAssignments = [];
 
     private User(
         Guid id, bool isSystem, UserStatus status, Login login, EmailAddress email, string displayName, string fullName)
@@ -33,7 +33,7 @@ public sealed class User
 
     public string FullName { get; }
 
-    public IReadOnlyCollection<Guid> ProfileIds => _profileIds;
+    public IReadOnlyCollection<Guid> ProfileIds => _profileAssignments.Select(assignment => assignment.ProfileId).ToArray();
 
     public UserStatus Status { get; private set; }
 
@@ -123,8 +123,8 @@ public sealed class User
 
     private void ReplaceProfiles(IEnumerable<Guid> profileIds)
     {
-        _profileIds.Clear();
-        _profileIds.AddRange(profileIds.Distinct());
+        _profileAssignments.Clear();
+        _profileAssignments.AddRange(profileIds.Distinct().Select(id => new ProfileAssignment(id)));
     }
 
     private Result EnsureNotSystem() => IsSystem

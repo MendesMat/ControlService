@@ -43,8 +43,7 @@ public class PermissionProfileTests
 
         profile.SetLevel(users, AccessLevel.Reader);
 
-        profile.Levels.Count.ShouldBe(1);
-        profile.Levels[users].ShouldBe(AccessLevel.Reader);
+        profile.Levels.ShouldBe([new ScreenLevel(users, AccessLevel.Reader)]);
     }
 
     [Fact]

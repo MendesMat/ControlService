@@ -3,9 +3,9 @@ using ControlService.Domain.Common;
 
 namespace ControlService.Domain.PermissionProfiles;
 
-public sealed class PermissionProfile
+public sealed class PermissionProfile : AuditedAggregate
 {
-    private readonly Dictionary<ScreenKey, AccessLevel> _levels = [];
+    private readonly List<ScreenLevel> _levels = [];
 
     private PermissionProfile(Guid id, bool isSystem, string name, string description)
     {
@@ -26,7 +26,7 @@ public sealed class PermissionProfile
 
     public string Description { get; }
 
-    public IReadOnlyDictionary<ScreenKey, AccessLevel> Levels => _levels;
+    public IReadOnlyCollection<ScreenLevel> Levels => _levels;
 
     public static PermissionProfile Create(string name, string description) =>
         new(Guid.CreateVersion7(), isSystem: false, name, description);
@@ -41,7 +41,8 @@ public sealed class PermissionProfile
             return AccessLevel.Manager;
         }
 
-        return _levels.TryGetValue(screen, out var level) ? level : AccessLevel.Denied;
+        var existing = _levels.Find(entry => entry.Screen.Equals(screen));
+        return existing is null ? AccessLevel.Denied : existing.Level;
     }
 
     public Result SetLevel(ScreenKey screen, AccessLevel level)
@@ -52,13 +53,13 @@ public sealed class PermissionProfile
             return systemCheck;
         }
 
+        _levels.RemoveAll(entry => entry.Screen.Equals(screen));
         if (level == AccessLevel.Denied)
         {
-            _levels.Remove(screen);
             return Result.Success();
         }
 
-        _levels[screen] = level;
+        _levels.Add(new ScreenLevel(screen, level));
         return Result.Success();
     }
 
