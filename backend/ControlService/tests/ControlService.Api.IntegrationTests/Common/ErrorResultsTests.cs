@@ -77,23 +77,19 @@ public class ErrorResultsTests
     }
 
     [Fact]
-    public async Task Unmapped_error_code_returns_500() // ADR-0009
+    public void Unmapped_error_code_is_an_unexpected_failure() // API-12
     {
         var error = new Error("not_in_table", "Erro sem mapeamento.");
 
-        var body = await ExecuteAsync(error);
+        var exception = Should.Throw<InvalidOperationException>(() => error.ToProblem(new DefaultHttpContext()));
 
-        body.GetProperty("status").GetInt32().ShouldBe(500);
-        body.GetProperty("title").GetString().ShouldBe("Internal Server Error");
-        body.GetProperty("code").GetString().ShouldBe("not_in_table");
-        body.GetProperty("message").GetString().ShouldBe("Erro sem mapeamento.");
+        exception.Message.ShouldContain("not_in_table");
     }
 
     [Theory]
     [InlineData("validation_failed")]
     [InlineData("not_found")]
     [InlineData("concurrency_conflict")]
-    [InlineData("not_in_table")]
     public async Task Every_error_response_includes_the_traceId(string code) // ADR-0028
     {
         var body = await ExecuteAsync(new Error(code, "Mensagem de teste."));

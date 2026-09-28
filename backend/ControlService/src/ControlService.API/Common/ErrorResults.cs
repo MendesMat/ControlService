@@ -9,7 +9,10 @@ public static class ErrorResults
 {
     public static IResult ToProblem(this Error error, HttpContext httpContext)
     {
-        var status = ErrorStatusCodes.For(error.Code) ?? StatusCodes.Status500InternalServerError;
+        // An unmapped code is a bug: the exception handler logs it and answers with the generic 500 (API-12).
+        var status = ErrorStatusCodes.For(error.Code)
+            ?? throw new InvalidOperationException(
+                $"The error code '{error.Code}' has no HTTP status in ErrorStatusCodes (ADR-0009).");
         var (type, title) = ProblemTypes.For(status);
 
         var problemDetails = new ProblemDetails
