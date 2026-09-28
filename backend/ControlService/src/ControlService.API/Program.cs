@@ -1,9 +1,12 @@
+using ControlService.API.Common;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+// Unhandled exceptions become the generic 500 of API-12; ErrorResults.ToProblem handles Result failures.
+builder.Services.AddExceptionHandler<UnexpectedErrorExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 

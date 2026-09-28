@@ -41,6 +41,7 @@ The front-end calls the API only through its `api` object. Replacing the prototy
 |---|---|
 | API-12 | Expected failures return Problem Details (RFC 9457) with the extensions `code`, `message` (Portuguese, ready to show), `errors` and `details` when applicable, and `traceId` (ADR-0009). Unexpected failures return 500 with a generic Portuguese message; details go only to the logs. |
 | API-13 | Duplicated login, display name or profile name are validation errors (400 `validation_failed`) with the message under the field, like any other validation. |
+| API-14 | The generic message for an unexpected failure (500 `unexpected_error`) is **"Não foi possível concluir a operação. Tente de novo em alguns minutos."** The real cause never reaches the response, only the logs. |
 
 ```json
 {
@@ -82,6 +83,7 @@ The front-end calls the API only through its `api` object. Replacing the prototy
 | 409 | `system_record`, `self_deactivation`, `not_pending`, `not_inactive`, `email_missing` | Business rule refused | Shows the message in a notice |
 | 410 | `link_invalid` | Link expired or already used | Shows the invalid-link screen |
 | 429 | `locked_out` | Lockout or rate limit, with `Retry-After` | Shows the wait message |
+| 500 | `unexpected_error` | Unexpected failure (API-14) | Shows a generic message and keeps what the person typed |
 
 Any other failure shows a generic message and keeps what the person typed.
 

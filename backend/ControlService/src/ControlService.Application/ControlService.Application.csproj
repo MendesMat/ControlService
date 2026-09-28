@@ -3,6 +3,11 @@
   <!-- Use cases (commands and queries) and the interfaces they need from the outside (ADR-0005, ADR-0007). -->
 
   <ItemGroup>
+    <!-- Validates commands before they reach the handler (ADR-0008). -->
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ControlService.Domain\ControlService.Domain.csproj" />
   </ItemGroup>
 
