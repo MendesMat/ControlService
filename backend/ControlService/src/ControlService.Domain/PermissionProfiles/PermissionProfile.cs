@@ -26,6 +26,8 @@ public sealed class PermissionProfile
 
     public string Description { get; }
 
+    public IReadOnlyDictionary<ScreenKey, AccessLevel> Levels => _levels;
+
     public static PermissionProfile Create(string name, string description) =>
         new(Guid.CreateVersion7(), isSystem: false, name, description);
 

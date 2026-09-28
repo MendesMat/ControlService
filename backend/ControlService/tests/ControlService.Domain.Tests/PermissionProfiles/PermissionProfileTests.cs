@@ -49,12 +49,15 @@ public class PermissionProfileTests
     }
 
     [Fact]
-    public void Manager_profile_is_a_system_record() // PERM-22
+    public void Manager_profile_has_the_fixed_system_values() // PERM-22, PERM-23
     {
         var profile = PermissionProfile.CreateManagerProfile();
 
         profile.Id.ShouldBe(SystemIds.ManagerProfile);
+        profile.Name.ShouldBe("Gerenciador");
+        profile.Description.ShouldBe("Acesso total a todas as telas do sistema.");
         profile.IsSystem.ShouldBeTrue();
+        profile.Levels.ShouldBeEmpty();
     }
 
     [Fact]
