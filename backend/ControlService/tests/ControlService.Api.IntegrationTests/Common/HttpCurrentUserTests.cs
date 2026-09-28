@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using ControlService.API.Common;
+using ControlService.Domain.Common;
 using Microsoft.AspNetCore.Http;
 
 namespace ControlService.Api.IntegrationTests.Common;
@@ -26,5 +27,15 @@ public class HttpCurrentUserTests
         var currentUser = new HttpCurrentUser(accessor);
 
         currentUser.UserId.ShouldBeNull();
+    }
+
+    [Fact]
+    public void Outside_a_request_the_system_acts_as_the_admin() // CNV-20
+    {
+        var accessor = new HttpContextAccessor { HttpContext = null };
+
+        var currentUser = new HttpCurrentUser(accessor);
+
+        currentUser.UserId.ShouldBe(SystemIds.AdminUser);
     }
 }
