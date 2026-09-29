@@ -1,5 +1,7 @@
 using ControlService.Application.Common;
+using ControlService.Domain.Access;
 using ControlService.Domain.Common;
+using ControlService.Domain.PermissionProfiles;
 using ControlService.Domain.Users;
 using ControlService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -90,6 +92,53 @@ public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) :
         saved.Status.ShouldBe(UserStatus.Active);
         saved.DeactivatedAt.ShouldBeNull();
         saved.DeactivatedBy.ShouldBeNull();
+        saved.UpdatedBy.ShouldBe(brunoId);
+    }
+
+    [Fact]
+    public async Task Saving_levels_over_a_change_made_by_someone_else_returns_concurrency_conflict() // CNV-13, CNV-14, ADR-0014
+    {
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        var profile = PermissionProfile.Create("Compras", "Equipe de compras");
+        profile.SetLevel(users, AccessLevel.Editor);
+        Guid brunoId;
+
+        await using (var setupScope = factory.Services.CreateAsyncScope())
+        {
+            var db = setupScope.ServiceProvider.GetRequiredService<AppDbContext>();
+            brunoId = (await GetOrCreateBrunoAsync(db, TestContext.Current.CancellationToken)).Id;
+            db.PermissionProfiles.Add(profile);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        await using (var scopeA = factory.Services.CreateAsyncScope())
+        await using (var scopeB = factory.Services.CreateAsyncScope())
+        {
+            var dbA = scopeA.ServiceProvider.GetRequiredService<AppDbContext>();
+            var profileA = await dbA.PermissionProfiles.SingleAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken);
+            var dbB = scopeB.ServiceProvider.GetRequiredService<AppDbContext>();
+            var profileB = await dbB.PermissionProfiles.SingleAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken);
+
+            factory.CurrentUser.UserId = brunoId;
+            profileA.SetLevel(users, AccessLevel.Reader);
+            await dbA.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            factory.CurrentUser.UserId = SystemIds.AdminUser;
+            profileB.SetLevel(users, AccessLevel.Denied);
+            var unitOfWorkB = scopeB.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var result = await unitOfWorkB.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            result.IsFailure.ShouldBeTrue();
+            result.Error.Code.ShouldBe("concurrency_conflict");
+            result.Error.Message.ShouldBe(
+                "Este cadastro foi alterado por Bruno Lima enquanto você editava. Recarregue para ver a versão atual.");
+        }
+
+        await using var verifyScope = factory.Services.CreateAsyncScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var saved = await verifyDb.PermissionProfiles.SingleAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken);
+
+        saved.GetLevel(users).ShouldBe(AccessLevel.Reader);
         saved.UpdatedBy.ShouldBe(brunoId);
     }
 

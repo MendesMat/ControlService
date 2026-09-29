@@ -53,8 +53,19 @@ public sealed class AuditFieldsInterceptor(ICurrentUser currentUser, TimeProvide
                 entry.Property(nameof(AuditedAggregate.CreatedBy)).CurrentValue = userId;
             }
 
-            entry.Property(nameof(AuditedAggregate.UpdatedAt)).CurrentValue = now;
-            entry.Property(nameof(AuditedAggregate.UpdatedBy)).CurrentValue = userId;
+            SetUpdated(entry.Property(nameof(AuditedAggregate.UpdatedAt)), now);
+            SetUpdated(entry.Property(nameof(AuditedAggregate.UpdatedBy)), userId);
+        }
+    }
+
+    // Assigning a value equal to the stored one leaves the property unmodified, and then an owner
+    // whose only change is in its owned rows would get no UPDATE and no xmin check (CNV-13).
+    private static void SetUpdated(PropertyEntry property, object value)
+    {
+        property.CurrentValue = value;
+        if (property.EntityEntry.State != EntityState.Added)
+        {
+            property.IsModified = true;
         }
     }
 
