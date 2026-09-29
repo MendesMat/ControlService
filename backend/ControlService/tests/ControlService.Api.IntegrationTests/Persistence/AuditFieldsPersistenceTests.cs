@@ -78,4 +78,24 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
             saved.UpdatedBy.ShouldBe(bruno.Id);
         }
     }
+
+    [Fact]
+    public async Task Saving_during_a_request_without_a_signed_in_person_fails() // CNV-20 (D3)
+    {
+        // Starts the host (and its seeding, as the Admin) before removing the current user.
+        _ = factory.Services;
+        factory.CurrentUser.UserId = null;
+        var profile = PermissionProfile.Create("Sem Autor", "Não deve ser salvo");
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.PermissionProfiles.Add(profile);
+
+        await Should.ThrowAsync<InvalidOperationException>(() => db.SaveChangesAsync(TestContext.Current.CancellationToken));
+
+        factory.CurrentUser.UserId = SystemIds.AdminUser;
+        await using var verifyScope = factory.Services.CreateAsyncScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        (await verifyDb.PermissionProfiles.AnyAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
+    }
 }
