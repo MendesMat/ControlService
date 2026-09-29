@@ -58,4 +58,20 @@ public sealed class StartupSeedTests(ApiFactory factory) : IClassFixture<ApiFact
         var admin = await db.Users.SingleAsync(u => u.Id == SystemIds.AdminUser, TestContext.Current.CancellationToken);
         admin.Email.Value.ShouldBe("admin@example.com");
     }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("not-an-email")]
+    public void Api_does_not_start_without_a_valid_admin_email(string invalidEmail) // USR-24, local environment guide
+    {
+        using var invalid = factory.WithWebHostBuilder(builder =>
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Admin:Email"] = invalidEmail,
+            })));
+
+        var exception = Should.Throw<Exception>(() => invalid.Services);
+
+        exception.Message.ShouldContain("Admin:Email");
+    }
 }
