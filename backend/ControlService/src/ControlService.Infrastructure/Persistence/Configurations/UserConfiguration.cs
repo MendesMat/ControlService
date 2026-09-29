@@ -25,7 +25,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder.Property(user => user.DisplayName).IsRequired();
-        builder.Property(user => user.NormalizedDisplayName).IsRequired();
+        builder.Property(user => user.NormalizedDisplayName).HasColumnName("display_name_normalized").IsRequired();
         builder.HasIndex(user => user.NormalizedDisplayName).IsUnique().HasDatabaseName("ix_users_display_name_normalized");
 
         builder.Property(user => user.FullName).IsRequired();

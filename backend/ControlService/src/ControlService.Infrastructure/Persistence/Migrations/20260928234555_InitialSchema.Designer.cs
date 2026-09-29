@@ -56,7 +56,7 @@ namespace ControlService.Infrastructure.Persistence.Migrations
                     b.Property<string>("NormalizedName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("normalized_name");
+                        .HasColumnName("name_normalized");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -141,7 +141,7 @@ namespace ControlService.Infrastructure.Persistence.Migrations
                     b.Property<string>("NormalizedDisplayName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("normalized_display_name");
+                        .HasColumnName("display_name_normalized");
 
                     b.Property<string>("Status")
                         .IsRequired()

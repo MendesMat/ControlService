@@ -15,7 +15,7 @@ public sealed class PermissionProfileConfiguration : IEntityTypeConfiguration<Pe
         builder.Property(profile => profile.IsSystem).IsRequired();
 
         builder.Property(profile => profile.Name).IsRequired();
-        builder.Property(profile => profile.NormalizedName).IsRequired();
+        builder.Property(profile => profile.NormalizedName).HasColumnName("name_normalized").IsRequired();
         builder.HasIndex(profile => profile.NormalizedName).IsUnique().HasDatabaseName("ix_permission_profiles_name_normalized");
 
         builder.Property(profile => profile.Description).IsRequired();

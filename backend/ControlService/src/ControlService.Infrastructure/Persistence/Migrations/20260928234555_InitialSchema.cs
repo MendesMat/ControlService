@@ -20,7 +20,7 @@ public partial class InitialSchema : Migration
                 login = table.Column<string>(type: "text", nullable: false),
                 email = table.Column<string>(type: "text", nullable: false),
                 display_name = table.Column<string>(type: "text", nullable: false),
-                normalized_display_name = table.Column<string>(type: "text", nullable: false),
+                display_name_normalized = table.Column<string>(type: "text", nullable: false),
                 full_name = table.Column<string>(type: "text", nullable: false),
                 status = table.Column<string>(type: "text", nullable: false),
                 activated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -62,7 +62,7 @@ public partial class InitialSchema : Migration
                 id = table.Column<Guid>(type: "uuid", nullable: false),
                 is_system = table.Column<bool>(type: "boolean", nullable: false),
                 name = table.Column<string>(type: "text", nullable: false),
-                normalized_name = table.Column<string>(type: "text", nullable: false),
+                name_normalized = table.Column<string>(type: "text", nullable: false),
                 description = table.Column<string>(type: "text", nullable: false),
                 created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                 created_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -138,7 +138,7 @@ public partial class InitialSchema : Migration
         migrationBuilder.CreateIndex(
             name: "ix_permission_profiles_name_normalized",
             table: "permission_profiles",
-            column: "normalized_name",
+            column: "name_normalized",
             unique: true);
 
         migrationBuilder.CreateIndex(
@@ -164,7 +164,7 @@ public partial class InitialSchema : Migration
         migrationBuilder.CreateIndex(
             name: "ix_users_display_name_normalized",
             table: "users",
-            column: "normalized_display_name",
+            column: "display_name_normalized",
             unique: true);
 
         migrationBuilder.CreateIndex(
