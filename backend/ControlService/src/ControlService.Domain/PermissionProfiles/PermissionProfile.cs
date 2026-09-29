@@ -3,23 +3,36 @@ using ControlService.Domain.Common;
 
 namespace ControlService.Domain.PermissionProfiles;
 
-public sealed class PermissionProfile
+public sealed class PermissionProfile : AuditedAggregate
 {
-    private readonly Dictionary<ScreenKey, AccessLevel> _levels = [];
+    private readonly List<ScreenLevel> _levels = [];
 
-    private PermissionProfile(Guid id, bool isSystem)
+    private PermissionProfile(Guid id, bool isSystem, string name, string description)
     {
         Id = id;
         IsSystem = isSystem;
+        Name = name.Trim();
+        NormalizedName = TextNormalization.Normalize(Name);
+        Description = description.Trim();
     }
 
     public Guid Id { get; }
 
     public bool IsSystem { get; }
 
-    public static PermissionProfile Create() => new(Guid.CreateVersion7(), isSystem: false);
+    public string Name { get; }
 
-    public static PermissionProfile CreateManagerProfile() => new(SystemIds.ManagerProfile, isSystem: true);
+    public string NormalizedName { get; }
+
+    public string Description { get; }
+
+    public IReadOnlyCollection<ScreenLevel> Levels => _levels;
+
+    public static PermissionProfile Create(string name, string description) =>
+        new(Guid.CreateVersion7(), isSystem: false, name, description);
+
+    public static PermissionProfile CreateManagerProfile() =>
+        new(SystemIds.ManagerProfile, isSystem: true, "Gerenciador", "Acesso total a todas as telas do sistema.");
 
     public AccessLevel GetLevel(ScreenKey screen)
     {
@@ -28,7 +41,8 @@ public sealed class PermissionProfile
             return AccessLevel.Manager;
         }
 
-        return _levels.TryGetValue(screen, out var level) ? level : AccessLevel.Denied;
+        var existing = _levels.Find(entry => entry.Screen.Equals(screen));
+        return existing is null ? AccessLevel.Denied : existing.Level;
     }
 
     public Result SetLevel(ScreenKey screen, AccessLevel level)
@@ -39,7 +53,13 @@ public sealed class PermissionProfile
             return systemCheck;
         }
 
-        _levels[screen] = level;
+        _levels.RemoveAll(entry => entry.Screen.Equals(screen));
+        if (level == AccessLevel.Denied)
+        {
+            return Result.Success();
+        }
+
+        _levels.Add(new ScreenLevel(screen, level));
         return Result.Success();
     }
 

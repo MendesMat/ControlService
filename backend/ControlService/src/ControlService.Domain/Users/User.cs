@@ -2,22 +2,38 @@ using ControlService.Domain.Common;
 
 namespace ControlService.Domain.Users;
 
-public sealed class User
+public sealed class User : AuditedAggregate
 {
-    private readonly List<Guid> _profileIds = [];
+    private readonly List<ProfileAssignment> _profileAssignments = [];
 
-    private User(Guid id, bool isSystem, UserStatus status)
+    private User(
+        Guid id, bool isSystem, UserStatus status, Login login, EmailAddress email, string displayName, string fullName)
     {
         Id = id;
         IsSystem = isSystem;
         Status = status;
+        Login = login;
+        Email = email;
+        DisplayName = displayName.Trim();
+        NormalizedDisplayName = TextNormalization.Normalize(DisplayName);
+        FullName = fullName.Trim();
     }
 
     public Guid Id { get; }
 
     public bool IsSystem { get; }
 
-    public IReadOnlyCollection<Guid> ProfileIds => _profileIds;
+    public Login Login { get; }
+
+    public EmailAddress Email { get; }
+
+    public string DisplayName { get; }
+
+    public string NormalizedDisplayName { get; }
+
+    public string FullName { get; }
+
+    public IReadOnlyCollection<Guid> ProfileIds => _profileAssignments.Select(assignment => assignment.ProfileId).ToArray();
 
     public UserStatus Status { get; private set; }
 
@@ -27,11 +43,13 @@ public sealed class User
 
     public Guid? DeactivatedBy { get; private set; }
 
-    public static User Create() => new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending);
+    public static User Create(Login login, EmailAddress email, string displayName, string fullName) =>
+        new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending, login, email, displayName, fullName);
 
-    public static User CreateAdmin()
+    public static User CreateAdmin(EmailAddress email)
     {
-        var admin = new User(SystemIds.AdminUser, isSystem: true, UserStatus.Active);
+        var login = Login.Create("admin").Value;
+        var admin = new User(SystemIds.AdminUser, isSystem: true, UserStatus.Active, login, email, "Admin", "Administrador do sistema");
         admin.ReplaceProfiles([SystemIds.ManagerProfile]);
         return admin;
     }
@@ -105,8 +123,8 @@ public sealed class User
 
     private void ReplaceProfiles(IEnumerable<Guid> profileIds)
     {
-        _profileIds.Clear();
-        _profileIds.AddRange(profileIds.Distinct());
+        _profileAssignments.Clear();
+        _profileAssignments.AddRange(profileIds.Distinct().Select(id => new ProfileAssignment(id)));
     }
 
     private Result EnsureNotSystem() => IsSystem

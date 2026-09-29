@@ -2,7 +2,6 @@ using ControlService.API.Common;
 using ControlService.Domain.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ControlService.Api.IntegrationTests.Common;
@@ -11,14 +10,17 @@ namespace ControlService.Api.IntegrationTests.Common;
 /// The real API plus test-only endpoints that fail on purpose, so error responses can be checked
 /// through the whole HTTP pipeline before any feature endpoint exists (API-12, API-13, API-14).
 /// </summary>
-public sealed class ErrorEndpointsFactory : WebApplicationFactory<Program>
+public sealed class ErrorEndpointsFactory(PostgresContainerFixture postgres) : ApiFactory(postgres)
 {
     public const string ValidationFailure = "/test-only/validation-failure";
     public const string UnmappedErrorCode = "/test-only/unmapped-error-code";
     public const string UnhandledException = "/test-only/unhandled-exception";
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder) =>
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
         builder.ConfigureServices(services => services.AddSingleton<IStartupFilter, TestOnlyEndpoints>());
+    }
 
     // A startup filter receives a plain ApplicationBuilder, not an IEndpointRouteBuilder, so the
     // endpoints need their own UseRouting/UseEndpoints. They run inside the app's pipeline, after

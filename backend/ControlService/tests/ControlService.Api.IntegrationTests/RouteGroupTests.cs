@@ -1,11 +1,11 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
+using ControlService.Api.IntegrationTests.Common;
 
 namespace ControlService.Api.IntegrationTests;
 
 // The /api/v1 group itself is wiring (ADR-0003, API-01): no feature registers a route under it yet,
 // so there is no meaningful Red here. This just proves the group mounts without the pipeline breaking.
-public sealed class RouteGroupTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public sealed class RouteGroupTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     [Fact]
     public async Task A_request_under_api_v1_is_routed_without_the_pipeline_breaking() // API-01

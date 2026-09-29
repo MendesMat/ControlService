@@ -155,6 +155,8 @@ The deactivation confirmation is: *{Nome} não vai mais conseguir entrar no sist
 | USR-23 | The **Admin** user always exists and cannot be changed, deactivated or deleted. It is stored in the database with a fixed id and marked `isSystem: true`, which makes the interface show it read-only with a notice explaining why (ADR-0022). |
 | USR-24 | The Admin always has the Gerenciador profile and cannot lose it. Its e-mail and initial password come from the server configuration. |
 | USR-28 | Changing or deactivating the Admin is refused with the message *"O usuário Admin é do sistema e não pode ser alterado nem desativado."* |
+| USR-32 | The Admin is created with `activatedAt` empty: it never creates a password through an activation link. |
+| USR-33 | The Admin's e-mail is read from the configuration only when the Admin is first created; changing the configuration later does not change the stored record. |
 
 | Field | Value |
 |---|---|
