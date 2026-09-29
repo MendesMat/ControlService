@@ -2,7 +2,9 @@ using ControlService.Api.IntegrationTests.Common;
 using ControlService.Domain.Common;
 using ControlService.Domain.Users;
 using ControlService.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ControlService.Api.IntegrationTests.Persistence;
@@ -34,5 +36,26 @@ public sealed class StartupSeedTests(ApiFactory factory) : IClassFixture<ApiFact
         manager.Levels.ShouldBeEmpty();
         manager.CreatedBy.ShouldBe(SystemIds.AdminUser);
         manager.UpdatedBy.ShouldBe(SystemIds.AdminUser);
+    }
+
+    [Fact]
+    public async Task Restarting_does_not_duplicate_or_change_the_system_records() // ADR-0022, USR-33
+    {
+        // Starts the original host first, with admin@example.com, before the "restart" below.
+        _ = factory.Services;
+
+        using var restarted = factory.WithWebHostBuilder(builder =>
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Admin:Email"] = "other@example.com",
+            })));
+
+        await using var scope = restarted.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        (await db.Users.CountAsync(u => u.Id == SystemIds.AdminUser, TestContext.Current.CancellationToken)).ShouldBe(1);
+        (await db.PermissionProfiles.CountAsync(p => p.Id == SystemIds.ManagerProfile, TestContext.Current.CancellationToken)).ShouldBe(1);
+        var admin = await db.Users.SingleAsync(u => u.Id == SystemIds.AdminUser, TestContext.Current.CancellationToken);
+        admin.Email.Value.ShouldBe("admin@example.com");
     }
 }
