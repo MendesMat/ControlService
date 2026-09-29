@@ -74,4 +74,12 @@ public sealed class StartupSeedTests(ApiFactory factory) : IClassFixture<ApiFact
 
         exception.Message.ShouldContain("Admin:Email");
     }
+
+    [Fact]
+    public void Api_uses_the_system_clock() // ADR-0015
+    {
+        var timeProvider = factory.Services.GetRequiredService<TimeProvider>();
+
+        timeProvider.ShouldBeSameAs(TimeProvider.System);
+    }
 }
