@@ -19,7 +19,7 @@ public class EffectiveAccessTests
     public void One_profile_gives_its_level() // PERM-05
     {
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
-        var profile = PermissionProfile.Create();
+        var profile = TestData.NewProfile();
         profile.SetLevel(users, AccessLevel.Editor);
 
         var level = EffectiveAccess.GetLevel([profile], users);
@@ -32,7 +32,7 @@ public class EffectiveAccessTests
     {
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
         var customers = ScreenKey.Create(ScreenKeys.Customers).Value;
-        var profile = PermissionProfile.Create();
+        var profile = TestData.NewProfile();
         profile.SetLevel(users, AccessLevel.Editor);
 
         var level = EffectiveAccess.GetLevel([profile], customers);
@@ -44,8 +44,8 @@ public class EffectiveAccessTests
     public void Denied_in_one_profile_and_editor_in_another_results_in_editor() // PERM-05, PERM-07
     {
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
-        var deniedProfile = PermissionProfile.Create();
-        var editorProfile = PermissionProfile.Create();
+        var deniedProfile = TestData.NewProfile();
+        var editorProfile = TestData.NewProfile();
         editorProfile.SetLevel(users, AccessLevel.Editor);
 
         var level = EffectiveAccess.GetLevel([deniedProfile, editorProfile], users);
@@ -60,11 +60,11 @@ public class EffectiveAccessTests
         var accountsReceivable = ScreenKey.Create(ScreenKeys.AccountsReceivable).Value;
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
 
-        var vendedor = PermissionProfile.Create();
+        var vendedor = TestData.NewProfile();
         vendedor.SetLevel(customers, AccessLevel.Editor);
         vendedor.SetLevel(accountsReceivable, AccessLevel.Reader);
 
-        var financeiro = PermissionProfile.Create();
+        var financeiro = TestData.NewProfile();
         financeiro.SetLevel(customers, AccessLevel.Reader);
         financeiro.SetLevel(accountsReceivable, AccessLevel.Manager);
 
@@ -79,7 +79,7 @@ public class EffectiveAccessTests
     public void Unknown_profile_id_is_ignored() // PERM-05
     {
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
-        var known = PermissionProfile.Create();
+        var known = TestData.NewProfile();
         known.SetLevel(users, AccessLevel.Editor);
         var profilesById = new Dictionary<Guid, PermissionProfile> { [known.Id] = known };
         Guid[] profileIds = [known.Id, Guid.CreateVersion7()];
