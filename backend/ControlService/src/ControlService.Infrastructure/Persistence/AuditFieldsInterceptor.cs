@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ControlService.Infrastructure.Persistence;
 
-/// <summary>Fills the audit fields on every save (ADR-0015). Never runs for a request without a
-/// signed-in user (CNV-20): the client stays consistent instead of writing an orphaned record.</summary>
+/// <summary>Fills the audit fields on every save (ADR-0015, CNV-10, CNV-19). A save during a request
+/// without a signed-in user throws, so nothing is written without an author (D3 of #7).</summary>
 public sealed class AuditFieldsInterceptor(ICurrentUser currentUser, TimeProvider timeProvider) : SaveChangesInterceptor
 {
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)

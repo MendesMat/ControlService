@@ -90,7 +90,7 @@ Add a migration after changing the model (from `backend/ControlService`):
 dotnet ef migrations add <Name> --project src/ControlService.Infrastructure --startup-project src/ControlService.Infrastructure --output-dir Persistence/Migrations
 ```
 
-This uses `DesignTimeDbContextFactory`, not `Program.cs`, so it never needs a running database or Aspire: it only inspects the model. Keep a single migration, `InitialSchema`, regenerated as the model grows (ADR-0009's workflow doc), until the schema is stable enough to branch into a second one.
+This uses `DesignTimeDbContextFactory`, not `Program.cs`, so it never needs a running database or Aspire: it only inspects the model. Keep a single migration, `InitialSchema`, regenerated as the model grows, until the schema is stable enough to branch into a second one.
 
 Migrations are applied automatically only when `ASPNETCORE_ENVIRONMENT` is `Development` (ADR-0013), which also runs `SystemRecordsSeeder` (ADR-0022). Never in other environments; a deployment step applies them there instead.
 
