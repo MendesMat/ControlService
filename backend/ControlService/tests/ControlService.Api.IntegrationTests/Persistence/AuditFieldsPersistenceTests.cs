@@ -1,3 +1,4 @@
+using ControlService.Domain.Access;
 using ControlService.Domain.Common;
 using ControlService.Domain.PermissionProfiles;
 using ControlService.Domain.Users;
@@ -80,6 +81,91 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
     }
 
     [Fact]
+    public async Task Changing_only_the_levels_of_a_profile_updates_the_last_change_authorship() // CNV-10, CNV-12
+    {
+        var createdAt = new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero);
+        var updatedAt = new DateTimeOffset(2026, 9, 21, 9, 12, 30, TimeSpan.Zero);
+        factory.Clock.Set(createdAt);
+        factory.CurrentUser.UserId = SystemIds.AdminUser;
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        var profile = PermissionProfile.Create("Almoxarifado", "Equipe de estoque");
+        profile.SetLevel(users, AccessLevel.Editor);
+        uint createdVersion;
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.PermissionProfiles.Add(profile);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+            createdVersion = profile.Version;
+        }
+
+        factory.Clock.Set(updatedAt);
+        factory.CurrentUser.UserId = await GetOrCreateUserAsync("helena.prado", "Helena Prado");
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var tracked = await db.PermissionProfiles.SingleAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken);
+            tracked.SetLevel(users, AccessLevel.Reader);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var saved = await db.PermissionProfiles.SingleAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken);
+
+            saved.GetLevel(users).ShouldBe(AccessLevel.Reader);
+            saved.UpdatedAt.ShouldBe(updatedAt);
+            saved.UpdatedBy.ShouldBe(factory.CurrentUser.UserId!.Value);
+            saved.Version.ShouldNotBe(createdVersion);
+        }
+    }
+
+    [Fact]
+    public async Task Changing_only_the_profiles_of_a_user_updates_the_last_change_authorship() // CNV-10, CNV-12
+    {
+        var createdAt = new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero);
+        var updatedAt = new DateTimeOffset(2026, 9, 22, 10, 0, 0, TimeSpan.Zero);
+        factory.Clock.Set(createdAt);
+        factory.CurrentUser.UserId = SystemIds.AdminUser;
+        var ivo = User.Create(
+            Login.Create("ivo.mattos").Value, EmailAddress.Create("ivo.mattos@example.com").Value, "Ivo Mattos", "Ivo Mattos");
+        uint createdVersion;
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Users.Add(ivo);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+            createdVersion = ivo.Version;
+        }
+
+        factory.Clock.Set(updatedAt);
+        factory.CurrentUser.UserId = await GetOrCreateUserAsync("helena.prado", "Helena Prado");
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var tracked = await db.Users.SingleAsync(u => u.Id == ivo.Id, TestContext.Current.CancellationToken);
+            tracked.AssignProfiles([SystemIds.ManagerProfile]);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var saved = await db.Users.SingleAsync(u => u.Id == ivo.Id, TestContext.Current.CancellationToken);
+
+            saved.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
+            saved.UpdatedAt.ShouldBe(updatedAt);
+            saved.UpdatedBy.ShouldBe(factory.CurrentUser.UserId!.Value);
+            saved.Version.ShouldNotBe(createdVersion);
+        }
+    }
+
+    [Fact]
     public async Task Saving_during_a_request_without_a_signed_in_person_fails() // CNV-20 (D3)
     {
         // Starts the host (and its seeding, as the Admin) before removing the current user.
@@ -97,5 +183,24 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
         await using var verifyScope = factory.Services.CreateAsyncScope();
         var verifyDb = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
         (await verifyDb.PermissionProfiles.AnyAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
+    }
+
+    // The editor must be a real user (D7), and both tests reuse the same row, since the display
+    // name is unique across the shared database (T13).
+    private async Task<Guid> GetOrCreateUserAsync(string login, string displayName)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var existing = await db.Users.FirstOrDefaultAsync(
+            u => u.Login == Login.Create(login).Value, TestContext.Current.CancellationToken);
+        if (existing is not null)
+        {
+            return existing.Id;
+        }
+
+        var user = User.Create(Login.Create(login).Value, EmailAddress.Create($"{login}@example.com").Value, displayName, displayName);
+        db.Users.Add(user);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return user.Id;
     }
 }

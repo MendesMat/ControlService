@@ -1,6 +1,7 @@
 using ControlService.Application.Common;
 using ControlService.Domain.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ControlService.Infrastructure.Persistence;
@@ -29,8 +30,11 @@ public sealed class AuditFieldsInterceptor(ICurrentUser currentUser, TimeProvide
             return;
         }
 
-        var entries = context.ChangeTracker.Entries<AuditedAggregate>()
-            .Where(entry => entry.State is EntityState.Added or EntityState.Modified)
+        var tracked = context.ChangeTracker.Entries().ToList();
+        var entries = tracked
+            .Where(entry => entry.Entity is AuditedAggregate)
+            .Where(entry => entry.State is EntityState.Added or EntityState.Modified
+                || (entry.State == EntityState.Unchanged && HasChangedOwnedEntries(entry, tracked)))
             .ToList();
         if (entries.Count == 0)
         {
@@ -53,4 +57,15 @@ public sealed class AuditFieldsInterceptor(ICurrentUser currentUser, TimeProvide
             entry.Property(nameof(AuditedAggregate.UpdatedBy)).CurrentValue = userId;
         }
     }
+
+    // Owned collections (profile levels, profile assignments) live in their own tables, so changing
+    // only them leaves the owner Unchanged. Touching the owner's audit fields forces an UPDATE of its
+    // row, which bumps xmin and checks it (CNV-10, CNV-12, CNV-13).
+    private static bool HasChangedOwnedEntries(EntityEntry owner, IEnumerable<EntityEntry> tracked) =>
+        tracked.Any(entry =>
+            entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted
+            && entry.Metadata.FindOwnership() is { } ownership
+            && ownership.PrincipalEntityType == owner.Metadata
+            && ownership.Properties.Select(property => entry.Property(property.Name).CurrentValue)
+                .SequenceEqual(ownership.PrincipalKey.Properties.Select(property => owner.Property(property.Name).CurrentValue)));
 }
