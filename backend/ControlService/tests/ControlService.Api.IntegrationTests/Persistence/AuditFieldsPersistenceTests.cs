@@ -1,5 +1,6 @@
 using ControlService.Domain.Common;
 using ControlService.Domain.PermissionProfiles;
+using ControlService.Domain.Users;
 using ControlService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,49 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
             saved.UpdatedAt.ShouldBe(createdAt);
             saved.CreatedBy.ShouldBe(SystemIds.AdminUser);
             saved.UpdatedBy.ShouldBe(SystemIds.AdminUser);
+        }
+    }
+
+    [Fact]
+    public async Task Changing_a_record_updates_only_the_last_change_authorship() // CNV-10
+    {
+        var createdAt = new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero);
+        var updatedAt = new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero);
+        factory.Clock.Set(createdAt);
+        factory.CurrentUser.UserId = SystemIds.AdminUser;
+
+        var bruno = User.Create(
+            Login.Create("bruno.lima").Value, EmailAddress.Create("bruno.lima@example.com").Value, "Bruno Lima", "Bruno Lima");
+        var carla = User.Create(
+            Login.Create("carla.dias").Value, EmailAddress.Create("carla.dias@example.com").Value, "Carla Dias", "Carla Dias");
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Users.AddRange(bruno, carla);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        factory.Clock.Set(updatedAt);
+        factory.CurrentUser.UserId = bruno.Id;
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var tracked = await db.Users.SingleAsync(u => u.Id == carla.Id, TestContext.Current.CancellationToken);
+            tracked.Activate(updatedAt);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var saved = await db.Users.SingleAsync(u => u.Id == carla.Id, TestContext.Current.CancellationToken);
+
+            saved.CreatedAt.ShouldBe(createdAt);
+            saved.CreatedBy.ShouldBe(SystemIds.AdminUser);
+            saved.UpdatedAt.ShouldBe(updatedAt);
+            saved.UpdatedBy.ShouldBe(bruno.Id);
         }
     }
 }
