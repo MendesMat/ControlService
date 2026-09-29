@@ -33,6 +33,7 @@ Run from `backend/ControlService`. Each one was verified on this machine.
 | Tests of one project, filtered | `dotnet test --project tests/ControlService.Domain.Tests --filter-method '*Cpf*'` |
 | Style and formatting check | `dotnet format ControlService.slnx --verify-no-changes` |
 | Run the system (needs Docker Desktop) | `dotnet run --project src/ControlService.AppHost` |
+| Add an EF Core migration after a model change (needs `dotnet tool restore` once per clone) | `dotnet ef migrations add <Name> --project src/ControlService.Infrastructure --startup-project src/ControlService.Infrastructure --output-dir Persistence/Migrations` |
 
 Prefer the filtered test run while iterating; run everything before opening a pull request. Keep tool output short: every line you print stays in the conversation and is paid again on each reply. Pipe long output through a filter, and print a full log only when you need it as evidence (a Red, a CI failure).
 

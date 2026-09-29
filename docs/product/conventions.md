@@ -46,6 +46,8 @@ Rule IDs (`CNV-nn`) are stable: cite them in tests, pull requests and conversati
 |---|---|
 | CNV-10 | Every record stores who created it and who last changed it, and when. The server fills these fields; they can never be edited by the client (ADR-0015). |
 | CNV-11 | Every open record shows a footer with the display name of who acted, in Brasília time. New records that were never saved show no footer. |
+| CNV-19 | On creation, `updatedAt` and `updatedBy` get the same values as `createdAt` and `createdBy`, so the footer always has both lines. |
+| CNV-20 | Records the system creates by itself (the initial system records) are authored by the Admin. |
 
 | Field | Content |
 |---|---|

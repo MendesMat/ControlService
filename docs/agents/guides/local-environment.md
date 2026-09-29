@@ -70,6 +70,29 @@ Register the API side with the Aspire client integrations for these names, and c
 - The API must fail at startup with a clear message when a required secret is missing, instead of running with an empty value.
 - Durations and limits are configuration, not constants (AUTH-22). New keys follow the same `Section:Name` pattern and are added to this table in the same pull request.
 - The owner sets secrets with `dotnet user-secrets set "Auth:SigningKey" "<value>" --project src/ControlService.API`. Agents give the command; they never choose or print real secret values.
+- `Admin:Email` is read only when the Admin is first created (USR-33): set it before the first run against a fresh database. Changing it afterwards has no effect until the Admin row is gone.
+
+```bash
+dotnet user-secrets set "Admin:Email" "<e-mail>" --project src/ControlService.API
+```
+
+## EF Core migrations
+
+`dotnet-ef` is a local tool (`.config/dotnet-tools.json`); restore it once per clone:
+
+```bash
+dotnet tool restore
+```
+
+Add a migration after changing the model (from `backend/ControlService`):
+
+```bash
+dotnet ef migrations add <Name> --project src/ControlService.Infrastructure --startup-project src/ControlService.Infrastructure --output-dir Persistence/Migrations
+```
+
+This uses `DesignTimeDbContextFactory`, not `Program.cs`, so it never needs a running database or Aspire: it only inspects the model. Keep a single migration, `InitialSchema`, regenerated as the model grows (ADR-0009's workflow doc), until the schema is stable enough to branch into a second one.
+
+Migrations are applied automatically only when `ASPNETCORE_ENVIRONMENT` is `Development` (ADR-0013), which also runs `SystemRecordsSeeder` (ADR-0022). Never in other environments; a deployment step applies them there instead.
 
 ## HTTPS
 
