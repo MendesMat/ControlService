@@ -14,6 +14,14 @@ public static class AuthErrors
     public static Error AccountInactive { get; } = new(
         "account_inactive", "Este acesso está desativado. Fale com o responsável pelo sistema.");
 
+    public static Error PasswordAlreadyCreated { get; } = new(
+        "forbidden", "Sua senha já foi criada. Para trocá-la, use “Esqueci minha senha”.");
+
+    public static Error NewPasswordEqualsInitial { get; } = new(
+        "validation_failed",
+        "Alguns campos precisam ser corrigidos.",
+        Fields: new Dictionary<string, string[]> { ["password"] = ["A nova senha precisa ser diferente da senha inicial."] });
+
     public static Error LockedOut(int lockoutMinutes, int retryAfterSeconds) => new(
         "locked_out",
         $"Muitas tentativas sem sucesso. Aguarde {lockoutMinutes} minutos e tente de novo.",

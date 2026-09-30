@@ -28,6 +28,16 @@ internal sealed class FakeCredentialStore : ICredentialStore
             : CredentialCheck.Failed);
     }
 
+    public Task ReplacePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken)
+    {
+        _passwords[userId] = newPassword;
+        _mustChange.Remove(userId);
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> IsCurrentPasswordAsync(Guid userId, string password, CancellationToken cancellationToken) =>
+        Task.FromResult(_passwords.TryGetValue(userId, out var stored) && stored == password);
+
     public Task<bool> MustChangePasswordAsync(Guid userId, CancellationToken cancellationToken) =>
         Task.FromResult(_mustChange.Contains(userId));
 }

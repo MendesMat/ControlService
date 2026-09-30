@@ -25,6 +25,12 @@ internal sealed class InMemorySessionStore : ISessionStore
         return Task.CompletedTask;
     }
 
+    public Task EndAllAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        _sessions.RemoveAll(session => session.UserId == userId);
+        return Task.CompletedTask;
+    }
+
     public Task<RotatedSession?> RotateAsync(string refreshToken, CancellationToken cancellationToken)
     {
         var index = _sessions.FindIndex(session => session.RefreshToken == refreshToken);

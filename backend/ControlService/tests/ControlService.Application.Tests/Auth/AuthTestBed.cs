@@ -25,6 +25,8 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
 
     public FakeAccessTokenIssuer Tokens { get; } = new();
 
+    public FakeUnitOfWork UnitOfWork { get; } = new();
+
     public SignInHandler CreateSignInHandler() => new(Users, Credentials, Sessions, Tokens, Settings, Clock);
 
     public RefreshSessionHandler CreateRefreshSessionHandler() => new(Users, Credentials, Sessions, Tokens);
@@ -32,7 +34,7 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
     public SignOutHandler CreateSignOutHandler() => new(Sessions);
 
     public ValidatingCommandHandler<ChangePasswordCommand, SessionGrant> CreateChangePasswordHandler() =>
-        new(new ChangePasswordHandler(Sessions, Tokens), new ChangePasswordValidator(Settings));
+        new(new ChangePasswordHandler(Users, Credentials, Sessions, Tokens, UnitOfWork, Clock), new ChangePasswordValidator(Settings));
 
     public User AddPendingUser(string login)
     {
