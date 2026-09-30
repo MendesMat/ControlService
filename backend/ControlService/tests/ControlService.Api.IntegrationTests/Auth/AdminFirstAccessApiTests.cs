@@ -8,8 +8,14 @@ using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace ControlService.Api.IntegrationTests.Auth;
 
-public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>
+public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>, IAsyncLifetime
 {
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    // The Admin is one row in a database shared by the whole assembly: whatever a test did to it is undone,
+    // so the tests that expect it as seeded (StartupSeedTests) pass in any order.
+    public async ValueTask DisposeAsync() => await AuthTestSupport.ResetAdminAsync(factory.Services);
+
     private const string NewPassword = "nova-senha-admin-1";
     private const string ChangeRequired = "Por segurança, a senha inicial precisa ser trocada no primeiro acesso.";
 

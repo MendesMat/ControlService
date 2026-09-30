@@ -4,8 +4,14 @@ using ControlService.Api.IntegrationTests.Common;
 
 namespace ControlService.Api.IntegrationTests.Auth;
 
-public sealed class NullFieldsApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>
+public sealed class NullFieldsApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>, IAsyncLifetime
 {
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    // The Admin is one row in a database shared by the whole assembly: whatever a test did to it is undone,
+    // so the tests that expect it as seeded (StartupSeedTests) pass in any order.
+    public async ValueTask DisposeAsync() => await AuthTestSupport.ResetAdminAsync(factory.Services);
+
     [Fact]
     public async Task Sign_in_with_null_fields_returns_401_invalid_credentials() // AUTH-08, API-12
     {

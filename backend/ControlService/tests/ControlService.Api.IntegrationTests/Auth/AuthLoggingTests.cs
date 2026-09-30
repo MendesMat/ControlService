@@ -6,8 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace ControlService.Api.IntegrationTests.Auth;
 
-public sealed class AuthLoggingTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>
+public sealed class AuthLoggingTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>, IAsyncLifetime
 {
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    // The Admin is one row in a database shared by the whole assembly: whatever a test did to it is undone,
+    // so the tests that expect it as seeded (StartupSeedTests) pass in any order.
+    public async ValueTask DisposeAsync() => await AuthTestSupport.ResetAdminAsync(factory.Services);
+
     private const string NewPassword = "nova-senha-admin-1";
 
     [Fact]
