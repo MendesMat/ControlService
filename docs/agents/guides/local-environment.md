@@ -131,6 +131,7 @@ The AppHost keeps `ASPIRE010` suppressed: the Aspire CLI bundle tries to trust t
 - `&&` and `||` do not exist. Use `;` or `if ($?) { ... }`.
 - Native tools that write progress to stderr (git, gh, docker) make PowerShell report an error even when the exit code is 0. Check `$LASTEXITCODE` and the actual output.
 - Embedded double quotes in arguments to native tools are mangled. Prefer single quotes, pass JSON with `gh api --input <file>`, and parse `gh` output with `ConvertFrom-Json` instead of complex `--jq` strings.
+- `Invoke-RestMethod -SessionVariable` / `-WebSession` does not keep the refresh cookie (`__Secure-cs-refresh`, `Secure`, `SameSite=Strict`), so `POST /api/v1/auth/refresh` answers 401 `session_expired` even though the server is right. Use `curl.exe` with a cookie jar (`-c jar.txt` on sign-in, `-b jar.txt -c jar.txt` on refresh), and pass the JSON body through stdin (`--data-binary '@-'`) to avoid the quote mangling above. Never print the cookie or the token.
 - Multi-line commit messages: use a single-quoted here-string with `git commit -m @'...'@` (the closing `'@` must start the line).
 - A tool installed during the session may need the PATH refreshed in the current shell:
 
