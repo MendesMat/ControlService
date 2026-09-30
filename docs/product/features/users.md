@@ -157,6 +157,7 @@ The deactivation confirmation is: *{Nome} não vai mais conseguir entrar no sist
 | USR-28 | Changing or deactivating the Admin is refused with the message *"O usuário Admin é do sistema e não pode ser alterado nem desativado."* |
 | USR-32 | The Admin is created with `activatedAt` empty: it never creates a password through an activation link. |
 | USR-33 | The Admin's e-mail is read from the configuration only when the Admin is first created; changing the configuration later does not change the stored record. |
+| USR-34 | The Admin's `activatedAt` is filled when it replaces the initial password on its first access ([AUTH-14](authentication.md#first-access-of-the-admin)). This does not break USR-23, for the same reason as AUTH-15: it is the Admin's own first access, not an edit of the record. |
 
 | Field | Value |
 |---|---|

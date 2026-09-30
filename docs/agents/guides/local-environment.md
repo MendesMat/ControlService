@@ -61,9 +61,13 @@ Register the API side with the Aspire client integrations for these names, and c
 |---|---|---|---|
 | `Auth:AccessTokenMinutes` | Access token lifetime (ADR-0032) | 15 | `appsettings.json` |
 | `Auth:RefreshTokenIdleHours` | Sliding refresh token lifetime (ADR-0032) | 8 | `appsettings.json` |
-| `Auth:SigningKey` | JWT signing key (ADR-0019) | none | **User secrets** |
+| `Auth:SigningKey` | JWT signing key: the base64 of at least 32 random bytes (ADR-0019) | none | **User secrets** |
+| `Auth:Issuer`, `Auth:Audience` | JWT issuer and audience | `control-service` | `appsettings.json` |
+| `Auth:PasswordMinLength` | Minimum password length (AUTH-16) | 8 | `appsettings.json` |
+| `Auth:LockoutMaxFailedAttempts`, `Auth:LockoutMinutes` | Consecutive failures that lock a login, and for how long (AUTH-08) | 5 and 15 | `appsettings.json` |
+| `RateLimiting:SignIn:PermitLimit`, `RateLimiting:Refresh:PermitLimit` | Requests per address in 60 seconds (ADR-0023, AUTH-26) | 20 and 60 | `appsettings.json` |
 | `Admin:Email` | E-mail of the seeded Admin (ADR-0022) | none | **User secrets** |
-| `Admin:InitialPassword` | Initial Admin password, changed on first access (AUTH-13) | none | **User secrets** |
+| `Admin:InitialPassword` | Initial Admin password, changed on first access (AUTH-13); at least `Auth:PasswordMinLength` characters | none | **User secrets** |
 | `Email:SendTimeoutSeconds` | Timeout for activation e-mails (ADR-0031) | 10 | `appsettings.json` |
 
 - **Secrets live only in the user secrets of the API project** (`UserSecretsId` is in `ControlService.API.csproj`) and, in deployment, in environment variables. Never in `appsettings*.json`, code, tests or documentation.
@@ -74,6 +78,17 @@ Register the API side with the Aspire client integrations for these names, and c
 
 ```bash
 dotnet user-secrets set "Admin:Email" "<e-mail>" --project src/ControlService.API
+```
+
+- `Admin:InitialPassword` is read only when the Admin's credential is created (the first run against a database that has none), so set it before that run. Changing it afterwards has no effect.
+- The API refuses to start when `Auth:SigningKey` or `Admin:InitialPassword` is missing or invalid; the message names the key and never prints its value.
+
+Set the two secrets (the owner does this; agents never choose or print real values). In Windows PowerShell 5.1, this generates 32 random bytes and stores their base64 without printing it:
+
+```powershell
+$bytes = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+dotnet user-secrets set 'Auth:SigningKey' ([Convert]::ToBase64String($bytes)) --project src/ControlService.API
+dotnet user-secrets set 'Admin:InitialPassword' '<at least 8 characters>' --project src/ControlService.API
 ```
 
 ## EF Core migrations
@@ -90,7 +105,7 @@ Add a migration after changing the model (from `backend/ControlService`):
 dotnet ef migrations add <Name> --project src/ControlService.Infrastructure --startup-project src/ControlService.Infrastructure --output-dir Persistence/Migrations
 ```
 
-This uses `DesignTimeDbContextFactory`, not `Program.cs`, so it never needs a running database or Aspire: it only inspects the model. Keep a single migration, `InitialSchema`, regenerated as the model grows, until the schema is stable enough to branch into a second one.
+This uses `DesignTimeDbContextFactory`, not `Program.cs`, so it never needs a running database or Aspire: it only inspects the model. The schema has two migrations: `InitialSchema` and `AddAuthentication` (Identity's credential tables and `user_sessions`, approved in #8). From here on, each schema change adds a migration; review it before committing, since a migration has no Red of its own.
 
 Migrations are applied automatically only when `ASPNETCORE_ENVIRONMENT` is `Development` (ADR-0013), which also runs `SystemRecordsSeeder` (ADR-0022). Never in other environments; a deployment step applies them there instead.
 
