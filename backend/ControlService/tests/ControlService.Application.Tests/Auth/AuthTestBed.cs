@@ -1,6 +1,9 @@
 using ControlService.Application.Auth;
+using ControlService.Application.Auth.ChangePassword;
 using ControlService.Application.Auth.RefreshSession;
 using ControlService.Application.Auth.SignIn;
+using ControlService.Application.Auth.SignOut;
+using ControlService.Application.Common;
 using ControlService.Application.Tests.Fakes;
 using ControlService.Domain.Users;
 
@@ -26,6 +29,11 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
 
     public RefreshSessionHandler CreateRefreshSessionHandler() => new(Users, Credentials, Sessions, Tokens);
 
+    public SignOutHandler CreateSignOutHandler() => new(Sessions);
+
+    public ValidatingCommandHandler<ChangePasswordCommand, SessionGrant> CreateChangePasswordHandler() =>
+        new(new ChangePasswordHandler(Sessions, Tokens), new ChangePasswordValidator(Settings));
+
     public User AddPendingUser(string login)
     {
         var user = User.Create(
@@ -40,6 +48,16 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
         user.Activate(new DateTimeOffset(2026, 9, 1, 8, 0, 0, TimeSpan.Zero));
         Credentials.SetPassword(user.Id, password);
         return user;
+    }
+
+    /// <summary>The Admin as the seeder creates it, with the initial password that must be replaced (AUTH-13).</summary>
+    public User AddAdminWithInitialPassword(string initialPassword)
+    {
+        var admin = User.CreateAdmin(EmailAddress.Create("admin@example.com").Value);
+        Users.Add(admin);
+        Credentials.SetPassword(admin.Id, initialPassword);
+        Credentials.RequirePasswordChange(admin.Id);
+        return admin;
     }
 
     public User AddInactiveUser(string login, string password)
