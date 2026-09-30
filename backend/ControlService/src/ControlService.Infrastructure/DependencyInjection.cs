@@ -1,6 +1,9 @@
+using ControlService.Application.Auth;
 using ControlService.Application.Common;
 using ControlService.Domain.Users;
+using ControlService.Infrastructure.Auth;
 using ControlService.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,21 +21,53 @@ public static class DependencyInjection
     {
         builder.Services.AddSingleton<AuditFieldsInterceptor>();
 
+        builder.Services.AddOptions<AuthOptions>()
+            .Bind(builder.Configuration.GetSection(AuthOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        // Message texts state these two values (D11, AUTH-28), and Application cannot read options.
+        builder.Services.AddSingleton(serviceProvider =>
+        {
+            var auth = serviceProvider.GetRequiredService<IOptions<AuthOptions>>().Value;
+            return new AuthSettings(auth.PasswordMinLength, auth.LockoutMinutes);
+        });
+
         builder.Services.AddOptions<AdminOptions>()
             .Bind(builder.Configuration.GetSection(AdminOptions.SectionName))
             .Validate(options => EmailAddress.Create(options.Email).IsSuccess, "Admin:Email must be a valid e-mail address.")
+            .Validate<IOptions<AuthOptions>>(
+                (options, auth) => options.InitialPassword.Length >= auth.Value.PasswordMinLength,
+                "Admin:InitialPassword must have at least Auth:PasswordMinLength characters.")
             .ValidateOnStart();
+
+        // No SignInManager: it pulls in cookie authentication. The credential store uses UserManager
+        // for hashing and lockout only (T2).
+        builder.Services.AddIdentityCore<UserCredential>().AddEntityFrameworkStores<AppDbContext>();
+        builder.Services.AddOptions<IdentityOptions>().Configure<IOptions<AuthOptions>>((identity, auth) =>
+        {
+            // Identity must never refuse a password the validator accepted (AUTH-16): length only.
+            identity.Password.RequireDigit = false;
+            identity.Password.RequireLowercase = false;
+            identity.Password.RequireUppercase = false;
+            identity.Password.RequireNonAlphanumeric = false;
+            identity.Password.RequiredUniqueChars = 1;
+            identity.Password.RequiredLength = auth.Value.PasswordMinLength;
+            identity.Lockout.AllowedForNewUsers = true;
+            identity.Lockout.MaxFailedAccessAttempts = auth.Value.LockoutMaxFailedAttempts;
+            identity.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(auth.Value.LockoutMinutes);
+        });
 
         builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         {
-            var adminEmail = serviceProvider.GetRequiredService<IOptions<AdminOptions>>().Value.Email;
+            var admin = serviceProvider.GetRequiredService<IOptions<AdminOptions>>().Value;
             options
                 .UseNpgsql(builder.Configuration.GetConnectionString("controlservice"))
                 .UseSnakeCaseNamingConvention()
                 .AddInterceptors(serviceProvider.GetRequiredService<AuditFieldsInterceptor>())
-                .UseSeeding((context, _) => SystemRecordsSeeder.Seed(context, adminEmail))
+                .UseSeeding((context, _) => SystemRecordsSeeder.Seed(context, admin.Email, admin.InitialPassword))
                 .UseAsyncSeeding((context, _, cancellationToken) =>
-                    SystemRecordsSeeder.SeedAsync(context, adminEmail, cancellationToken));
+                    SystemRecordsSeeder.SeedAsync(context, admin.Email, admin.InitialPassword, cancellationToken));
         });
 
         // AddNpgsqlDbContext pools contexts, which does not fit a scoped interceptor (T7): the
