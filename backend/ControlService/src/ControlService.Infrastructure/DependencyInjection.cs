@@ -1,5 +1,6 @@
 using ControlService.Application.Auth;
 using ControlService.Application.Common;
+using ControlService.Application.Users;
 using ControlService.Domain.Users;
 using ControlService.Infrastructure.Auth;
 using ControlService.Infrastructure.Persistence;
@@ -78,6 +79,7 @@ public static class DependencyInjection
         builder.EnrichNpgsqlDbContext<AppDbContext>();
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ICredentialStore, CredentialStore>();
         builder.Services.AddScoped<ISessionStore, SessionStore>();
 

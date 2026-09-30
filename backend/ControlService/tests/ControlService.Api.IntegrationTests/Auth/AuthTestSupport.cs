@@ -22,6 +22,15 @@ internal static class AuthTestSupport
         await db.Set<UserCredential>().Where(credential => credential.Id == SystemIds.AdminUser).ExecuteDeleteAsync();
     }
 
+    public static async Task DeactivateUserAsync(IServiceProvider services, Guid userId)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var user = await db.Users.SingleAsync(candidate => candidate.Id == userId);
+        user.Deactivate(SystemIds.AdminUser, DateTimeOffset.UtcNow).IsSuccess.ShouldBeTrue();
+        await db.SaveChangesAsync();
+    }
+
     /// <summary>An active user with a credential, under a login no other test uses, so a test never
     /// collides with the unique indexes of another.</summary>
     public static async Task<TestUser> CreateUserAsync(IServiceProvider services, string password = UserPassword)
