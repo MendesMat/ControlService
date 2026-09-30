@@ -76,6 +76,7 @@ public static class DependencyInjection
         builder.EnrichNpgsqlDbContext<AppDbContext>();
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<ISessionStore, SessionStore>();
 
         return builder;
     }
