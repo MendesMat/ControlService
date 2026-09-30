@@ -10,6 +10,8 @@ internal static class RefreshCookie
     public static void Append(HttpResponse response, string refreshToken, DateTimeOffset expiresAt) =>
         response.Cookies.Append(Name, refreshToken, Options(expiresAt));
 
+    public static void Expire(HttpResponse response) => response.Cookies.Delete(Name, Options(expiresAt: null));
+
     private static CookieOptions Options(DateTimeOffset? expiresAt) => new()
     {
         HttpOnly = true,

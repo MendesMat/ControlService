@@ -1,6 +1,8 @@
 using ControlService.Application.Auth;
 using ControlService.Application.Auth.GetMe;
+using ControlService.Application.Auth.RefreshSession;
 using ControlService.Application.Auth.SignIn;
+using ControlService.Application.Auth.SignOut;
 using ControlService.Application.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -25,6 +27,8 @@ public static class AuthServiceCollectionExtensions
 
         // Handlers are registered by hand (ADR-0008); the ones with input to validate are wrapped in the decorator.
         services.AddScoped<ICommandHandler<SignInCommand, SessionGrant>, SignInHandler>();
+        services.AddScoped<ICommandHandler<RefreshSessionCommand, SessionGrant>, RefreshSessionHandler>();
+        services.AddScoped<ICommandHandler<SignOutCommand, Unit>, SignOutHandler>();
         services.AddScoped<IQueryHandler<GetMeQuery, MeResponse>, GetMeHandler>();
 
         return services;

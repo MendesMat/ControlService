@@ -3,7 +3,9 @@ using System.Security.Claims;
 using ControlService.API.Common;
 using ControlService.Application.Auth;
 using ControlService.Application.Auth.GetMe;
+using ControlService.Application.Auth.RefreshSession;
 using ControlService.Application.Auth.SignIn;
+using ControlService.Application.Auth.SignOut;
 using ControlService.Application.Common;
 using ControlService.Domain.Common;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -18,10 +20,52 @@ public static class AuthEndpoints
             .AllowAnonymous()
             .WithSummary("Signs in with login and password; sets the refresh cookie.");
 
+        api.MapPost("/auth/refresh", Refresh)
+            .AllowAnonymous()
+            .WithSummary("Renews the session from the refresh cookie and rotates it.");
+
+        api.MapPost("/auth/sign-out", SignOut)
+            .WithSummary("Ends the session named by the access token and expires the refresh cookie.");
+
         api.MapGet("/me", Me)
             .WithSummary("The signed-in person and their effective level on every screen.");
 
         return api;
+    }
+
+    private static async Task<Results<Ok<SessionResponse>, ProblemHttpResult>> Refresh(
+        ICommandHandler<RefreshSessionCommand, SessionGrant> handler,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var refreshToken = httpContext.Request.Cookies[RefreshCookie.Name] ?? string.Empty;
+        var result = await handler.Handle(new RefreshSessionCommand(refreshToken), cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.Error.ToProblem();
+        }
+
+        RefreshCookie.Append(httpContext.Response, result.Value.RefreshToken, result.Value.RefreshTokenExpiresAt);
+        return TypedResults.Ok(SessionResponse.From(result.Value));
+    }
+
+    // The refresh cookie is scoped to the refresh route, so sign-out never receives it: the session comes
+    // from the access token's `sid` claim instead (D3).
+    private static async Task<Results<NoContent, ProblemHttpResult>> SignOut(
+        ClaimsPrincipal principal,
+        ICommandHandler<SignOutCommand, Unit> handler,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var sessionId = principal.SessionId();
+        if (sessionId is null)
+        {
+            return AuthErrors.SessionExpired.ToProblem();
+        }
+
+        await handler.Handle(new SignOutCommand(sessionId.Value), cancellationToken);
+        RefreshCookie.Expire(httpContext.Response);
+        return TypedResults.NoContent();
     }
 
     private static async Task<Results<Ok<MeResponse>, ProblemHttpResult>> Me(

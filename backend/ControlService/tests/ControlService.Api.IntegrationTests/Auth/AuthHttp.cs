@@ -33,6 +33,30 @@ internal static class AuthHttp
         return client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
+    /// <summary>Calls refresh with the given cookie value, or with no cookie when null.</summary>
+    public static Task<HttpResponseMessage> RefreshAsync(this HttpClient client, string? cookieValue)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, RefreshPath);
+        if (cookieValue is not null)
+        {
+            request.Headers.Add(HeaderNames.Cookie, $"{RefreshCookieName}={cookieValue}");
+        }
+
+        return client.SendAsync(request, TestContext.Current.CancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> PostWithTokenAsync(this HttpClient client, string path, string accessToken, object? body = null)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, path);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        if (body is not null)
+        {
+            request.Content = JsonContent.Create(body);
+        }
+
+        return client.SendAsync(request, TestContext.Current.CancellationToken);
+    }
+
     public static async Task<JsonElement> ReadJsonAsync(this HttpResponseMessage response) =>
         await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
 
