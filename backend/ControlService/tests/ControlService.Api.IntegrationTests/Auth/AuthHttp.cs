@@ -22,7 +22,7 @@ internal static class AuthHttp
         return (await response.ReadJsonAsync()).GetProperty("accessToken").GetString()!;
     }
 
-    public static Task<HttpResponseMessage> GetWithTokenAsync(this HttpClient client, string path, string? accessToken)
+    public static async Task<HttpResponseMessage> GetWithTokenAsync(this HttpClient client, string path, string? accessToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, path);
         if (accessToken is not null)
@@ -30,11 +30,11 @@ internal static class AuthHttp
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
 
-        return client.SendAsync(request, TestContext.Current.CancellationToken);
+        return await client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
     /// <summary>Calls refresh with the given cookie value, or with no cookie when null.</summary>
-    public static Task<HttpResponseMessage> RefreshAsync(this HttpClient client, string? cookieValue)
+    public static async Task<HttpResponseMessage> RefreshAsync(this HttpClient client, string? cookieValue)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, RefreshPath);
         if (cookieValue is not null)
@@ -42,10 +42,10 @@ internal static class AuthHttp
             request.Headers.Add(HeaderNames.Cookie, $"{RefreshCookieName}={cookieValue}");
         }
 
-        return client.SendAsync(request, TestContext.Current.CancellationToken);
+        return await client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
-    public static Task<HttpResponseMessage> PostWithTokenAsync(this HttpClient client, string path, string accessToken, object? body = null)
+    public static async Task<HttpResponseMessage> PostWithTokenAsync(this HttpClient client, string path, string accessToken, object? body = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, path);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -54,7 +54,7 @@ internal static class AuthHttp
             request.Content = JsonContent.Create(body);
         }
 
-        return client.SendAsync(request, TestContext.Current.CancellationToken);
+        return await client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
     public static async Task<JsonElement> ReadJsonAsync(this HttpResponseMessage response) =>

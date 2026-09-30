@@ -1,3 +1,4 @@
+using ControlService.Api.IntegrationTests.Common;
 using ControlService.Domain.Access;
 using ControlService.Domain.Common;
 using ControlService.Domain.PermissionProfiles;
@@ -22,6 +23,25 @@ internal static class AuthTestSupport
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Set<UserSession>().Where(session => session.UserId == SystemIds.AdminUser).ExecuteDeleteAsync();
         await db.Set<UserCredential>().Where(credential => credential.Id == SystemIds.AdminUser).ExecuteDeleteAsync();
+    }
+
+    /// <summary>Puts the Admin back as the seeder creates it: initial password, mandatory change, no lockout,
+    /// no sessions and no activation time. The Admin is one row shared by the whole assembly.</summary>
+    public static async Task ResetAdminAsync(IServiceProvider services)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var credential = await db.Set<UserCredential>().SingleAsync(candidate => candidate.Id == SystemIds.AdminUser);
+        var hash = new PasswordHasher<UserCredential>().HashPassword(credential, ApiFactory.AdminInitialPassword);
+
+        await db.Set<UserSession>().Where(session => session.UserId == SystemIds.AdminUser).ExecuteDeleteAsync();
+        await db.Set<UserCredential>().Where(candidate => candidate.Id == SystemIds.AdminUser).ExecuteUpdateAsync(setters => setters
+            .SetProperty(candidate => candidate.PasswordHash, hash)
+            .SetProperty(candidate => candidate.MustChangePassword, true)
+            .SetProperty(candidate => candidate.AccessFailedCount, 0)
+            .SetProperty(candidate => candidate.LockoutEnd, (DateTimeOffset?)null));
+        await db.Users.Where(user => user.Id == SystemIds.AdminUser)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.ActivatedAt, (DateTimeOffset?)null));
     }
 
     public static async Task DeactivateUserAsync(IServiceProvider services, Guid userId)

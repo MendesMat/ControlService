@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Claims;
 using ControlService.API.Common;
 using ControlService.Application.Auth;
+using ControlService.Application.Auth.ChangePassword;
 using ControlService.Application.Auth.GetMe;
 using ControlService.Application.Auth.RefreshSession;
 using ControlService.Application.Auth.SignIn;
@@ -25,9 +26,15 @@ public static class AuthEndpoints
             .WithSummary("Renews the session from the refresh cookie and rotates it.");
 
         api.MapPost("/auth/sign-out", SignOut)
+            .AllowPendingPasswordChange()
             .WithSummary("Ends the session named by the access token and expires the refresh cookie.");
 
+        api.MapPost("/auth/change-password", ChangePassword)
+            .AllowPendingPasswordChange()
+            .WithSummary("Replaces the initial password; ends every session and starts a new one.");
+
         api.MapGet("/me", Me)
+            .AllowPendingPasswordChange()
             .WithSummary("The signed-in person and their effective level on every screen.");
 
         return api;
@@ -40,6 +47,30 @@ public static class AuthEndpoints
     {
         var refreshToken = httpContext.Request.Cookies[RefreshCookie.Name] ?? string.Empty;
         var result = await handler.Handle(new RefreshSessionCommand(refreshToken), cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.Error.ToProblem();
+        }
+
+        RefreshCookie.Append(httpContext.Response, result.Value.RefreshToken, result.Value.RefreshTokenExpiresAt);
+        return TypedResults.Ok(SessionResponse.From(result.Value));
+    }
+
+    private static async Task<Results<Ok<SessionResponse>, ProblemHttpResult>> ChangePassword(
+        ChangePasswordRequest request,
+        ClaimsPrincipal principal,
+        ICommandHandler<ChangePasswordCommand, SessionGrant> handler,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var userId = principal.UserId();
+        if (userId is null)
+        {
+            return AuthErrors.SessionExpired.ToProblem();
+        }
+
+        var result = await handler.Handle(
+            new ChangePasswordCommand(userId.Value, request.Password, request.PasswordConfirmation), cancellationToken);
         if (result.IsFailure)
         {
             return result.Error.ToProblem();
@@ -114,6 +145,8 @@ public static class AuthEndpoints
 
         return error.ToProblem();
     }
+
+    private sealed record ChangePasswordRequest(string Password = "", string PasswordConfirmation = "");
 
     private sealed record SignInRequest(string Login = "", string Password = "");
 }
