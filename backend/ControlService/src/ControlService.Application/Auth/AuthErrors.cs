@@ -7,4 +7,12 @@ namespace ControlService.Application.Auth;
 public static class AuthErrors
 {
     public static Error InvalidCredentials { get; } = new("invalid_credentials", "Login ou senha incorretos.");
+
+    public static Error AccountInactive { get; } = new(
+        "account_inactive", "Este acesso está desativado. Fale com o responsável pelo sistema.");
+
+    public static Error LockedOut(int lockoutMinutes, int retryAfterSeconds) => new(
+        "locked_out",
+        $"Muitas tentativas sem sucesso. Aguarde {lockoutMinutes} minutos e tente de novo.",
+        Details: new Dictionary<string, object?> { ["retryAfterSeconds"] = retryAfterSeconds });
 }

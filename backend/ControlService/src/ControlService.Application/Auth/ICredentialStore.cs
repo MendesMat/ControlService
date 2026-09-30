@@ -5,4 +5,7 @@ namespace ControlService.Application.Auth;
 public interface ICredentialStore
 {
     Task<CredentialCheck> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken);
+
+    /// <summary>True while the account still has its initial password (AUTH-14).</summary>
+    Task<bool> MustChangePasswordAsync(Guid userId, CancellationToken cancellationToken);
 }

@@ -7,11 +7,27 @@ namespace ControlService.Application.Tests.Fakes;
 internal sealed class FakeCredentialStore : ICredentialStore
 {
     private readonly Dictionary<Guid, string> _passwords = [];
+    private readonly Dictionary<Guid, DateTimeOffset> _lockouts = [];
+    private readonly HashSet<Guid> _mustChange = [];
 
     public void SetPassword(Guid userId, string password) => _passwords[userId] = password;
 
-    public Task<CredentialCheck> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken) =>
-        Task.FromResult(_passwords.TryGetValue(userId, out var stored) && stored == password
+    public void RequirePasswordChange(Guid userId) => _mustChange.Add(userId);
+
+    public void LockOutUntil(Guid userId, DateTimeOffset lockoutEnd) => _lockouts[userId] = lockoutEnd;
+
+    public Task<CredentialCheck> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken)
+    {
+        if (_lockouts.TryGetValue(userId, out var lockoutEnd))
+        {
+            return Task.FromResult(CredentialCheck.LockedOut(lockoutEnd));
+        }
+
+        return Task.FromResult(_passwords.TryGetValue(userId, out var stored) && stored == password
             ? CredentialCheck.Succeeded
             : CredentialCheck.Failed);
+    }
+
+    public Task<bool> MustChangePasswordAsync(Guid userId, CancellationToken cancellationToken) =>
+        Task.FromResult(_mustChange.Contains(userId));
 }

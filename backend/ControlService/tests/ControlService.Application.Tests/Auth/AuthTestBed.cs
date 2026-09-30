@@ -7,8 +7,12 @@ namespace ControlService.Application.Tests.Auth;
 
 /// <summary>Builds the fakes and the handlers of the authentication use cases, and the users the
 /// tests sign in as, so a constructor change touches one file (plan of #7).</summary>
-internal sealed class AuthTestBed
+internal sealed class AuthTestBed(AuthSettings? settings = null)
 {
+    public AuthSettings Settings { get; } = settings ?? new AuthSettings(PasswordMinLength: 8, LockoutMinutes: 15);
+
+    public FixedTimeProvider Clock { get; } = new(new DateTimeOffset(2026, 9, 30, 12, 0, 0, TimeSpan.Zero));
+
     public InMemoryUserRepository Users { get; } = new();
 
     public FakeCredentialStore Credentials { get; } = new();
@@ -17,7 +21,7 @@ internal sealed class AuthTestBed
 
     public FakeAccessTokenIssuer Tokens { get; } = new();
 
-    public SignInHandler CreateSignInHandler() => new(Users, Credentials, Sessions, Tokens);
+    public SignInHandler CreateSignInHandler() => new(Users, Credentials, Sessions, Tokens, Settings, Clock);
 
     public User AddPendingUser(string login)
     {
@@ -32,6 +36,13 @@ internal sealed class AuthTestBed
         var user = AddPendingUser(login);
         user.Activate(new DateTimeOffset(2026, 9, 1, 8, 0, 0, TimeSpan.Zero));
         Credentials.SetPassword(user.Id, password);
+        return user;
+    }
+
+    public User AddInactiveUser(string login, string password)
+    {
+        var user = AddActiveUser(login, password);
+        user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 2, 8, 0, 0, TimeSpan.Zero));
         return user;
     }
 }
