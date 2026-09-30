@@ -40,10 +40,17 @@ public static class AuthServiceCollectionExtensions
         return services;
     }
 
-    // Never echoes the key: the message names it, and that is all.
+    // Never echoes the key: the message names it, and that is all. Binding leaves it null when the user
+    // secret was never set.
     private static bool IsValidSigningKey(JwtOptions options)
     {
-        Span<byte> buffer = new byte[64];
+        if (options.SigningKey is null)
+        {
+            return false;
+        }
+
+        // Sized to what the text can decode to, so a key longer than the minimum is never refused.
+        Span<byte> buffer = new byte[options.SigningKey.Length * 3 / 4];
         return Convert.TryFromBase64String(options.SigningKey, buffer, out var written) && written >= 32;
     }
 }

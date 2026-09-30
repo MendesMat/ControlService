@@ -51,9 +51,10 @@ public sealed class AdminCredentialTests(ApiFactory factory) : IClassFixture<Api
     }
 
     [Theory]
+    [InlineData(null)] // the user secret was never set
     [InlineData("")]
     [InlineData("1234567")]
-    public void Api_does_not_start_without_a_valid_initial_password(string invalidPassword) // AUTH-13, AUTH-16
+    public void Api_does_not_start_without_a_valid_initial_password(string? invalidPassword) // AUTH-13, AUTH-16
     {
         using var invalid = factory.WithWebHostBuilder(builder =>
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
@@ -64,7 +65,7 @@ public sealed class AdminCredentialTests(ApiFactory factory) : IClassFixture<Api
         var exception = Should.Throw<Exception>(() => invalid.Services);
 
         exception.Message.ShouldContain("Admin:InitialPassword");
-        if (invalidPassword.Length > 0)
+        if (!string.IsNullOrEmpty(invalidPassword))
         {
             exception.Message.ShouldNotContain(invalidPassword);
         }

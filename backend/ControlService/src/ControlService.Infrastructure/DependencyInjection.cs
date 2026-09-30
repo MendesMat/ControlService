@@ -39,8 +39,9 @@ public static class DependencyInjection
             .Bind(builder.Configuration.GetSection(AdminOptions.SectionName))
             .Validate(options => EmailAddress.Create(options.Email).IsSuccess, "Admin:Email must be a valid e-mail address.")
             .Validate<IOptions<AuthOptions>>(
-                (options, auth) => options.InitialPassword.Length >= auth.Value.PasswordMinLength,
-                "Admin:InitialPassword must have at least Auth:PasswordMinLength characters.")
+                // Binding leaves the value null when the user secret was never set.
+                (options, auth) => options.InitialPassword?.Length >= auth.Value.PasswordMinLength,
+                "Admin:InitialPassword must be set, with at least Auth:PasswordMinLength characters.")
             .ValidateOnStart();
 
         // No SignInManager: it pulls in cookie authentication. The credential store uses UserManager
