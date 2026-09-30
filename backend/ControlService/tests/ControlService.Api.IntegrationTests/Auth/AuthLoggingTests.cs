@@ -23,7 +23,9 @@ public sealed class AuthLoggingTests(AuthApiFactory factory) : IClassFixture<Aut
         var logs = new CapturingLoggerProvider();
         using var logged = factory.WithWebHostBuilder(builder => builder.ConfigureLogging(logging =>
         {
-            logging.SetMinimumLevel(LogLevel.Trace);
+            // A rule of this provider wins over the appsettings rules (Default: Information), which a
+            // minimum level would not override.
+            logging.AddFilter<CapturingLoggerProvider>(category: null, LogLevel.Trace);
             logging.Services.AddSingleton<ILoggerProvider>(logs);
         }));
         using var client = logged.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
@@ -48,7 +50,8 @@ public sealed class AuthLoggingTests(AuthApiFactory factory) : IClassFixture<Aut
         var changeToken = (await change.ReadJsonAsync()).GetProperty("accessToken").GetString()!;
         var changeCookie = change.RefreshCookie()!.Value.Value!;
 
-        logs.Lines.ShouldNotBeEmpty();
+        // Below Information is where frameworks write their diagnostics: the capture must really reach it.
+        logs.Lines.ShouldContain(line => line.StartsWith($"{LogLevel.Debug} ", StringComparison.Ordinal));
         string[] secrets =
         [
             ApiFactory.AdminInitialPassword, NewPassword, ApiFactory.SigningKey,
