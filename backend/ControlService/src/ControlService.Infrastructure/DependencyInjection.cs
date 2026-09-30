@@ -1,5 +1,6 @@
 using ControlService.Application.Auth;
 using ControlService.Application.Common;
+using ControlService.Application.PermissionProfiles;
 using ControlService.Application.Users;
 using ControlService.Domain.Users;
 using ControlService.Infrastructure.Auth;
@@ -80,6 +81,7 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IPermissionProfileRepository, PermissionProfileRepository>();
         builder.Services.AddScoped<ICredentialStore, CredentialStore>();
         builder.Services.AddScoped<ISessionStore, SessionStore>();
 

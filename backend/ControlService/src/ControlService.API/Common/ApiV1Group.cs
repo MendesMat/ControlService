@@ -4,5 +4,6 @@ namespace ControlService.API.Common;
 /// `Program.cs` and the test factories both map it through here.</summary>
 public static class ApiV1Group
 {
-    public static RouteGroupBuilder MapApiV1(this IEndpointRouteBuilder app) => app.MapGroup("/api/v1");
+    /// <summary>Every endpoint requires a signed-in person unless it opts out with `AllowAnonymous()`.</summary>
+    public static RouteGroupBuilder MapApiV1(this IEndpointRouteBuilder app) => app.MapGroup("/api/v1").RequireAuthorization();
 }

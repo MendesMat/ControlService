@@ -1,4 +1,6 @@
+using ControlService.Domain.Access;
 using ControlService.Domain.Common;
+using ControlService.Domain.PermissionProfiles;
 using ControlService.Domain.Users;
 using ControlService.Infrastructure.Auth;
 using ControlService.Infrastructure.Persistence;
@@ -28,6 +30,19 @@ internal static class AuthTestSupport
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var user = await db.Users.SingleAsync(candidate => candidate.Id == userId);
         user.Deactivate(SystemIds.AdminUser, DateTimeOffset.UtcNow).IsSuccess.ShouldBeTrue();
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>Gives the user a new profile (unique name, so profile uniqueness never collides) with one level.</summary>
+    public static async Task GrantAsync(IServiceProvider services, Guid userId, string screen, AccessLevel level)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var profile = PermissionProfile.Create($"Perfil {Guid.NewGuid():N}", "Perfil de teste");
+        profile.SetLevel(ScreenKey.Create(screen).Value, level).IsSuccess.ShouldBeTrue();
+        db.PermissionProfiles.Add(profile);
+        var user = await db.Users.SingleAsync(candidate => candidate.Id == userId);
+        user.AssignProfiles([.. user.ProfileIds, profile.Id]).IsSuccess.ShouldBeTrue();
         await db.SaveChangesAsync();
     }
 

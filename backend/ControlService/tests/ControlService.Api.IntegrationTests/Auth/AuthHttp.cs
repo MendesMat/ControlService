@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Net.Http.Headers;
@@ -13,6 +14,24 @@ internal static class AuthHttp
 
     public static Task<HttpResponseMessage> SignInAsync(this HttpClient client, string login, string password) =>
         client.PostAsJsonAsync("/api/v1/auth/sign-in", new { login, password }, TestContext.Current.CancellationToken);
+
+    public static async Task<string> SignInForTokenAsync(this HttpClient client, TestUser user)
+    {
+        using var response = await client.SignInAsync(user.Login, user.Password);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        return (await response.ReadJsonAsync()).GetProperty("accessToken").GetString()!;
+    }
+
+    public static Task<HttpResponseMessage> GetWithTokenAsync(this HttpClient client, string path, string? accessToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        if (accessToken is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        }
+
+        return client.SendAsync(request, TestContext.Current.CancellationToken);
+    }
 
     public static async Task<JsonElement> ReadJsonAsync(this HttpResponseMessage response) =>
         await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);

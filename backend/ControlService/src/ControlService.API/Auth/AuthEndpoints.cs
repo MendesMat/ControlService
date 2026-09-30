@@ -1,6 +1,8 @@
 using System.Globalization;
+using System.Security.Claims;
 using ControlService.API.Common;
 using ControlService.Application.Auth;
+using ControlService.Application.Auth.GetMe;
 using ControlService.Application.Auth.SignIn;
 using ControlService.Application.Common;
 using ControlService.Domain.Common;
@@ -16,7 +18,25 @@ public static class AuthEndpoints
             .AllowAnonymous()
             .WithSummary("Signs in with login and password; sets the refresh cookie.");
 
+        api.MapGet("/me", Me)
+            .WithSummary("The signed-in person and their effective level on every screen.");
+
         return api;
+    }
+
+    private static async Task<Results<Ok<MeResponse>, ProblemHttpResult>> Me(
+        ClaimsPrincipal principal,
+        IQueryHandler<GetMeQuery, MeResponse> handler,
+        CancellationToken cancellationToken)
+    {
+        var userId = principal.UserId();
+        if (userId is null)
+        {
+            return AuthErrors.SessionExpired.ToProblem();
+        }
+
+        var result = await handler.Handle(new GetMeQuery(userId.Value), cancellationToken);
+        return result.IsFailure ? result.Error.ToProblem() : TypedResults.Ok(result.Value);
     }
 
     private static async Task<Results<Ok<SessionResponse>, ProblemHttpResult>> SignIn(

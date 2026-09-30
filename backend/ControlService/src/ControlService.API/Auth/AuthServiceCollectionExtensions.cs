@@ -1,6 +1,9 @@
 using ControlService.Application.Auth;
+using ControlService.Application.Auth.GetMe;
 using ControlService.Application.Auth.SignIn;
 using ControlService.Application.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 
 namespace ControlService.API.Auth;
 
@@ -16,8 +19,13 @@ public static class AuthServiceCollectionExtensions
 
         services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
 
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+        services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureJwtBearer>();
+        services.AddAuthorization();
+
         // Handlers are registered by hand (ADR-0008); the ones with input to validate are wrapped in the decorator.
         services.AddScoped<ICommandHandler<SignInCommand, SessionGrant>, SignInHandler>();
+        services.AddScoped<IQueryHandler<GetMeQuery, MeResponse>, GetMeHandler>();
 
         return services;
     }

@@ -39,6 +39,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Every feature registers its endpoints under /api/v1 (ADR-0003), for example: api.MapUserEndpoints();
 var api = app.MapApiV1();
