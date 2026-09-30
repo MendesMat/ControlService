@@ -6,6 +6,9 @@ internal sealed class InMemorySessionStore : ISessionStore
 {
     private readonly List<StoredSession> _sessions = [];
 
+    // Counts every token ever issued: numbering by the current count would repeat a token after a rotation.
+    private int _issuedTokens;
+
     public IReadOnlyList<StoredSession> SessionsOf(Guid userId) => _sessions.Where(session => session.UserId == userId).ToArray();
 
     /// <summary>Stands for the idle time running out: the real store compares dates in SQL, and that
@@ -14,7 +17,7 @@ internal sealed class InMemorySessionStore : ISessionStore
 
     public Task<SessionTokens> StartAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var session = new StoredSession(Guid.CreateVersion7(), userId, $"refresh-token-{_sessions.Count + 1}");
+        var session = new StoredSession(Guid.CreateVersion7(), userId, NewToken());
         _sessions.Add(session);
         return Task.FromResult(new SessionTokens(session.Id, session.RefreshToken, DateTimeOffset.MaxValue));
     }
@@ -40,11 +43,13 @@ internal sealed class InMemorySessionStore : ISessionStore
         }
 
         var current = _sessions[index];
-        var rotated = current with { RefreshToken = $"refresh-token-{_sessions.Count + 1}" };
+        var rotated = current with { RefreshToken = NewToken() };
         _sessions[index] = rotated;
         return Task.FromResult<RotatedSession?>(
             new RotatedSession(rotated.UserId, new SessionTokens(rotated.Id, rotated.RefreshToken, DateTimeOffset.MaxValue)));
     }
+
+    private string NewToken() => $"refresh-token-{++_issuedTokens}";
 
     internal sealed record StoredSession(Guid Id, Guid UserId, string RefreshToken);
 }
