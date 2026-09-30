@@ -1,4 +1,5 @@
 using ControlService.Application.Auth;
+using ControlService.Application.Auth.RefreshSession;
 using ControlService.Application.Auth.SignIn;
 using ControlService.Application.Tests.Fakes;
 using ControlService.Domain.Users;
@@ -22,6 +23,8 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
     public FakeAccessTokenIssuer Tokens { get; } = new();
 
     public SignInHandler CreateSignInHandler() => new(Users, Credentials, Sessions, Tokens, Settings, Clock);
+
+    public RefreshSessionHandler CreateRefreshSessionHandler() => new(Users, Credentials, Sessions, Tokens);
 
     public User AddPendingUser(string login)
     {

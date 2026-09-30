@@ -45,7 +45,6 @@ public sealed class SignInHandler(
         var mustChangePassword = await credentials.MustChangePasswordAsync(user.Id, cancellationToken);
         var accessToken = accessTokens.Issue(user.Id, session.SessionId, mustChangePassword);
 
-        return Result<SessionGrant>.Success(new SessionGrant(
-            accessToken.Value, accessToken.ExpiresInSeconds, mustChangePassword, session.RefreshToken, session.ExpiresAt));
+        return Result<SessionGrant>.Success(SessionGrant.From(accessToken, session, mustChangePassword));
     }
 }

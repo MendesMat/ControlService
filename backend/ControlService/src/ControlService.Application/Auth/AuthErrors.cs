@@ -8,6 +8,9 @@ public static class AuthErrors
 {
     public static Error InvalidCredentials { get; } = new("invalid_credentials", "Login ou senha incorretos.");
 
+    public static Error SessionExpired { get; } = new(
+        "session_expired", "Sua sessão terminou. Entre de novo para continuar. Suas abas continuam abertas.");
+
     public static Error AccountInactive { get; } = new(
         "account_inactive", "Este acesso está desativado. Fale com o responsável pelo sistema.");
 

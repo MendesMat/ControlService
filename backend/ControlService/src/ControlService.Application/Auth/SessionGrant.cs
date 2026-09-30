@@ -7,4 +7,8 @@ public sealed record SessionGrant(
     int ExpiresIn,
     bool MustChangePassword,
     string RefreshToken,
-    DateTimeOffset RefreshTokenExpiresAt);
+    DateTimeOffset RefreshTokenExpiresAt)
+{
+    public static SessionGrant From(AccessToken accessToken, SessionTokens session, bool mustChangePassword) =>
+        new(accessToken.Value, accessToken.ExpiresInSeconds, mustChangePassword, session.RefreshToken, session.ExpiresAt);
+}
