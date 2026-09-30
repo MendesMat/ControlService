@@ -1,3 +1,4 @@
+using ControlService.API.Auth;
 using ControlService.API.Common;
 using ControlService.Application.Common;
 using ControlService.Infrastructure;
@@ -21,6 +22,7 @@ builder.Services.AddSingleton<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddSingleton(TimeProvider.System);
 
 builder.AddInfrastructure();
+builder.Services.AddAuthFeature(builder.Configuration);
 
 var app = builder.Build();
 
@@ -37,9 +39,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Every feature registers its endpoints under /api/v1 (ADR-0003), for example: api.MapUserEndpoints();
-var api = app.MapGroup("/api/v1");
+var api = app.MapApiV1();
+api.MapAuthEndpoints();
 
 app.MapDefaultEndpoints();
 

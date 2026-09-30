@@ -90,7 +90,8 @@ The current slice is tracked in the milestone [M1: Sign-in, users and permission
 - [x] Back-end skeleton, local environment with Aspire, CI
 - [x] Domain: value objects, users, permission profiles, effective access
 - [x] Persistence: EF Core, audit fields, concurrency, seeded system records
-- [ ] Authentication and per-screen authorization
+- [x] Sign-in, sessions and the current user (`/me`)
+- [ ] Per-screen authorization
 - [ ] Permission profiles and users endpoints, activation and password reset links
 - [ ] Connect the front-end to the real API
 - [ ] Remaining screens: catalog, commercial, finance and reports

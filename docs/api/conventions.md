@@ -83,7 +83,7 @@ The front-end calls the API only through its `api` object. Replacing the prototy
 | 409 | `profile_in_use` | Profile assigned to users; `details.userNames` says who | Explains who uses the profile |
 | 409 | `system_record`, `self_deactivation`, `not_pending`, `not_inactive`, `email_missing` | Business rule refused | Shows the message in a notice |
 | 410 | `link_invalid` | Link expired or already used | Shows the invalid-link screen |
-| 429 | `locked_out` | Lockout or rate limit, with `Retry-After` | Shows the wait message |
+| 429 | `locked_out` | Lockout or rate limit, with `Retry-After` and `details.retryAfterSeconds` | Shows the wait message |
 | 500 | `unexpected_error` | Unexpected failure (API-14) | Shows a generic message and keeps what the person typed |
 
 Any other failure shows a generic message and keeps what the person typed.

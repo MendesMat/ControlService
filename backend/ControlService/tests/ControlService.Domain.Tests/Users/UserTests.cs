@@ -276,4 +276,28 @@ public class UserTests
         result.Error.Message.ShouldBe("O usuário Admin é do sistema e não pode ser alterado nem desativado.");
         admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
     }
+
+    [Fact]
+    public void Completing_the_first_access_fills_activated_at() // USR-34
+    {
+        var admin = TestData.NewAdmin();
+        var now = new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero);
+
+        admin.CompleteFirstAccess(now);
+
+        admin.ActivatedAt.ShouldBe(now);
+        admin.Status.ShouldBe(UserStatus.Active);
+    }
+
+    [Fact]
+    public void Completing_the_first_access_again_keeps_the_first_time() // USR-34
+    {
+        var admin = TestData.NewAdmin();
+        var first = new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero);
+        admin.CompleteFirstAccess(first);
+
+        admin.CompleteFirstAccess(first.AddHours(1));
+
+        admin.ActivatedAt.ShouldBe(first);
+    }
 }

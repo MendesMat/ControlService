@@ -10,3 +10,44 @@ Accept: application/json
 GET {{ControlService.API_HostAddress}}/health
 
 ###
+
+# Authentication (ADR-0019). Replace the password placeholder with the value you stored in the user
+# secrets as Admin:InitialPassword; never commit a real one. Paste the access token from the sign-in
+# response into @accessToken below. The refresh token travels in an HttpOnly cookie scoped to the refresh route.
+@accessToken = <paste the accessToken here>
+
+POST {{ControlService.API_HostAddress}}/api/v1/auth/sign-in
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "password": "<the Admin:InitialPassword>"
+}
+
+###
+
+# First access of the Admin: the initial password must be replaced (AUTH-14).
+POST {{ControlService.API_HostAddress}}/api/v1/auth/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "password": "<a new password, at least 8 characters>",
+  "passwordConfirmation": "<the same new password>"
+}
+
+###
+
+GET {{ControlService.API_HostAddress}}/api/v1/me
+Authorization: Bearer {{accessToken}}
+
+###
+
+POST {{ControlService.API_HostAddress}}/api/v1/auth/refresh
+
+###
+
+POST {{ControlService.API_HostAddress}}/api/v1/auth/sign-out
+Authorization: Bearer {{accessToken}}
+
+###
