@@ -23,6 +23,9 @@ public class ApiFactory(PostgresContainerFixture postgres) : WebApplicationFacto
             ["Admin:Email"] = "admin@example.com",
             ["Admin:InitialPassword"] = AdminInitialPassword,
             ["Auth:SigningKey"] = SigningKey,
+            // High enough that no test hits them; the rate-limit tests lower them (RateLimitedApiFactory).
+            ["RateLimiting:SignIn:PermitLimit"] = "1000",
+            ["RateLimiting:Refresh:PermitLimit"] = "1000",
         }));
     }
 }

@@ -11,6 +11,11 @@ public static class AuthErrors
     public static Error PasswordChangeRequired { get; } = new(
         "password_change_required", "Por segurança, a senha inicial precisa ser trocada no primeiro acesso.");
 
+    public static Error TooManyRequests(int retryAfterSeconds) => new(
+        "locked_out",
+        "Muitas tentativas em pouco tempo. Aguarde alguns instantes e tente de novo.",
+        Details: new Dictionary<string, object?> { ["retryAfterSeconds"] = retryAfterSeconds });
+
     public static Error SessionExpired { get; } = new(
         "session_expired", "Sua sessão terminou. Entre de novo para continuar. Suas abas continuam abertas.");
 

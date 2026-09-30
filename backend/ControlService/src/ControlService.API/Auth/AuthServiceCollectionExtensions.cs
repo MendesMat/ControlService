@@ -25,6 +25,7 @@ public static class AuthServiceCollectionExtensions
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
         services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureJwtBearer>();
         services.AddAuthorization();
+        services.AddAuthRateLimiting(configuration);
 
         // Handlers are registered by hand (ADR-0008); the ones with input to validate are wrapped in the decorator.
         services.AddScoped<ICommandHandler<SignInCommand, SessionGrant>, SignInHandler>();

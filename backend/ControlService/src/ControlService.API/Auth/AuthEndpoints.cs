@@ -10,6 +10,7 @@ using ControlService.Application.Auth.SignOut;
 using ControlService.Application.Common;
 using ControlService.Domain.Common;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ControlService.API.Auth;
 
@@ -19,10 +20,12 @@ public static class AuthEndpoints
     {
         api.MapPost("/auth/sign-in", SignIn)
             .AllowAnonymous()
+            .RequireRateLimiting(AuthRateLimiting.SignInPolicy)
             .WithSummary("Signs in with login and password; sets the refresh cookie.");
 
         api.MapPost("/auth/refresh", Refresh)
             .AllowAnonymous()
+            .RequireRateLimiting(AuthRateLimiting.RefreshPolicy)
             .WithSummary("Renews the session from the refresh cookie and rotates it.");
 
         api.MapPost("/auth/sign-out", SignOut)
