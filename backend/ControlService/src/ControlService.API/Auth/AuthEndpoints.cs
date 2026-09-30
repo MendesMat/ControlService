@@ -73,7 +73,8 @@ public static class AuthEndpoints
         }
 
         var result = await handler.Handle(
-            new ChangePasswordCommand(userId.Value, request.Password, request.PasswordConfirmation), cancellationToken);
+            new ChangePasswordCommand(
+                userId.Value, request.Password ?? string.Empty, request.PasswordConfirmation ?? string.Empty), cancellationToken);
         if (result.IsFailure)
         {
             return result.Error.ToProblem();
@@ -123,7 +124,7 @@ public static class AuthEndpoints
         HttpContext httpContext,
         CancellationToken cancellationToken)
     {
-        var result = await handler.Handle(new SignInCommand(request.Login, request.Password), cancellationToken);
+        var result = await handler.Handle(new SignInCommand(request.Login ?? string.Empty, request.Password ?? string.Empty), cancellationToken);
         if (result.IsFailure)
         {
             return SignInProblem(result.Error, httpContext);
@@ -149,7 +150,8 @@ public static class AuthEndpoints
         return error.ToProblem();
     }
 
-    private sealed record ChangePasswordRequest(string Password = "", string PasswordConfirmation = "");
+    // A missing or null field is treated as empty, so it fails validation instead of crashing (API-12).
+    private sealed record ChangePasswordRequest(string? Password = null, string? PasswordConfirmation = null);
 
-    private sealed record SignInRequest(string Login = "", string Password = "");
+    private sealed record SignInRequest(string? Login = null, string? Password = null);
 }
