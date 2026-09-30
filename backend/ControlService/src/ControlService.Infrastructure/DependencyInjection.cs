@@ -43,7 +43,9 @@ public static class DependencyInjection
 
         // No SignInManager: it pulls in cookie authentication. The credential store uses UserManager
         // for hashing and lockout only (T2).
-        builder.Services.AddIdentityCore<UserCredential>().AddEntityFrameworkStores<AppDbContext>();
+        builder.Services.AddIdentityCore<UserCredential>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddUserManager<CredentialUserManager>();
         builder.Services.AddOptions<IdentityOptions>().Configure<IOptions<AuthOptions>>((identity, auth) =>
         {
             // Identity must never refuse a password the validator accepted (AUTH-16): length only.
@@ -76,6 +78,7 @@ public static class DependencyInjection
         builder.EnrichNpgsqlDbContext<AppDbContext>();
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<ICredentialStore, CredentialStore>();
         builder.Services.AddScoped<ISessionStore, SessionStore>();
 
         return builder;
