@@ -68,6 +68,10 @@ public sealed class User : AuditedAggregate
         return Result.Success();
     }
 
+    /// <summary>The Admin replacing its initial password is its own first access (USR-34): the system-record
+    /// guard does not apply, for the same reason as AUTH-15.</summary>
+    public void CompleteFirstAccess(DateTimeOffset now) => ActivatedAt ??= now;
+
     public Result Deactivate(Guid by, DateTimeOffset now)
     {
         var systemCheck = EnsureNotSystem();
