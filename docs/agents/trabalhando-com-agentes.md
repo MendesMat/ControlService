@@ -63,6 +63,8 @@ Troque "no modo par" por "no modo autônomo" quando quiser menos pausas (veja ab
 
 > "Sessão de revisão do PR #N, antes do merge. Siga a etapa 9 do workflow implement-a-feature: confira o PR contra a issue, o comentário de plano, os documentos que eles citam e o AGENTS.md. Corrija no mesmo PR o que for correção, e me pergunte o que for decisão minha."
 
+No Claude Code, cada conversa também tem um comando que carrega o procedimento certo: `/plan-issue 9`, `/build-issue 9` e `/review-pr 31`. Os textos acima continuam valendo para os outros agentes. As regras de negócio também têm *skills* (`domain-users`, `domain-authentication`, `domain-permissions`, `domain-record-contract`), que o agente carrega sozinho quando a tarefa pede; elas são um índice das regras, e o `docs/` continua sendo a fonte da verdade ([skills](README.md#skills)).
+
 Para uma issue específica, cite o número dela. O agente abre o PR com `Closes #N`, e a issue fecha sozinha quando você faz o merge.
 
 ### Modo par ou modo autônomo

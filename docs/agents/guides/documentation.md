@@ -17,6 +17,7 @@ Documentation is part of the change. A pull request that changes behavior, the A
 | The front-end prototype | `docs/frontend/` |
 | How to run, build or test | `backend/ControlService/README.md` and, if user-visible, the root `README.md` |
 | Roadmap progress | The checklist in the root `README.md` |
+| A rule, term or screen that a skill mentions | The matching `SKILL.md` in `.claude/skills/` ([skills](../README.md#skills)); search the folder for the rule ID |
 | A new convention or procedure for agents | `docs/agents/` and, if it is a rule every agent must know, `AGENTS.md` |
 
 ## Rules

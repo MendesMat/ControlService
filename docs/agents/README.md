@@ -26,6 +26,26 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 | [record-a-decision.md](workflows/record-a-decision.md) | Propose, accept or supersede an ADR |
 | [review-dependency-updates.md](workflows/review-dependency-updates.md) | Evaluate and merge Dependabot pull requests |
 
+## Skills
+
+`.claude/skills/` holds Agent Skills: small files an agent loads only when the task needs them. Claude Code discovers them by itself; any other agent can read them as plain Markdown, and loses nothing by not doing so, because they add no rule.
+
+| Skill | Kind | Loaded when |
+|---|---|---|
+| `domain-record-contract` | Domain | Any endpoint, field, message, list or error code (CNV, API) |
+| `domain-users` | Domain | The Users feature (USR) |
+| `domain-authentication` | Domain | Sign-in, sessions, links, passwords (AUTH) |
+| `domain-permissions` | Domain | Levels, profiles, effective access, screen keys (PERM) |
+| `plan-issue` | Workflow | The plan session of an issue: `/plan-issue 9` |
+| `build-issue` | Workflow | The build session: `/build-issue 9` |
+| `review-pr` | Workflow | The review session: `/review-pr 31` |
+
+- **A skill is an index, not a second copy.** A domain skill holds decision rules, traps and terminology, each with its rule ID, and points to the section of `docs/product/` that owns the text. It never carries a user-facing message, a field table or a rule without an ID. A workflow skill is the entry point of a workflow in this folder.
+- **`docs/` wins.** When a skill and a document disagree, the document is right and the skill is fixed.
+- **One owner per rule.** A rule that spans features lives in one skill; the others name the owner in "Cross-domain dependencies".
+- **Same pull request.** A change to a rule a skill mentions updates the skill ([documentation guide](guides/documentation.md)). A new feature document gets a `domain-<feature>` skill when its first slice is planned.
+- What every agent must always know stays in `AGENTS.md`, never in a skill: a skill may not be loaded.
+
 ## For the owner
 
 [trabalhando-com-agentes.md](trabalhando-com-agentes.md) (Portuguese): how to ask for tasks, review pull requests and keep conversations productive when pairing with an agent.

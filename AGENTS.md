@@ -19,6 +19,7 @@ Control Service is an ERP for service companies and the owner's **public portfol
 | `docs/api/` | What every endpoint shares: routes, paging, versions, errors |
 | `docs/adr/` | Architecture Decision Records, with YAML metadata (status, tags) |
 | `docs/agents/` | Guides and workflows for agents |
+| `.claude/skills/` | Agent Skills: an index of the rules by context, loaded on demand ([skills](docs/agents/README.md#skills)). `docs/` stays the source of truth |
 | `docs/frontend/` | The front-end prototype (not in this repository) and its simulated server |
 
 ## Commands
