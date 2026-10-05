@@ -222,12 +222,163 @@ As sete primeiras também são o que permite testar um handler com um repositór
 - **Onde ver no código:** [Program.cs](../backend/ControlService/src/ControlService.API/Program.cs).
 - **Em uma frase:** a documentação da API é gerada do código, então não envelhece.
 
+## Bloco B — Dados
+
+### 10. PostgreSQL
+
+1. **O que é.** O banco de dados relacional do sistema, na versão 18. Em desenvolvimento e nos testes, ele roda num contêiner Docker.
+2. **Que problema resolve.** Um ERP é feito de dados que dependem uns dos outros (cliente → serviço → cobrança). Um banco relacional garante essa ligação com chaves estrangeiras e transações.
+3. **O que acontece sem isso.** Num banco de documentos, a integridade entre os cadastros ficaria por conta do código.
+4. **Quanto custa.** O Docker precisa estar rodando, inclusive para os testes de integração.
+5. **Alternativas mais simples.** O SQLite, que é um arquivo só, mas se comporta diferente em concorrência e em tipos de dado. Ou o SQL Server, o mais comum em vagas .NET, que tem licença paga em produção.
+6. **Por que escolhemos assim.** É gratuito, e com o EF Core o código é quase o mesmo que seria para o SQL Server. Os testes de integração rodam contra o PostgreSQL de verdade, e não contra um substituto.
+
+- **Onde ver no código:** [DependencyInjection.cs](../backend/ControlService/src/ControlService.Infrastructure/DependencyInjection.cs).
+- **Em uma frase:** dados de ERP são relacionais, e escolhi um banco relacional gratuito que os testes usam de verdade.
+
+### 11. EF Core com repositório e unidade de trabalho
+
+1. **O que é.** O handler não conhece o `DbContext`. Ele pede o agregado a um repositório, altera e chama a unidade de trabalho para salvar. Os dois ficam atrás de interfaces:
+
+   ```csharp
+   // No handler (Application)
+   var user = await users.GetByIdAsync(command.UserId, cancellationToken);
+   user.CompleteFirstAccess(timeProvider.GetUtcNow());
+   var saved = await unitOfWork.SaveChangesAsync(cancellationToken);
+
+   // Na Infrastructure
+   public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
+   {
+       public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+           dbContext.Users.SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
+   }
+   ```
+
+   Três detalhes deste projeto:
+   - Cada repositório tem só os métodos que algum handler usa. Não há repositório genérico.
+   - Cada Value Object tem um conversor na configuração do EF Core: `HasConversion(login => login.Value, value => Login.Create(value).Value)`.
+   - As tabelas são criadas por *migrations*, arquivos que descrevem cada mudança do banco. Elas são aplicadas sozinhas só em desenvolvimento.
+2. **Que problema resolve.** A `Application` não pode depender do EF Core (decisão 2), e o `DbContext` é do EF Core. A interface resolve isso. De quebra, um handler pode ser testado com um repositório falso, que guarda os dados numa lista.
+3. **O que acontece sem isso.** O handler receberia o `AppDbContext`. A `Application` passaria a depender do EF Core, e todo teste de handler precisaria de um banco.
+4. **Quanto custa.** Uma interface e uma classe por agregado, e uma migration a cada mudança de modelo.
+5. **Alternativas mais simples.** Usar o `DbContext` direto no handler, como muitos projetos atuais fazem. Ou escrever o SQL à mão com o Dapper.
+6. **Por que escolhemos assim.** É o desenho que o dono já domina e é coerente com a regra de camadas. **O sistema sempre grava no PostgreSQL:** o repositório em memória existe só no projeto de testes, e é a exceção. A maioria das operações é testada pelo endpoint, contra o banco de verdade. Reavaliada em 2026-10-05: mantida.
+
+- **Onde ver no código:** [IUserRepository.cs](../backend/ControlService/src/ControlService.Application/Users/IUserRepository.cs), [UserRepository.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/UserRepository.cs), [UnitOfWork.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/UnitOfWork.cs), [UserConfiguration.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/Configurations/UserConfiguration.cs), e o repositório falso em [InMemoryUserRepository.cs](../backend/ControlService/tests/ControlService.Application.Tests/Fakes/InMemoryUserRepository.cs).
+- **Em uma frase:** o handler fala com o banco por uma interface, então a regra de negócio não depende do EF Core e pode ser testada sem banco.
+
+### 12. Ids UUID v7, gerados no domínio
+
+1. **O que é.** O id de cada registro é um `Guid` criado pelo próprio agregado, e não um número gerado pelo banco:
+
+   ```csharp
+   public static User Create(Login login, EmailAddress email, string displayName, string fullName) =>
+       new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending, login, email, displayName, fullName);
+   ```
+
+   A versão 7 do UUID começa pela data e hora, então os ids saem em ordem crescente.
+2. **Que problema resolve.** O objeto já nasce com id, antes de ser salvo. O id não revela quantos registros existem, e ninguém adivinha o próximo trocando `/users/42` por `/users/43`.
+3. **O que acontece sem isso.** Com `int` auto-incremento, o id só existe depois do `INSERT`. Com um Guid aleatório (versão 4), cada registro novo cai num ponto qualquer do índice do banco, que fica fragmentado e mais lento.
+4. **Quanto custa.** 16 bytes em vez de 4, e ids ruins de ler e de ditar.
+5. **Alternativas mais simples.** `int` gerado pelo banco.
+6. **Por que escolhemos assim.** `Guid.CreateVersion7()` já vem no .NET, sem pacote, e junta a vantagem do Guid (id antes de salvar) com a do número (ordem crescente).
+
+- **Onde ver no código:** [User.cs](../backend/ControlService/src/ControlService.Domain/Users/User.cs), [SystemIds.cs](../backend/ControlService/src/ControlService.Domain/Common/SystemIds.cs).
+- **Em uma frase:** o id é um Guid ordenado por tempo, criado junto com o objeto, que não entrega a contagem de registros.
+
+### 13. Concorrência otimista
+
+1. **O que é.** Cada registro tem uma versão. Quem edita devolve a versão que leu; se o registro mudou nesse meio-tempo, o salvamento é recusado. No PostgreSQL a versão é a coluna de sistema `xmin`, que o próprio banco troca a cada `UPDATE`. No código, basta uma linha por agregado:
+
+   ```csharp
+   builder.Property(user => user.Version).IsRowVersion();
+   ```
+
+   Quando as versões não batem, o EF Core lança `DbUpdateConcurrencyException`, e a unidade de trabalho a transforma num `Result` de falha com a mensagem "Este cadastro foi alterado por {nome} enquanto você editava. Recarregue para ver a versão atual." Na API, a versão vai no cabeçalho `ETag` e volta no `If-Match`.
+2. **Que problema resolve.** Duas pessoas abrem o mesmo cadastro. Sem controle, a segunda a salvar apaga o trabalho da primeira sem perceber.
+3. **O que acontece sem isso.** Vale o último que salvou, em silêncio.
+4. **Quanto custa.** A tela precisa guardar a versão, reenviá-la e tratar o erro 409.
+5. **Alternativas mais simples.** Não tratar. Ou travar o registro enquanto alguém edita (concorrência pessimista), que é pior: a trava fica presa se a pessoa fechar o navegador.
+6. **Por que escolhemos assim.** É uma regra de negócio do sistema (CNV-12 e CNV-13), e "otimista" significa apostar que o conflito é raro: ninguém espera, e só o caso raro recebe um aviso.
+
+- **Onde ver no código:** [UnitOfWork.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/UnitOfWork.cs), [AuditedAggregate.cs](../backend/ControlService/src/ControlService.Domain/Common/AuditedAggregate.cs). As regras estão em [product/conventions.md](product/conventions.md) e em [api/conventions.md](api/conventions.md).
+- **Em uma frase:** cada registro tem uma versão; se alguém alterou enquanto eu editava, o sistema recusa e avisa quem foi.
+
+### 14. Campos de auditoria preenchidos automaticamente
+
+1. **O que é.** Todo agregado herda de `AuditedAggregate`, que tem `CreatedAt`, `CreatedBy`, `UpdatedAt` e `UpdatedBy`. Quem preenche é um *interceptor* do EF Core: uma classe que o EF chama logo antes de cada `SaveChanges`.
+
+   ```csharp
+   if (entry.State == EntityState.Added)
+   {
+       entry.Property(nameof(AuditedAggregate.CreatedAt)).CurrentValue = now;
+       entry.Property(nameof(AuditedAggregate.CreatedBy)).CurrentValue = userId;
+   }
+   ```
+
+2. **Que problema resolve.** Nenhum handler precisa lembrar de gravar quem alterou e quando. Salvar sem um usuário logado lança uma exceção, então nada é gravado sem autor.
+3. **O que acontece sem isso.** Cada método do domínio receberia "quem" e "quando" e preencheria os campos. Um dia alguém esqueceria.
+4. **Quanto custa.** É a peça que age "por fora": lendo o handler, não se vê os campos sendo preenchidos. E tem um trecho delicado: quando só muda uma lista interna do agregado (os perfis de um usuário, que ficam em outra tabela), o interceptor força o `UPDATE` da linha principal, para a versão da decisão 13 mudar também.
+5. **Alternativas mais simples.** Preencher os campos dentro dos métodos do domínio, de forma explícita.
+6. **Por que escolhemos assim.** A regra CNV-10 exige esses campos em todo cadastro, e o sistema terá muitos. O automático não depende de memória. Reavaliada em 2026-10-05: mantida.
+
+- **Onde ver no código:** [AuditFieldsInterceptor.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/AuditFieldsInterceptor.cs), [AuditedAggregate.cs](../backend/ControlService/src/ControlService.Domain/Common/AuditedAggregate.cs).
+- **Em uma frase:** "quem criou" e "quem alterou" são gravados num ponto só, antes de todo salvamento, e não em cada handler.
+
+### 15. Desativar em vez de excluir
+
+1. **O que é.** Um usuário nunca é apagado do banco. `user.Deactivate(by, now)` muda o status para inativo e grava quem desativou e quando; `user.Reactivate()` desfaz.
+2. **Que problema resolve.** Os campos "criado por" e "alterado por" de outros registros apontam para usuários. Apagar um usuário quebraria esse histórico.
+3. **O que acontece sem isso.** Ou o `DELETE` falha por causa da chave estrangeira, ou o histórico perde o autor.
+4. **Quanto custa.** O login e as consultas precisam considerar o status.
+5. **Alternativas mais simples.** O `DELETE` de verdade.
+6. **Por que escolhemos assim.** É regra de negócio, e não preferência técnica. Vale para usuários; cada cadastro futuro define o seu caso no documento da funcionalidade.
+
+- **Onde ver no código:** [User.cs](../backend/ControlService/src/ControlService.Domain/Users/User.cs).
+- **Em uma frase:** quem já assinou alterações no sistema não pode sumir do banco, então a conta é desativada, e não apagada.
+
+### 16. Registros do sistema: criados na inicialização e protegidos
+
+1. **O que é.** O usuário Admin e o perfil Gerenciador têm ids fixos (`SystemIds`). O `SystemRecordsSeeder` os insere quando o banco é criado ou migrado, e só se estiverem faltando. O agregado os protege com a marca `IsSystem`:
+
+   ```csharp
+   private Result EnsureNotSystem() => IsSystem
+       ? Result.Failure(new Error(
+           "system_record",
+           "O usuário Admin é do sistema e não pode ser alterado nem desativado."))
+       : Result.Success();
+   ```
+
+2. **Que problema resolve.** Um banco vazio precisa de alguém que consiga entrar. E ninguém pode se trancar para fora do sistema desativando o Admin.
+3. **O que acontece sem isso.** Um script manual depois de cada instalação, e a proteção dependeria de cada tela lembrar de conferir.
+4. **Quanto custa.** O e-mail e a senha inicial do Admin vêm da configuração, e a aplicação não inicia sem eles.
+5. **Alternativas mais simples.** Inserir os registros dentro da própria migration, o que deixaria a senha inicial no repositório.
+6. **Por que escolhemos assim.** Reiniciar a aplicação nunca duplica nem altera esses registros, a senha fica fora do código, e a proteção está no domínio, onde vale para qualquer endpoint.
+
+- **Onde ver no código:** [SystemRecordsSeeder.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/SystemRecordsSeeder.cs), [SystemIds.cs](../backend/ControlService/src/ControlService.Domain/Common/SystemIds.cs), [User.cs](../backend/ControlService/src/ControlService.Domain/Users/User.cs).
+- **Em uma frase:** o Admin e o perfil Gerenciador nascem com o banco e o próprio domínio impede que sejam alterados.
+
+### 17. Listas paginadas no servidor
+
+1. **O que é.** A tela pede só o que vai mostrar ("página 1, 10 por página, busca 'silva'"). O servidor filtra, ordena, conta e devolve `{ items, page, pageSize, totalCount }`. **Ainda não está construído:** a primeira lista chega com o cadastro de usuários. Por enquanto é a regra API-07 do contrato.
+2. **Que problema resolve.** Não se envia ao navegador mil registros para mostrar dez.
+3. **O que acontece sem isso.** A tela baixa tudo e filtra em JavaScript. Funciona com 50 registros e trava com 5.000.
+4. **Quanto custa.** Cada lista recebe parâmetros de página, busca e ordenação, e faz duas consultas: os itens e o total.
+5. **Alternativas mais simples.** Devolver a lista inteira.
+6. **Por que escolhemos assim.** O front-end já foi desenhado com esse formato, e mudar o contrato de uma lista depois que a tela existe custa mais do que nascer paginada.
+
+- **Onde ver no código:** ainda não há; a regra está em [api/conventions.md](api/conventions.md).
+- **Em uma frase:** o servidor devolve só a página pedida e o total, e o navegador nunca recebe o que não vai mostrar.
+
 ## O que ficou de fora
 
 Avaliado e não adotado. Fica registrado para ninguém propor de novo sem um motivo novo.
 
 | Ideia | Por que não |
 |---|---|
+| Dapper para relatórios | O EF Core com `Select` resolve; só entra se um relatório provar que precisa |
+| Guardar assinaturas em armazenamento de objetos (MinIO) | Uma coluna no banco basta, se e quando uma tela precisar da assinatura |
+| Usar o `DbContext` direto nos handlers | A `Application` passaria a depender do EF Core, contra a regra de camadas (decisão 2) |
 | Guardar um `openapi.json` no repositório e conferi-lo no CI | A página `/scalar` já mostra o contrato; seria um arquivo a mais para manter |
 | MediatR e AutoMapper | Duas dependências, hoje com edição comercial, para algo que cabe em poucas linhas do próprio projeto |
 | Controllers | Nenhum ganho de funcionalidade; exigiria reescrever o que já está testado |
