@@ -1,57 +1,59 @@
 ---
 name: levantar-issue
-description: Levanta uma issue do Control Service - analisa a documentação e o código, define escopo, dependências, riscos, a lista numerada de testes e os critérios de aceite, e grava tudo no corpo da issue no GitHub depois que o dono aprova o rascunho. Use quando o dono pedir /levantar-issue, "levante a issue", ou quiser planejar uma issue antes de qualquer código.
-argument-hint: "<número da issue, ou a descrição de uma issue nova>"
+description: Survey a Control Service issue before any code is written - read the documentation and the code, define scope, dependencies, risks, the numbered test list and the acceptance criteria, and write them to the issue body on GitHub after the owner approves the draft. Use when the owner asks for /levantar-issue, says "levante a issue" or "levantar a issue", or wants to plan an issue.
+argument-hint: "<issue number, or the description of a new issue>"
 ---
 
 # /levantar-issue
 
-Primeiro dos três comandos (`AGENTS.md`, "Workflow: three commands"). O resultado é uma issue que outra pessoa consegue executar sem perguntar nada: **o que será feito, por que será feito e como saberemos que terminou**.
+First of the three commands (`AGENTS.md`, "Workflow: three commands"). The result is an issue that someone else could execute without asking anything: **what will be done, why, and how we will know it is finished**.
 
 Issue: `$ARGUMENTS`
 
-- Sem argumento: a menor issue aberta do milestone atual.
-- Texto em vez de número: é a descrição de uma issue nova, criada no passo 8.
+- No argument: the lowest open issue of the current milestone.
+- Text instead of a number: the description of a new issue, created in step 8.
 
-## Passos
+Talk to the owner in Portuguese. The issue body is written in Portuguese, from the template below.
 
-1. **Leia a issue** e os comentários: `gh issue view <n> --comments`.
-2. **Leia a documentação que ela toca:** o documento da funcionalidade em `docs/product/features/`, `docs/product/conventions.md`, `docs/api/conventions.md`, as decisões de arquitetura citadas e `docs/product/open-questions.md`. As decisões de escopo do `AGENTS.md` valem mais que ADRs e issues antigas.
-3. **Leia o código relacionado:** os arquivos que a issue vai tocar e a funcionalidade parecida mais próxima já pronta, que é o padrão a seguir.
-4. **Levante:**
-   - o requisito ou o problema, em uma frase;
-   - o menor escopo que o resolve;
-   - as dependências (outras issues, decisões, documentos);
-   - os riscos (o que pode surpreender na execução);
-   - as lacunas: regra sem resposta em `docs/`, caso de erro sem mensagem literal, contradição entre documentos ou entre documento e código, ID de regra duplicado.
-5. **Aplique a proporcionalidade** (`AGENTS.md`). Tudo o que for abstração, camada, padrão, pacote, migration ou mudança de contrato entra no rascunho como decisão explicada nos 6 pontos. Melhoria que a issue não precisa vai para "Recomendações futuras".
-6. **Monte a lista de testes** (regras abaixo).
-7. **Apresente ao dono, em português, e espere:**
-   - o que você leu;
-   - cada lacuna e cada decisão, nos 6 pontos, com a sua recomendação;
-   - o rascunho completo da issue, no modelo abaixo.
-8. **Depois da aprovação, grave:** `gh issue edit <n> --body-file <arquivo>` (ou `gh issue create --title ... --body-file <arquivo> --milestone ...` para uma issue nova). Confirme com o link e pare.
+## Steps
 
-## Lista de testes
+1. **Read the issue** and its comments: `gh issue view <n> --comments`.
+2. **Read the documentation it touches:** the feature document in `docs/product/features/`, `docs/product/conventions.md`, `docs/api/conventions.md`, the architecture decisions it cites and `docs/product/open-questions.md`. The scope decisions in `AGENTS.md` override older ADRs and issues.
+3. **Read the related code:** the files the issue will touch, and the nearest similar feature already built, which is the pattern to follow.
+4. **Survey:**
+   - the requirement or the problem, in one sentence;
+   - the smallest scope that solves it;
+   - the dependencies (other issues, decisions, documents);
+   - the risks (what may surprise the execution);
+   - the gaps: a rule `docs/` does not answer, an error case without a verbatim message, a contradiction between documents or between a document and the code, a duplicated rule ID.
+5. **Apply proportionality** (`AGENTS.md`). Anything that is an abstraction, layer, pattern, package, migration or contract change enters the draft as a decision explained in the six points. An improvement the issue does not need goes to "Recomendações futuras".
+6. **Build the test list** (rules below).
+7. **Present to the owner and wait:**
+   - what you read;
+   - each gap and each decision, in the six points, with your recommendation;
+   - the complete draft of the issue, in the template below.
+8. **After the approval, write it:** `gh issue edit <n> --body-file <file>` (or `gh issue create --title ... --body-file <file> --milestone ...` for a new issue). Confirm with the link and stop.
 
-- **Identificação estável:** `T01`, `T02`, ... dentro da issue; `#<n>-T01` fora dela. Depois de aprovada, a lista não é renumerada.
-- **Um comportamento por teste**, descrito em português e começando por "Deve": *Deve rejeitar login com senha incorreta*.
-- **Ordem:** do mais simples ao mais complexo, de dentro para fora (domínio, depois a operação pelo endpoint).
-- **Resultado esperado exato:** o valor, o status, o `code` e a mensagem literal. Uma descrição vaga vira adivinhação na execução.
-- **Uma camada por comportamento**, a mais barata que prova a regra:
+## Test list
 
-  | Camada | O que entra |
+- **Stable IDs:** `T01`, `T02`, ... inside the issue; `#<n>-T01` outside it. Once approved, the list is never renumbered.
+- **One behavior per test**, described in Portuguese and starting with "Deve": *Deve rejeitar login com senha incorreta*.
+- **Order:** simplest first, inside out (the domain, then the operation through its endpoint).
+- **Exact expected result:** the value, the status, the `code` and the verbatim message. A vague expectation becomes guesswork during the execution.
+- **One layer per behavior**, the cheapest one that proves the rule:
+
+  | Layer | What goes there |
   |---|---|
-  | Domínio | Regra de um Value Object ou de um agregado: validação, transição de estado, cálculo |
-  | API (integração, PostgreSQL real) | Cada operação: sucesso, erros de validação, um caminho permitido e um negado para o nível mínimo, conflito de versão quando houver, recusas de negócio, unicidade no banco |
-  | Aplicação (handler com fakes) | Só quando a lógica não é alcançável de forma razoável por HTTP: passagem do tempo, falha de uma dependência |
+  | Domínio | A rule of a value object or an aggregate: validation, state transition, calculation |
+  | API (integration, real PostgreSQL) | Each operation: success, validation errors, one allowed and one denied path for the minimum level, the version conflict where it applies, business refusals, uniqueness in the database |
+  | Aplicação (handler with fakes) | Only when the logic cannot be reached reasonably through HTTP: the passage of time, a failing dependency |
 
-- **Não repita** o mesmo comportamento em duas camadas.
-- **Peças sem teste próprio** (registro de serviços, configuração, migration): liste cada uma com o ID do teste que a cobre.
+- **Never repeat** the same behavior in two layers.
+- **Pieces without a test of their own** (service registration, configuration, a migration): list each one with the ID of the test that covers it.
 
-## Modelo do corpo da issue
+## Issue body template
 
-O título fica em inglês, curto e no imperativo, porque dá origem ao título do pull request. O corpo é em português.
+The title is in English, short and imperative, because the pull request title comes from it. The body is in Portuguese.
 
 ```markdown
 ## Contexto
@@ -100,10 +102,10 @@ Sem teste próprio: <peça> — coberta por <ID>.
 - <melhoria que não entra nesta issue, e por quê>
 ```
 
-## Regras
+## Rules
 
-- Não escreva código nem testes neste comando.
-- Não grave a issue antes de o dono aprovar o rascunho.
-- Não invente regra de negócio nem mensagem: pergunte. Uma mensagem nova é aprovada pelo dono com o texto exato e entra no documento da funcionalidade, com um ID de regra novo, no pull request da execução.
-- Não amplie o escopo sem justificativa.
-- O que o `AGENTS.md` lista em "Ask the owner first" precisa aparecer em **Escopo**: é a autorização que o `/executar-issue` vai usar para não parar no meio.
+- Write no code and no tests in this command.
+- Never write the issue to GitHub before the owner approves the draft.
+- Never invent a business rule or a message: ask. A new message is approved by the owner with its exact text and enters the feature document, with a new rule ID, in the pull request of the execution.
+- Never widen the scope without a justification.
+- Whatever `AGENTS.md` lists under "Ask the owner first" must appear in **Escopo**: it is the authorization `/executar-issue` relies on to work without stopping.

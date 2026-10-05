@@ -61,7 +61,7 @@ Every rule has a stable ID, so that tests, pull requests and conversations can c
 
 ## Writing conventions
 
-- **English** for everything, except user-facing messages (Portuguese, verbatim, CNV-16), wire values (`negado`, `gerenciamento/usuarios`) the owner's personal guide ([agents/trabalhando-com-agentes.md](agents/trabalhando-com-agentes.md)), and the three command skills in `.claude/skills/` with the issues they produce.
+- **English** for everything, except user-facing messages (Portuguese, verbatim, CNV-16), wire values (`negado`, `gerenciamento/usuarios`) the owner's personal guide ([agents/trabalhando-com-agentes.md](agents/trabalhando-com-agentes.md)), and what the three commands produce for the owner: issue bodies and reports.
 - **One topic per file**, named in kebab-case. Link instead of copying: each fact lives in one place.
 - **Relative links** between documents, so they work on GitHub, in the IDE and in Obsidian.
 - **Documentation changes with the code**, in the same pull request ([documentation guide](agents/guides/documentation.md)).

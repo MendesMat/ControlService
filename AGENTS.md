@@ -53,7 +53,7 @@ Before adding any complexity, answer: is it needed for the current requirement? 
 
 ## Workflow: three commands
 
-All work on an issue goes through these commands and no others. Each one is a skill in `.claude/skills/<command>/SKILL.md`, written in Portuguese; an agent without skill support reads that file.
+All work on an issue goes through these commands and no others. Each one is a skill in `.claude/skills/<command>/SKILL.md`; an agent without skill support reads that file. What they produce for the owner (issue bodies and reports) is in Portuguese.
 
 | Command | What it does | Ends with |
 |---|---|---|

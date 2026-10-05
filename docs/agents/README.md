@@ -4,7 +4,7 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 
 ## The three commands
 
-Work on an issue goes through three commands, each one a skill in `.claude/skills/`, written in Portuguese because they are the owner's own process and everything they produce is in Portuguese. Claude Code loads them by name; any other agent reads the file.
+Work on an issue goes through three commands, each one a skill in `.claude/skills/`. Claude Code loads them by name; any other agent reads the file. What they produce for the owner (issue bodies, final reports and review reports) is in Portuguese.
 
 | Command | Skill | Ends with |
 |---|---|---|

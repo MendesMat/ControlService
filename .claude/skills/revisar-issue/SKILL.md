@@ -1,52 +1,54 @@
 ---
 name: revisar-issue
-description: Revisa a implementação de uma issue do Control Service antes do merge - compara o pull request com a issue, os critérios de aceite, os testes numerados, as regras de negócio e as decisões do projeto, e relata os problemas por severidade, de forma didática. Use quando o dono pedir /revisar-issue ou "revise a issue", de preferência numa conversa nova.
-argument-hint: "<número da issue>"
+description: Review the implementation of a Control Service issue before the merge - compare the pull request with the issue, the acceptance criteria, the numbered tests, the business rules and the project decisions, and report the problems by severity, explained for a junior developer. Use when the owner asks for /revisar-issue or says "revise a issue" or "revisar a issue", preferably in a new conversation.
+argument-hint: "<issue number>"
 ---
 
 # /revisar-issue
 
-Terceiro dos três comandos (`AGENTS.md`, "Workflow: three commands"). Funciona melhor numa **conversa nova**: quem escreveu o código tende a defender o que escreveu.
+Third of the three commands (`AGENTS.md`, "Workflow: three commands"). It works best in a **new conversation**: whoever wrote the code tends to defend it.
 
 Issue: `$ARGUMENTS`
 
-## Passos
+Talk to the owner in Portuguese. The review report is written in Portuguese, from the template below.
 
-1. **Leia a issue** (`gh issue view <n> --comments`) e encontre o pull request que a fecha (`gh pr list --state all --search "<n> in:body"`; confira o `Closes #<n>`). Sem pull request, pare e diga.
-2. **Leia o pull request:** `gh pr view <pr>`, `gh pr diff <pr>` e o estado do CI.
-3. **Leia os documentos** que a issue cita. A revisão é contra a regra escrita, não contra a lembrança dela.
-4. **Traga o código:** `gh pr checkout <pr>` e rode `powershell.exe -NoProfile -File check.ps1` em `backend/ControlService`.
-5. **Verifique** a lista abaixo.
-6. **Entregue o relatório** no formato abaixo e pare. Não altere código durante a revisão.
-7. **Depois que o dono escolher** o que aplicar: commits novos na mesma branch, com o teste antes do código; rode o `check.ps1`, envie, espere o CI e relate só o que mudou, com o resultado dos testes afetados.
+## Steps
 
-## O que verificar
+1. **Read the issue** (`gh issue view <n> --comments`) and find the pull request that closes it (`gh pr list --state all --search "<n> in:body"`; confirm the `Closes #<n>`). Without a pull request, stop and say so.
+2. **Read the pull request:** `gh pr view <pr>`, `gh pr diff <pr>` and the CI status.
+3. **Read the documents** the issue cites. The review is against the written rule, not against a memory of it.
+4. **Bring the code:** `gh pr checkout <pr>`, then run `powershell.exe -NoProfile -File check.ps1` in `backend/ControlService`.
+5. **Check** the list below.
+6. **Deliver the report** in the format below and stop. Change no code during the review.
+7. **After the owner chooses** what to apply: new commits on the same branch, test-first; run `check.ps1`, push, wait for CI and report only what changed, with the result of the tests affected.
 
-- **Requisitos:** o código faz o que cada item do Escopo pede, e nada além dele.
-- **Critérios de aceite:** um por um, atendido ou não.
-- **Testes:** cada ID da issue tem um método com o comentário `// #<n>-Txx`, e o teste **afirma o resultado esperado da issue**, não só "não deu erro". Confira se o que o relatório de execução disse é verdade.
-- **Regras de negócio:** o comportamento bate com a regra citada, inclusive nos casos de erro. As mensagens são iguais às do documento, caractere por caractere.
-- **Bugs:** valores nulos e vazios, limites, ordem das verificações, concorrência, o caminho de erro de cada chamada.
-- **Segurança:** permissão declarada em cada endpoint, dados pessoais ou senhas em logs e respostas, entrada não validada, informação que revela se um login existe.
-- **Arquitetura:** dependência no sentido errado entre as camadas, regra de negócio fora do domínio, fuga do padrão da funcionalidade vizinha sem motivo.
-- **Complexidade desnecessária:** abstração, interface, camada ou padrão que a issue não pediu e que o `AGENTS.md` ("Proportionality") não justifica.
-- **Duplicação** e **manutenção:** código repetido, nomes que enganam, comentários que apontam para algo que o leitor não consegue abrir.
-- **Código e documentação:** divergências. Quando o documento pode ser o lado errado, pergunte; nunca ajuste `docs/` em silêncio.
-- **Entrega:** identidade dos commits, nenhuma linha de atribuição, um pull request por issue.
+## What to check
 
-Uma solução mais sofisticada não é melhor por ser mais sofisticada.
+- **Requirements:** the code does what each item of Escopo asks, and nothing beyond it.
+- **Acceptance criteria:** one by one, met or not.
+- **Tests:** each ID of the issue has a method with the comment `// #<n>-Txx`, and the test **asserts the expected result of the issue**, not only "no error". Check that what the execution report said is true.
+- **Business rules:** the behavior matches the rule cited, including the error cases. Messages equal the ones in the document, character by character.
+- **Bugs:** null and empty values, limits, the order of the checks, concurrency, the error path of each call.
+- **Security:** the permission declared on each endpoint, personal data or passwords in logs and responses, unvalidated input, information that reveals whether a login exists.
+- **Architecture:** a dependency in the wrong direction between layers, a business rule outside the domain, a departure from the pattern of the neighboring feature without a reason.
+- **Needless complexity:** an abstraction, interface, layer or pattern the issue did not ask for and that `AGENTS.md` ("Proportionality") does not justify.
+- **Duplication** and **maintenance:** repeated code, misleading names, comments that point to something the reader cannot open.
+- **Code and documentation:** mismatches. When the document may be the wrong side, ask; never adjust `docs/` silently.
+- **Delivery:** the commit identity, no attribution lines, one pull request per issue.
 
-## Severidade
+A more sophisticated solution is not better for being more sophisticated.
 
-| Severidade | Quando |
+## Severity
+
+| Severity | When |
 |---|---|
-| **Bloqueante** | Bug, falha de segurança, regra de negócio violada, critério de aceite não atendido, teste que não testa o que diz. Não deve ir para a `main` |
-| **Importante** | Não quebra nada hoje, mas custa caro depois: complexidade sem necessidade, duplicação, divergência entre código e documentação, caminho de erro sem teste |
-| **Sugestão** | Melhoria opcional. Pode virar uma issue futura |
+| **Bloqueante** | A bug, a security flaw, a business rule violated, an acceptance criterion not met, a test that does not test what it says. It must not reach `main` |
+| **Importante** | Nothing breaks today, but it costs later: needless complexity, duplication, a mismatch between code and documentation, an error path without a test |
+| **Sugestão** | An optional improvement. It may become a future issue |
 
-## Relatório
+## Report
 
-Em português, do mais grave para o menos grave.
+Most severe first.
 
 ```markdown
 # Issue #<n> — <título>: revisão
@@ -93,4 +95,4 @@ Pull request: <link> · CI: <estado> · `check.ps1` local: <resultado>
 <Lista numerada: os achados que dependem de uma escolha sua.>
 ```
 
-Sem achados em uma severidade, diga "nenhum". Não invente problema para preencher o relatório.
+With no finding in a severity, say "nenhum". Never invent a problem to fill the report.

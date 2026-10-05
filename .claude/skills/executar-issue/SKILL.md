@@ -1,60 +1,62 @@
 ---
 name: executar-issue
-description: Executa uma issue já levantada do Control Service - implementa só o escopo da issue, com o teste antes do código, sem pausas para aprovação, roda todos os testes numerados e a suíte completa, abre o pull request e entrega o relatório final com o resultado de cada teste. Use quando o dono pedir /executar-issue ou "execute a issue".
-argument-hint: "<número da issue>"
+description: Execute a Control Service issue that was already surveyed - implement only the scope of the issue, test-first, without pausing for approval, run every numbered test and the whole suite, open the pull request and deliver the final report with the result of each test. Use when the owner asks for /executar-issue or says "execute a issue" or "executar a issue".
+argument-hint: "<issue number>"
 ---
 
 # /executar-issue
 
-Segundo dos três comandos (`AGENTS.md`, "Workflow: three commands"). A execução é **contínua**: não peça aprovação teste a teste. O dono revisa depois, pelo relatório final, então o relatório precisa permitir conferir cada teste sozinho.
+Second of the three commands (`AGENTS.md`, "Workflow: three commands"). Execution is **continuous**: never ask for approval test by test. The owner reviews afterwards, from the final report, so the report must let them check each test on its own.
 
 Issue: `$ARGUMENTS`
 
-Se o corpo da issue não tem a seção **Testes**, pare e diga: o `/levantar-issue` vem primeiro.
+If the issue body has no **Testes** section, stop and say so: `/levantar-issue` comes first.
 
-## Passos
+Talk to the owner in Portuguese. The final report is written in Portuguese, from the template below.
 
-1. **Leia a issue** (`gh issue view <n> --comments`) e os documentos que ela cita.
-2. **Releia o código relacionado** antes de modificar: ele pode ter mudado desde o levantamento.
-3. **Prepare o git:** identidade, `main` atualizada e uma branch nova (`docs/agents/workflows/git-and-pull-requests.md`, passos 1 e 2).
-4. **Para cada teste da lista, na ordem,** um ciclo completo:
-   - **Red:** escreva o teste, com o comentário `// #<n>-T01` na linha acima dele. Rode filtrado e confirme que falha **pelo motivo esperado**. Um erro de compilação por um tipo que ainda não existe vale; um erro de digitação no teste não vale.
-   - **Green:** o menor código que faz o teste passar.
-   - **Refactor:** com os testes verdes, remova duplicação e melhore nomes. "Nada a refatorar" é um resultado válido.
-   - Faça o commit ao fim de um ciclo verde, ou de poucos ciclos do mesmo comportamento.
-   - Anote para o relatório: o método de teste, o arquivo e se houve Red.
-5. **Rode tudo:** `powershell.exe -NoProfile -File check.ps1` em `backend/ControlService`. Corrija o que quebrar, inclusive em testes antigos.
-6. **Confira de ponta a ponta** quando a issue entrega um endpoint ou uma tela: suba o AppHost, exercite e pare.
-7. **Atualize `docs/`** no mesmo pull request (`docs/agents/guides/documentation.md`).
-8. **Abra o pull request** com `Closes #<n>`, o título em inglês no formato Conventional Commits e a lista de testes com o resultado de cada um. Espere o CI.
-9. **Entregue o relatório final** e pare. Quem faz o merge é o dono.
+## Steps
 
-## Quando parar no meio
+1. **Read the issue** (`gh issue view <n> --comments`) and the documents it cites.
+2. **Read the related code again** before changing it: it may have changed since the survey.
+3. **Prepare git:** the identity, an updated `main` and a new branch (`docs/agents/workflows/git-and-pull-requests.md`, steps 1 and 2).
+4. **For each test of the list, in order,** one full cycle:
+   - **Red:** write the test, with the comment `// #<n>-T01` on the line above it. Run it filtered and confirm that it fails **for the expected reason**. A compile error for a type that does not exist yet counts; a typo in the test does not.
+   - **Green:** the smallest code that makes the test pass.
+   - **Refactor:** with the tests green, remove duplication and improve names. "Nothing to refactor" is a valid result.
+   - Commit at the end of a green cycle, or of a few cycles of the same behavior.
+   - Note for the report: the test method, the file, and whether there was a Red.
+5. **Run everything:** `powershell.exe -NoProfile -File check.ps1` in `backend/ControlService`. Fix what breaks, including older tests.
+6. **Check end to end** when the issue delivers an endpoint or a screen: start the AppHost, exercise it and stop it.
+7. **Update `docs/`** in the same pull request (`docs/agents/guides/documentation.md`).
+8. **Open the pull request** with `Closes #<n>`, the title in English in the Conventional Commits format, and the test list with the result of each test. Wait for CI.
+9. **Deliver the final report** and stop. The owner merges.
 
-Só nestes casos, explicando nos 6 pontos:
+## When to stop in the middle
 
-- Uma regra de negócio que nem a issue nem `docs/` respondem.
-- A solução exigiria algo que a issue não autoriza: pacote, abstração, camada, padrão, migration, mudança de contrato, arquivo a apagar.
-- A arquitetura atual torna o requisito complexo sem necessidade.
-- O código real contradiz a issue de um jeito que muda o escopo.
+Only in these cases, explaining in the six points:
 
-**Um teste que falha não é motivo para parar:** corrija. Depois de duas tentativas sem sucesso no mesmo problema, pare de tentar por tentativa e erro e procure a causa raiz. Se continuar sem solução, siga com os outros testes e relate esse como FALHOU, com o que você tentou.
+- A business rule that neither the issue nor `docs/` answers.
+- The solution would need something the issue does not authorize: a package, abstraction, layer, pattern, migration, contract change, or a file to delete.
+- The current architecture makes the requirement needlessly complex.
+- The real code contradicts the issue in a way that changes the scope.
 
-## Regras dos testes
+**A failing test is not a reason to stop:** fix it. After two failed attempts at the same problem, stop trying by trial and error and look for the root cause. If it stays unsolved, go on with the other tests and report that one as FALHOU, with what you tried.
 
-- Um teste da lista é um método de teste (ou um `[Theory]`, para vários exemplos do mesmo comportamento), com o ID no comentário.
-- O nome do método é em inglês e descreve o comportamento: `Wrong_password_is_refused`.
-- As mensagens são copiadas do documento da funcionalidade, nunca escritas de memória.
-- Use fakes escritos à mão em vez de mocks, um `TimeProvider` falso em vez do relógio real e só dados fictícios.
-- **Teste que passa de primeira** (outro ciclo já cobriu a regra): confira que ele falharia se a regra quebrasse, mantenha e marque "sem Red" no relatório. Nunca invente um Red artificial.
-- **Teste novo descoberto na execução:** recebe o próximo número livre e aparece como "adicionado na execução", com o motivo.
-- **Teste da issue que precisou mudar:** mantém o ID, e o relatório diz o que mudou e por quê.
-- **Teste que não faz sentido ou não pôde ser feito:** PULADO, com o motivo. Nunca apague em silêncio, e nunca enfraqueça um teste para ele passar.
-- **Correção de bug:** o primeiro teste reproduz o bug e falha pelo motivo descrito no relato.
+## Rules for the tests
 
-## Relatório final
+- One test of the list is one test method (or a `[Theory]`, for several examples of the same behavior), with the ID in the comment.
+- The method name is in English and describes the behavior: `Wrong_password_is_refused`.
+- Messages are copied from the feature document, never written from memory.
+- Use hand-written fakes instead of mocks, a fake `TimeProvider` instead of the real clock, and fictitious data only.
+- **A test that passes at once** (another cycle already covered the rule): check that it would fail if the rule broke, keep it and mark it "sem Red" in the report. Never invent an artificial Red.
+- **A new test discovered during the execution** takes the next free number and is reported as "adicionado na execução", with the reason.
+- **A test of the issue that had to change** keeps its ID, and the report says what changed and why.
+- **A test that makes no sense or could not be written** is PULADO, with the reason. Never delete one silently, and never weaken a test to make it pass.
+- **Bug fix:** the first test reproduces the bug and fails for the reason the report describes.
 
-Em português, neste formato e nesta ordem. Os IDs e os textos dos testes são os da issue, sem alteração.
+## Final report
+
+In this format and order. The IDs and the sentences of the tests are the ones of the issue, unchanged.
 
 ```markdown
 # Issue #<n> — <título>: relatório de execução

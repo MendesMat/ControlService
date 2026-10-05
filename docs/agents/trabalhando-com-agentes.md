@@ -11,7 +11,7 @@ O agente é rápido, mas não lê pensamentos, e para quando o trabalho *parece*
 
 ## Os três comandos
 
-Todo trabalho em uma issue passa por eles, nesta ordem. O procedimento completo de cada um está em `.claude/skills/<comando>/SKILL.md`, em português.
+Todo trabalho em uma issue passa por eles, nesta ordem. O procedimento completo de cada um está em `.claude/skills/<comando>/SKILL.md`, em inglês como as demais instruções para agentes. As issues e os relatórios que eles produzem são em português.
 
 | Comando | O que o agente faz | O que você faz | Termina com |
 |---|---|---|---|
