@@ -35,6 +35,7 @@ Translate business terms exactly as in the [domain glossary](../../product/gloss
 - Prefer small methods with early returns over nested conditionals.
 - Records for value objects and request/response models; `sealed` classes by default.
 - Comments explain *why*, not *what*. No commented-out code.
+- A comment stands on its own: one sentence the reader understands without opening anything else. It may cite a business rule ID (`AUTH-08`), which is stable; it never cites a decision number, an issue, a pull request or a plan code. The one exception is the ID of a test (`// #10-T03`) on the line above a test of an issue.
 - Nullable reference types are on: do not silence warnings with `!` unless the reason is obvious or commented.
 
 ## Packages
