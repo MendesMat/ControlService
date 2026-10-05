@@ -1,13 +1,13 @@
 # Testing guide
 
-The strategy is in ADR-0024, and ADR-0033 makes all development test-first. Tests are the executable version of the business rules, so they are part of every change, not an extra. **How** to write them, one failing test at a time, is in the [test-driven development workflow](../workflows/test-driven-development.md).
+The strategy is in ADR-0024, and all development is test-first. Tests are the executable version of the business rules, so they are part of every change, not an extra. Each issue carries a numbered test list ([AGENTS.md](../../../AGENTS.md#tests)); **how** to write the tests, one failing test at a time, is in the [`/executar-issue` skill](../../../.claude/skills/executar-issue/SKILL.md).
 
 ## Test projects
 
 | Project | Tests | Doubles |
 |---|---|---|
 | `ControlService.Domain.Tests` | Value objects, aggregates, effective access | None: the domain has no dependencies |
-| `ControlService.Application.Tests` | Handlers and validators | Hand-written in-memory fakes of the Application interfaces (ADR-0033); NSubstitute only when a fake would be clearly heavier |
+| `ControlService.Application.Tests` | Handlers and validators | Hand-written in-memory fakes of the Application interfaces; NSubstitute only when a fake would be clearly heavier |
 | `ControlService.Api.IntegrationTests` | Real HTTP calls, authentication, authorization, persistence; also unit tests of the API's own helpers, such as the `Error` → Problem Details table (`Common/ErrorResultsTests.cs`), since there is no API unit test project | `WebApplicationFactory`, Testcontainers (PostgreSQL, Mailpit) |
 | `ControlService.ArchitectureTests` | Dependency rules between layers | None |
 
@@ -44,7 +44,8 @@ dotnet test --solution ControlService.slnx --coverage --coverage-output-format c
 ## Writing tests
 
 - **Name tests after the behavior**, with underscores: `Cpf_with_all_equal_digits_is_rejected`, `Denied_in_one_profile_and_editor_in_another_results_in_editor`.
-- **Every behavior starts as a failing test,** in every layer ([TDD workflow](../workflows/test-driven-development.md)).
+- **Every behavior starts as a failing test,** and is tested in one layer only: the cheapest one that proves the rule ([AGENTS.md](../../../AGENTS.md#tests)).
+- **Each test of an issue carries its ID** in a comment on the line above it (`// #10-T03`), so the owner can find it from the issue.
 - **Test behavior, not implementation:** assert on outcomes through the public API. Fakes live in the test project (for example `Fakes/InMemoryUserRepository.cs`) and are reused across tests.
 - Arrange, act, assert, in that order, one behavior per test. Use `[Theory]` with `[InlineData]` for tables of cases, such as valid and invalid CPFs.
 - Control time with a fake `TimeProvider`; never depend on the real clock.

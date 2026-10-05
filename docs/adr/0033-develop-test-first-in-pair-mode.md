@@ -5,6 +5,7 @@ accepted: 2026-09-25
 scope: back-end
 tags: [process, testing, quality]
 amends: ADR-0024 (test doubles and when tests are written)
+superseded-by: AGENTS.md (pair mode and the pauses)
 ---
 
 # ADR-0033: Develop test-first, in pair mode, with in-memory fakes
@@ -33,7 +34,7 @@ ADR-0024 also chose NSubstitute for the application layer. Mocks that verify int
 - **Autonomous mode** is used only when the owner asks for it on a task. The phases are the same; each one is proven by the command output in a per-cycle log.
 - **Test doubles:** hand-written in-memory fakes are preferred, and tests assert on outcomes. NSubstitute stays available for cases where a fake would be clearly heavier, but not to verify internal calls.
 - Pieces with no meaningful Red (dependency injection wiring, configuration, mapping details, migrations) are covered by integration tests, and the agent says so explicitly.
-- The procedure is described in [`docs/agents/workflows/test-driven-development.md`](../agents/workflows/test-driven-development.md).
+- The procedure is described in the [`/executar-issue` skill](../../.claude/skills/executar-issue/SKILL.md).
 
 ## Alternatives considered
 
@@ -54,3 +55,4 @@ ADR-0024 also chose NSubstitute for the application layer. Mocks that verify int
 ## Revisions
 
 - **2026-09-27:** the pause moved from after each phase to once per test cycle. The owner asked for it during issue #5, where 43 tests meant about 130 pauses. As an exception decided by the owner, this record was updated in place instead of being superseded.
+- **2026-10-05:** pair mode and the pause per test cycle were replaced by continuous execution with a final report, one result per numbered test ([AGENTS.md](../../AGENTS.md#tests)). The owner asked for it to finish the product sooner and review each test afterwards. The test-first rule, the fakes and the rule for pieces with no meaningful Red still apply.

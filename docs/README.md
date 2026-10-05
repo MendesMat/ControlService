@@ -8,7 +8,7 @@ Everything about Control Service that is not code: what the system does, how the
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Understand the product                  | [product/overview.md](product/overview.md), then [product/glossary.md](product/glossary.md)                                                            |
 | Implement or change a feature           | Its file in [product/features/](product/features/), plus [product/conventions.md](product/conventions.md) and [api/conventions.md](api/conventions.md) |
-| Add a new screen                        | [product/features/template.md](product/features/template.md) and the [implement a feature](agents/workflows/implement-a-feature.md) workflow           |
+| Add a new screen                        | [product/features/template.md](product/features/template.md), then the `/levantar-issue` command ([agents/](agents/README.md#the-three-commands))  |
 | Know why the back-end is built this way | [adr/](adr/README.md)                                                                                                                                  |
 | Check what is still undecided           | [product/open-questions.md](product/open-questions.md)                                                                                                 |
 | Work on the front-end prototype         | [frontend/](frontend/README.md)                                                                                                                        |
@@ -61,7 +61,7 @@ Every rule has a stable ID, so that tests, pull requests and conversations can c
 
 ## Writing conventions
 
-- **English** for everything, except user-facing messages (Portuguese, verbatim, CNV-16), wire values (`negado`, `gerenciamento/usuarios`) and the owner's personal guide ([agents/trabalhando-com-agentes.md](agents/trabalhando-com-agentes.md)).
+- **English** for everything, except user-facing messages (Portuguese, verbatim, CNV-16), wire values (`negado`, `gerenciamento/usuarios`) the owner's personal guide ([agents/trabalhando-com-agentes.md](agents/trabalhando-com-agentes.md)), and the three command skills in `.claude/skills/` with the issues they produce.
 - **One topic per file**, named in kebab-case. Link instead of copying: each fact lives in one place.
 - **Relative links** between documents, so they work on GitHub, in the IDE and in Obsidian.
 - **Documentation changes with the code**, in the same pull request ([documentation guide](agents/guides/documentation.md)).

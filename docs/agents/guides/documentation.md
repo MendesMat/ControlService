@@ -21,7 +21,7 @@ Documentation is part of the change. A pull request that changes behavior, the A
 
 ## Rules
 
-- Everything is in **English**, except user-facing messages (Portuguese, verbatim), wire values and the owner's guide `docs/agents/trabalhando-com-agentes.md`.
+- Everything is in **English**, except user-facing messages (Portuguese, verbatim), wire values, the owner's guide `docs/agents/trabalhando-com-agentes.md`, and the three command skills in `.claude/skills/` with the issue bodies they produce.
 - `docs/product/` describes **decided** behavior. Open questions go to `docs/product/open-questions.md`, never presented as rules.
 - **Rule IDs are stable**: a new rule takes the next free number; a removed rule is marked *Retired*, never deleted or renumbered. Changing a rule's meaning needs the owner's confirmation, and the pull request lists the IDs that changed.
 - **One fact in one place.** Link to the document that owns a fact instead of repeating it.

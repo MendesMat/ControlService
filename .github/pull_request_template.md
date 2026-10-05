@@ -6,7 +6,13 @@ Closes #<!-- issue number; use "Part of #N" when this pull request delivers only
 
 ## Why
 
-<!-- Which business rule (cite its ID, e.g. USR-06), open question or ADR motivates it? Link docs/product/ or docs/adr/ when relevant. -->
+<!-- Which business rule (cite its ID, e.g. USR-06), decision or problem motivates it? -->
+
+## Tests
+
+<!-- The numbered list of the issue, with the same IDs and sentences. Check the ones that pass, and explain below any that failed, changed or were skipped. -->
+
+- [ ] T01 —
 
 ## How to test
 
@@ -14,8 +20,8 @@ Closes #<!-- issue number; use "Part of #N" when this pull request delivers only
 
 ## Checklist
 
-- [ ] Developed test-first: every behavior has a test that failed before the code existed (ADR-0033)
-- [ ] `dotnet test --solution ControlService.slnx` passes locally
-- [ ] Documentation updated (`docs/product/`, ADRs, README) when behavior or decisions changed
-- [ ] Rule IDs covered or changed are listed above (for example USR-06, PERM-05)
+- [ ] Developed test-first: every behavior has a test that failed before the code existed
+- [ ] `check.ps1` passes locally: build without warnings and all tests
+- [ ] Nothing beyond the issue: no package, abstraction, migration or contract change it does not authorize
+- [ ] Documentation updated (`docs/`, README) when behavior or decisions changed
 - [ ] User-facing messages are verbatim from the feature document (CNV-16)
