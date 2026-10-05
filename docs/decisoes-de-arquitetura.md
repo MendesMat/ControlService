@@ -465,14 +465,14 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
          : next(context);
      ```
 
-   - **Admin.** Nesta fase de portfólio, o Admin é a conta de demonstração: o login `admin` e a senha `admin` são fixos e ficam à mostra na tela de entrada, para qualquer visitante explorar o sistema inteiro. Por isso o Admin **não** passa pela troca obrigatória e não troca a senha.
+   - **Admin.** Nesta fase de portfólio, o Admin é a conta de demonstração: o login `admin` e a senha `admin123` são fixos e ficam à mostra na tela de entrada, para qualquer visitante explorar o sistema inteiro. Por isso o Admin **não** passa pela troca obrigatória e não troca a senha.
 2. **Que problema resolve.** Quem cadastrou conhece a senha temporária, então ela não pode continuar valendo. E um avaliador precisa entrar no sistema sem pedir acesso a ninguém.
 3. **O que acontece sem isso.** O primeiro acesso dependeria de um link enviado por e-mail: servidor de e-mail, tokens de ativação e mais telas, antes de o produto ter um ciclo completo.
 4. **Quanto custa.** A senha temporária é passada por fora do sistema. Não existe "Esqueci minha senha". E uma conta com todas as permissões é pública: um visitante pode excluir perfis e desativar usuários. O dono aceita isso enquanto o sistema for um portfólio; o que nunca se perde são o Admin e o perfil Gerenciador, que o domínio protege (decisão 16).
 5. **Alternativas mais simples.** Esta já é a mais simples. A mais completa é o link de ativação por e-mail, adiado até o ciclo do produto estar fechado.
 6. **Por que escolhemos assim.** O objetivo agora é um produto que possa ser testado do início ao fim. O que precisa mudar antes de um uso real está em [Antes de ir para o mundo real](#antes-de-ir-para-o-mundo-real).
 
-**O código ainda reflete o plano antigo.** Hoje é o contrário do decidido: só o Admin nasce com a troca obrigatória, e os usuários cadastrados ainda não recebem senha (a issue #11 traz o cadastro). A senha inicial do Admin ainda vem da configuração (`Admin:InitialPassword`) e precisa ter o tamanho mínimo de 8 caracteres, que `admin` não tem. Também sobram do plano antigo `User.Activate` com o erro `link_invalid`, a mensagem que manda usar "Esqueci minha senha", e as regras AUTH-14, AUTH-15 e USR-34 em [product/](product/), que serão reescritas.
+**O código ainda reflete o plano antigo.** Hoje é o contrário do decidido: só o Admin nasce com a troca obrigatória, e os usuários cadastrados ainda não recebem senha (a issue #11 traz o cadastro). A senha inicial do Admin ainda vem da configuração (`Admin:InitialPassword`). Também sobram do plano antigo `User.Activate` com o erro `link_invalid`, a mensagem que manda usar "Esqueci minha senha", e as regras AUTH-14, AUTH-15 e USR-34 em [product/](product/), que serão reescritas.
 
 - **Onde ver no código:** [PasswordChangeRequiredFilter.cs](../backend/ControlService/src/ControlService.API/Auth/PasswordChangeRequiredFilter.cs), [ApiV1Group.cs](../backend/ControlService/src/ControlService.API/Common/ApiV1Group.cs), [ChangePasswordHandler.cs](../backend/ControlService/src/ControlService.Application/Auth/ChangePassword/ChangePasswordHandler.cs).
 - **Em uma frase:** a primeira senha é de quem cadastrou, então o sistema obriga a trocá-la antes de liberar qualquer tela.
@@ -573,7 +573,7 @@ O sistema é, por enquanto, um portfólio: precisa ser fácil de visitar e ter o
 
 | Hoje, no portfólio | Antes de um uso real |
 |---|---|
-| O login `admin` e a senha `admin` são fixos e ficam à mostra na tela de entrada, e o Admin não troca a senha (decisão 21) | Tirar a senha fixa do código e da tela, e permitir que o Admin troque a própria senha. O Admin e o perfil Gerenciador continuam: são a garantia de que sempre existe alguém com todas as permissões |
+| O login `admin` e a senha `admin123` são fixos e ficam à mostra na tela de entrada, e o Admin não troca a senha (decisão 21) | Tirar a senha fixa do código e da tela, e permitir que o Admin troque a própria senha. O Admin e o perfil Gerenciador continuam: são a garantia de que sempre existe alguém com todas as permissões |
 | Não existe "Esqueci minha senha" | Links de ativação e de redefinição por e-mail |
 | A senha temporária é passada por fora do sistema | O mesmo link de ativação |
 
