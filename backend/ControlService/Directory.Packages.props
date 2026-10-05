@@ -13,8 +13,8 @@
 
   <!-- Aspire (ADR-0027) -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.5.4" />
-    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.MailPit" Version="13.5.0" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.0" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.MailPit" Version="13.6.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.19.1" />
@@ -26,7 +26,7 @@
 
   <!-- Ready for the next slices: add a PackageReference (without Version) when a project needs one. -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.5.4" />
+    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.6.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
