@@ -370,6 +370,213 @@ As sete primeiras também são o que permite testar um handler com um repositór
 - **Onde ver no código:** ainda não há; a regra está em [api/conventions.md](api/conventions.md).
 - **Em uma frase:** o servidor devolve só a página pedida e o total, e o navegador nunca recebe o que não vai mostrar.
 
+## Bloco C — Login e permissões
+
+### O que já existe e o que falta
+
+Este bloco descreve o desenho decidido. Parte dele ainda não está no código, e cada decisão diz qual.
+
+| Peça | Estado |
+|---|---|
+| Login, sessão, renovação, sair, `GET /me` | Construído e testado |
+| Bloqueio por tentativas e limite de requisições no login | Construído e testado |
+| Cálculo do nível por tela e chaves de tela | Construído e testado |
+| Troca obrigatória da senha | Construída, mas hoje só o Admin passa por ela; o desenho decidido é o contrário (decisão 21) |
+| Autorização por tela e conferência da conta a cada requisição | **Não construída** (issue #9). Hoje qualquer pessoa logada chama qualquer endpoint |
+| Rota com o catálogo de telas (`GET /screens`) | **Não construída** (issue #10) |
+
+### 18. Senhas guardadas pelo ASP.NET Core Identity, separadas do usuário
+
+1. **O que é.** O Identity é a biblioteca da Microsoft para contas. O projeto usa só o núcleo dela: gerar o *hash* da senha (o embaralhamento sem volta que se guarda no lugar da senha) e contar as tentativas erradas. A credencial fica numa tabela própria (`UserCredential`), com o mesmo id do `User`, e o handler fala com ela pela interface `ICredentialStore`:
+
+   ```csharp
+   if (await users.CheckPasswordAsync(credential, password))
+   {
+       await users.ResetAccessFailedCountAsync(credential);
+       return CredentialCheck.Succeeded;
+   }
+
+   await users.AccessFailedAsync(credential);
+   ```
+
+2. **Que problema resolve.** Guardar senha com segurança é fácil de errar, e o Identity já faz certo. Com a credencial fora do cadastro, a senha nunca aparece numa consulta de usuários nem numa resposta da API.
+3. **O que acontece sem isso.** O hash e o bloqueio seriam escritos à mão.
+4. **Quanto custa.** A tabela vem com colunas que o sistema não usa (o e-mail e o telefone do Identity ficam vazios). E há uma classe que só existe por causa dos testes: `CredentialUserManager` faz o bloqueio usar o relógio da aplicação, que os testes controlam.
+5. **Alternativas mais simples.** Uma coluna `PasswordHash` no próprio `User` e o contador de tentativas feito no projeto.
+6. **Por que escolhemos assim.** Não se escreve criptografia de senha à mão. O `SignInManager` do Identity ficou de fora porque traz junto a autenticação por cookie, que o sistema não usa.
+
+- **Onde ver no código:** [CredentialStore.cs](../backend/ControlService/src/ControlService.Infrastructure/Auth/CredentialStore.cs), [UserCredential.cs](../backend/ControlService/src/ControlService.Infrastructure/Auth/UserCredential.cs), [ICredentialStore.cs](../backend/ControlService/src/ControlService.Application/Auth/ICredentialStore.cs).
+- **Em uma frase:** não escrevo criptografia de senha; uso a da Microsoft e guardo a credencial fora do cadastro.
+
+### 19. Token de acesso JWT de 15 minutos
+
+1. **O que é.** Depois do login, a API devolve um JWT: um texto assinado que diz quem é a pessoa. O navegador o envia em cada requisição, e o ASP.NET confere a assinatura sem ir ao banco. O token carrega três *claims* (campos): `sub`, o id do usuário; `sid`, o id da sessão; e `must_change_password`, só enquanto a troca de senha é obrigatória.
+
+   ```csharp
+   var claims = new Dictionary<string, object>
+   {
+       [JwtRegisteredClaimNames.Sub] = userId.ToString(),
+       [SessionIdClaim] = sessionId.ToString(),
+   };
+   ```
+
+   Não há dado pessoal nem permissão dentro do token.
+2. **Que problema resolve.** A API precisa saber quem faz cada requisição sem pedir a senha de novo.
+3. **O que acontece sem isso.** A alternativa clássica é o cookie de sessão do próprio ASP.NET.
+4. **Quanto custa.** Um token emitido vale até vencer; não dá para cancelá-lo. Por isso ele dura pouco e precisa da decisão 20. A chave que assina os tokens é um segredo, fica fora do repositório, e a aplicação não inicia sem ela.
+5. **Alternativas mais simples.** Autenticação só por cookie, que tem menos peças e serviria para este front-end.
+6. **Por que escolhemos assim.** É o formato mais pedido em vagas e serve para um aplicativo de celular no futuro. As permissões ficam fora do token de propósito: se estivessem dentro, mudar um perfil só valeria quando o token vencesse.
+
+- **Onde ver no código:** [JwtAccessTokenIssuer.cs](../backend/ControlService/src/ControlService.API/Auth/JwtAccessTokenIssuer.cs), [ConfigureJwtBearer.cs](../backend/ControlService/src/ControlService.API/Auth/ConfigureJwtBearer.cs).
+- **Em uma frase:** o token diz só quem é a pessoa e dura 15 minutos; o que ela pode fazer eu leio do banco.
+
+### 20. Sessão com refresh token no banco, trocado a cada uso
+
+1. **O que é.** Junto do JWT vai um *refresh token*: 32 bytes aleatórios que servem só para pedir um JWT novo. No banco fica apenas o hash dele, na tabela `UserSession`. Ele viaja num cookie `HttpOnly` (que o JavaScript da página não consegue ler), enviado só para a rota de renovação. A cada uso ele é trocado por outro, que vale por mais 8 horas:
+
+   ```csharp
+   // Um UPDATE só: duas renovações com o mesmo token nunca passam as duas.
+   var rotated = await db.Sessions
+       .Where(session => session.TokenHash == oldHash && session.ExpiresAt > now)
+       .ExecuteUpdateAsync(
+           setters => setters
+               .SetProperty(session => session.TokenHash, newHash)
+               .SetProperty(session => session.ExpiresAt, expiresAt),
+           cancellationToken);
+   ```
+
+2. **Que problema resolve.** Com o JWT curto, a pessoa teria de entrar de novo a cada 15 minutos. E é o refresh token que permite encerrar uma sessão: sair ou trocar a senha apaga a linha, e a renovação seguinte falha.
+3. **O que acontece sem isso.** Ou um JWT longo, que não se cancela, ou login repetido.
+4. **Quanto custa.** É a parte mais difícil de explicar do login: dois tokens, um cookie e a troca a cada uso. O front-end precisa renovar quando o token de acesso vence.
+5. **Alternativas mais simples.** Um JWT de 8 horas, sem refresh token. Ou o cookie de sessão da decisão 19.
+6. **Por que escolhemos assim.** "Oito horas sem nenhuma ação encerram a sessão" é o comportamento que o protótipo do front-end já simula. O front-end renova só quando precisa fazer uma requisição, nunca por temporizador, para que "sem ação" seja mesmo sem ação da pessoa.
+
+- **Onde ver no código:** [SessionStore.cs](../backend/ControlService/src/ControlService.Infrastructure/Auth/SessionStore.cs), [RefreshCookie.cs](../backend/ControlService/src/ControlService.API/Auth/RefreshCookie.cs), [RefreshSessionHandler.cs](../backend/ControlService/src/ControlService.Application/Auth/RefreshSession/RefreshSessionHandler.cs).
+- **Em uma frase:** o token curto prova quem sou; o longo fica no banco, onde posso cancelá-lo.
+
+### 21. Senha temporária com troca obrigatória; o Admin é a conta de demonstração
+
+1. **O que é.** Duas regras, decididas pelo dono em 2026-10-05:
+   - **Usuário cadastrado.** Quem cadastra define uma senha temporária. A credencial nasce marcada (`MustChangePassword`), o JWT sai com o claim `must_change_password`, e um filtro no grupo `/api/v1` recusa tudo, menos `me`, sair e trocar a senha:
+
+     ```csharp
+     return isPending && !mayProceed
+         ? ValueTask.FromResult<object?>(AuthErrors.PasswordChangeRequired.ToProblem())
+         : next(context);
+     ```
+
+   - **Admin.** Nesta fase de portfólio, o Admin é a conta de demonstração: o login e a senha dele ficam à mostra na tela de entrada, para qualquer visitante explorar o sistema inteiro. Por isso o Admin **não** passa pela troca obrigatória e não troca a senha.
+2. **Que problema resolve.** Quem cadastrou conhece a senha temporária, então ela não pode continuar valendo. E um avaliador precisa entrar no sistema sem pedir acesso a ninguém.
+3. **O que acontece sem isso.** O primeiro acesso dependeria de um link enviado por e-mail: servidor de e-mail, tokens de ativação e mais telas, antes de o produto ter um ciclo completo.
+4. **Quanto custa.** A senha temporária é passada por fora do sistema. Não existe "Esqueci minha senha". E uma conta com todas as permissões é pública: um visitante pode excluir perfis e desativar usuários. O dono aceita isso enquanto o sistema for um portfólio; o que nunca se perde são o Admin e o perfil Gerenciador, que o domínio protege (decisão 16).
+5. **Alternativas mais simples.** Esta já é a mais simples. A mais completa é o link de ativação por e-mail, adiado até o ciclo do produto estar fechado.
+6. **Por que escolhemos assim.** O objetivo agora é um produto que possa ser testado do início ao fim. O que precisa mudar antes de um uso real está em [Antes de ir para o mundo real](#antes-de-ir-para-o-mundo-real).
+
+**O código ainda reflete o plano antigo.** Hoje é o contrário do decidido: só o Admin nasce com a troca obrigatória, e os usuários cadastrados ainda não recebem senha (a issue #11 traz o cadastro). Também sobram do plano antigo `User.Activate` com o erro `link_invalid`, a mensagem que manda usar "Esqueci minha senha", e as regras AUTH-14, AUTH-15 e USR-34 em [product/](product/), que serão reescritas.
+
+- **Onde ver no código:** [PasswordChangeRequiredFilter.cs](../backend/ControlService/src/ControlService.API/Auth/PasswordChangeRequiredFilter.cs), [ApiV1Group.cs](../backend/ControlService/src/ControlService.API/Common/ApiV1Group.cs), [ChangePasswordHandler.cs](../backend/ControlService/src/ControlService.Application/Auth/ChangePassword/ChangePasswordHandler.cs).
+- **Em uma frase:** a primeira senha é de quem cadastrou, então o sistema obriga a trocá-la antes de liberar qualquer tela.
+
+### 22. Bloqueio por tentativas e limite de requisições só no login
+
+1. **O que é.** Duas proteções diferentes:
+   - **Bloqueio por conta.** Cinco senhas erradas seguidas travam aquele login por 15 minutos. Quem conta é o Identity (decisão 18).
+   - **Limite por endereço** (*rate limit*). Cada endereço IP pode fazer 20 logins e 60 renovações por minuto. Acima disso, a resposta é 429, com o cabeçalho `Retry-After` dizendo quanto esperar. Quem faz é o middleware que já vem no ASP.NET:
+
+     ```csharp
+     api.MapPost("/auth/sign-in", SignIn)
+         .AllowAnonymous()
+         .RequireRateLimiting(AuthRateLimiting.SignInPolicy)
+     ```
+
+2. **Que problema resolve.** O bloqueio protege uma conta de quem tenta adivinhar a senha dela. O limite protege de quem testa a mesma senha em muitas contas, que o bloqueio não enxerga.
+3. **O que acontece sem isso.** O login aceitaria tentativas sem fim.
+4. **Quanto custa.** Um arquivo e dois valores de configuração. Várias pessoas atrás do mesmo endereço de escritório dividem o limite.
+5. **Alternativas mais simples.** Só o bloqueio por conta.
+6. **Por que escolhemos assim.** As duas rotas limitadas são as únicas que aceitam requisição sem login. O limite global, para o resto da API, foi descartado: as outras rotas já exigem um token válido.
+
+- **Onde ver no código:** [AuthRateLimiting.cs](../backend/ControlService/src/ControlService.API/Auth/AuthRateLimiting.cs), [CredentialUserManager.cs](../backend/ControlService/src/ControlService.Infrastructure/Auth/CredentialUserManager.cs).
+- **Em uma frase:** errar a senha cinco vezes trava a conta; insistir demais no login trava o endereço.
+
+### 23. Permissão por tela, em quatro níveis, pelo maior nível entre os perfis
+
+1. **O que é.** Cada perfil de permissão dá um nível para cada tela: negado, leitor, editor ou gerenciador. Cada nível inclui o que o anterior permite. Uma pessoa pode ter vários perfis, e em cada tela vale o maior nível entre eles; uma tela que nenhum perfil menciona fica negada.
+
+   ```csharp
+   var levels = profiles.Select(profile => profile.GetLevel(screen));
+   return levels.DefaultIfEmpty(AccessLevel.Denied).Max();
+   ```
+
+   O `GET /me` devolve o nível da pessoa em todas as telas.
+2. **Que problema resolve.** É a regra do negócio (PERM-01 a PERM-07): o responsável pela empresa decide, tela a tela, o que cada pessoa pode fazer.
+3. **O que acontece sem isso.** Com papéis fixos, como `[Authorize(Roles = "Admin")]`, cada combinação de tela e nível seria um papel escrito no código.
+4. **Quanto custa.** Calcular o nível exige carregar os perfis da pessoa.
+5. **Alternativas mais simples.** Dois ou três papéis fixos.
+6. **Por que escolhemos assim.** É regra do produto, e o cálculo é uma função sem banco, testada no domínio. "Negado" é ausência de permissão, e não proibição: acrescentar um perfil nunca tira acesso de ninguém.
+
+- **Onde ver no código:** [EffectiveAccess.cs](../backend/ControlService/src/ControlService.Domain/Access/EffectiveAccess.cs), [AccessLevel.cs](../backend/ControlService/src/ControlService.Domain/Access/AccessLevel.cs), [GetMeHandler.cs](../backend/ControlService/src/ControlService.Application/Auth/GetMe/GetMeHandler.cs). As regras estão em [product/features/permission-profiles.md](product/features/permission-profiles.md).
+- **Em uma frase:** a permissão é um nível por tela, e com vários perfis vale o mais alto.
+
+### 24. Autorização conferida no endpoint, lida do banco a cada requisição
+
+**Ainda não está construído:** chega com a issue #9. Os nomes abaixo são os planejados.
+
+1. **O que é.** Cada endpoint declara a tela e o nível mínimo que exige:
+
+   ```csharp
+   api.MapPost("/users", Create).RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor);
+   ```
+
+   Por trás dessa linha há um *filtro de endpoint*: uma classe que roda antes do método do endpoint e pode responder no lugar dele. É o mesmo molde do filtro da decisão 21. Serão dois:
+   - um no grupo `/api/v1`, que confere se a conta está ativa e responde 401 `account_inactive` se não estiver;
+   - um por endpoint, que lê os perfis da pessoa, calcula o nível (decisão 23) e responde 403 se for menor que o exigido.
+
+   Os dois leem o banco a cada requisição, sem cache. A tabela vale para todas as telas:
+
+   | Operação | Nível mínimo |
+   |---|---|
+   | Listar e ver | Leitor |
+   | Criar e editar | Editor |
+   | Excluir ou desativar (e reativar) qualquer cadastro | Gerenciador |
+
+   No front-end, a tela com nível negado não aparece no menu, e os botões seguem a mesma tabela. Isso é conforto, não segurança: quem recusa de verdade é a API.
+2. **Que problema resolve.** A regra de permissão fica num lugar só, e nenhuma tela precisa lembrar de conferi-la. Mudar um perfil ou desativar alguém vale já na requisição seguinte.
+3. **O que acontece sem isso.** É o estado de hoje: qualquer pessoa logada chama qualquer endpoint, e quem é desativado continua com acesso até o token vencer (até 15 minutos).
+4. **Quanto custa.** Duas consultas a mais por requisição (o usuário e os perfis dele). Para um ERP de uma empresa, não pesa.
+5. **Alternativas mais simples.** Conferir a permissão dentro de cada handler, o que um dia alguém esquece. Ou pôr as permissões no JWT (decisão 19).
+6. **Por que escolhemos assim.** O filtro devolve o erro do mesmo jeito que o resto da API (decisão 7) e não traz conceito novo. A alternativa oficial do ASP.NET, *requirement* com *authorization handler* (o que fica por trás de `[Authorize(Policy = "...")]`), exigiria duas classes, e ela só sabe responder 403, o que encaixa mal no 401 da conta desativada. O cache de permissões foi descartado em 2026-10-05: seria uma peça a mais para invalidar, a fim de economizar duas consultas.
+
+- **Onde ver no código:** ainda não há; o filtro que serve de molde é [PasswordChangeRequiredFilter.cs](../backend/ControlService/src/ControlService.API/Auth/PasswordChangeRequiredFilter.cs). A tabela de níveis é a regra PERM-03 em [product/features/permission-profiles.md](product/features/permission-profiles.md).
+- **Em uma frase:** cada endpoint diz a tela e o nível que exige, e a resposta vem do banco na hora, sem cache.
+
+### 25. Chaves de tela como constantes estáveis
+
+1. **O que é.** Cada tela tem uma chave fixa, numa classe do domínio, e é ela que fica gravada nas permissões:
+
+   ```csharp
+   public const string Users = "gerenciamento/usuarios";
+   ```
+
+   O nome que aparece no menu pode mudar; a chave, nunca. Uma chave aposentada não é reaproveitada.
+2. **Que problema resolve.** No protótipo, a chave era derivada do nome da tela. Renomear "Relatório de Vendas" mudaria a chave, nenhum perfil teria nível para a chave nova, e a tela sumiria para todos, sem aviso.
+3. **O que acontece sem isso.** Corrigir um acento num nome de menu apagaria permissões.
+4. **Quanto custa.** Uma tela nova exige uma constante no back-end e uma entrada no menu do front-end.
+5. **Alternativas mais simples.** Derivar a chave do nome. Ou usar ids numéricos, que são estáveis, mas ilegíveis no banco.
+6. **Por que escolhemos assim.** Separar o identificador do texto exibido custa uma linha por tela. A rota que entrega o catálogo de telas ao front-end (`GET /screens`) chega com a issue #10.
+
+- **Onde ver no código:** [ScreenKeys.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKeys.cs), [ScreenKey.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKey.cs), [screen-catalog.json](product/screen-catalog.json).
+- **Em uma frase:** a permissão aponta para um código que nunca muda, e não para o nome que aparece no menu.
+
+## Antes de ir para o mundo real
+
+O sistema é, por enquanto, um portfólio: precisa ser fácil de visitar e ter o ciclo testável do início ao fim. O que está abaixo é aceito nesta fase e precisa ser revisto antes de um uso real.
+
+| Hoje, no portfólio | Antes de um uso real |
+|---|---|
+| O login e a senha do Admin ficam à mostra na tela de entrada, e o Admin não troca a senha (decisão 21) | Tirar a senha da tela e definir como o Admin troca a própria senha. O Admin e o perfil Gerenciador continuam: são a garantia de que sempre existe alguém com todas as permissões |
+| Não existe "Esqueci minha senha" | Links de ativação e de redefinição por e-mail |
+| A senha temporária é passada por fora do sistema | O mesmo link de ativação |
+
 ## O que ficou de fora
 
 Avaliado e não adotado. Fica registrado para ninguém propor de novo sem um motivo novo.
@@ -382,3 +589,12 @@ Avaliado e não adotado. Fica registrado para ninguém propor de novo sem um mot
 | Guardar um `openapi.json` no repositório e conferi-lo no CI | A página `/scalar` já mostra o contrato; seria um arquivo a mais para manter |
 | MediatR e AutoMapper | Duas dependências, hoje com edição comercial, para algo que cabe em poucas linhas do próprio projeto |
 | Controllers | Nenhum ganho de funcionalidade; exigiria reescrever o que já está testado |
+| Cache de permissões (HybridCache, Redis) | Ler o usuário e os perfis a cada requisição custa duas consultas; o cache seria uma peça a mais para invalidar (decisão 24) |
+| Links de ativação e de redefinição de senha por e-mail | Adiado, não descartado: volta quando o ciclo do produto estiver fechado (decisão 21) |
+| Limite global de requisições | Só as rotas sem login são limitadas; as outras já exigem um token válido (decisão 22) |
+| Permissões dentro do JWT | Mudar um perfil só valeria quando o token vencesse, e o token cresceria a cada tela nova |
+| Papéis fixos (`Roles`) | Não expressam "um nível por tela" sem um papel para cada combinação |
+| *Requirement* e *authorization handler* do ASP.NET | Dois conceitos a mais para o mesmo resultado de um filtro, e só sabem responder 403 (decisão 24) |
+| Autenticação só por cookie | Serviria para este front-end, mas o JWT é o mais pedido em vagas e serve para um aplicativo de celular |
+| Provedor de identidade externo (Keycloak, Auth0) | Tiraria do código a parte de login, que é uma das que o portfólio quer mostrar |
+| `SignInManager` e `MapIdentityApi` do Identity | Trazem autenticação por cookie e rotas prontas que não emitem o JWT do projeto |
