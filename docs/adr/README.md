@@ -92,7 +92,7 @@ To list the accepted security records, for example: search the folder for `statu
 | [0024](0024-testing-strategy.md) | Testing strategy | Accepted, amended by 0033 |
 | [0025](0025-enforce-architecture-rules-with-tests.md) | Enforce architecture rules with tests | Accepted |
 | [0026](0026-enforce-build-quality-settings.md) | Enforce build quality settings across the solution | Accepted |
-| [0033](0033-develop-test-first-in-pair-mode.md) | Develop test-first, in pair mode, with in-memory fakes | Accepted |
+| [0033](0033-develop-test-first-in-pair-mode.md) | Develop test-first, in pair mode, with in-memory fakes | Accepted, pair mode and the pauses superseded by [AGENTS.md](../../AGENTS.md#tests) |
 
 ## Operations
 
