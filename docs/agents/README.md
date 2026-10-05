@@ -2,8 +2,15 @@
 
 Detailed instructions for AI coding agents. The entry point, with the non-negotiable rules, is [AGENTS.md](../../AGENTS.md) at the repository root. The business rules themselves are in [docs/product](../product/); the map of all documentation is the [docs index](../README.md).
 
-- **Guides** describe *how things are done here*: conventions, patterns and constraints. Read the relevant ones before working.
-- **Workflows** are *step-by-step procedures* for recurring tasks. Follow them in order and do not skip steps.
+## The three commands
+
+Work on an issue goes through three commands, each one a skill in `.claude/skills/`. Claude Code loads them by name; any other agent reads the file. What they produce for the owner (issue bodies, final reports and review reports) is in Portuguese.
+
+| Command | Skill | Ends with |
+|---|---|---|
+| `/levantar-issue <n>` | [levantar-issue](../../.claude/skills/levantar-issue/SKILL.md) | The issue rewritten on GitHub: scope, numbered tests, acceptance criteria |
+| `/executar-issue <n>` | [executar-issue](../../.claude/skills/executar-issue/SKILL.md) | The pull request open with CI green, and the final report |
+| `/revisar-issue <n>` | [revisar-issue](../../.claude/skills/revisar-issue/SKILL.md) | Findings by severity, explained for the owner to decide |
 
 ## Guides
 
@@ -11,24 +18,22 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 |---|---|
 | [architecture.md](guides/architecture.md) | Layers, dependency rule, feature folders, DDD building blocks, Result pattern, endpoints |
 | [coding-conventions.md](guides/coding-conventions.md) | Naming, style, language of each artifact, packages, warnings |
-| [testing.md](guides/testing.md) | Test projects, naming, commands, coverage, what to test where |
-| [documentation.md](guides/documentation.md) | What to update in `docs/` and in the ADRs, and when |
+| [testing.md](guides/testing.md) | Test projects, naming, commands, what to test where |
+| [documentation.md](guides/documentation.md) | What to update in `docs/`, and when |
 | [local-environment.md](guides/local-environment.md) | Aspire, Docker naming, ports, HTTPS, Windows and PowerShell pitfalls |
 | [communication.md](guides/communication.md) | How to talk to the owner, ask questions and report results |
 
-## Workflows
+## Other procedures
 
-| Workflow | Use it to |
+| Procedure | Use it to |
 |---|---|
-| [test-driven-development.md](workflows/test-driven-development.md) | Write any code: Red → Green → Refactor in pair mode, with pauses and evidence |
 | [git-and-pull-requests.md](workflows/git-and-pull-requests.md) | Deliver any change through a branch and a pull request |
-| [implement-a-feature.md](workflows/implement-a-feature.md) | Build a slice of the roadmap from the business rules to a merged pull request |
-| [record-a-decision.md](workflows/record-a-decision.md) | Propose, accept or supersede an ADR |
+| [record-a-decision.md](workflows/record-a-decision.md) | Change an ADR, while the ADRs exist |
 | [review-dependency-updates.md](workflows/review-dependency-updates.md) | Evaluate and merge Dependabot pull requests |
 
 ## For the owner
 
-[trabalhando-com-agentes.md](trabalhando-com-agentes.md) (Portuguese): how to ask for tasks, review pull requests and keep conversations productive when pairing with an agent.
+[trabalhando-com-agentes.md](trabalhando-com-agentes.md) (Portuguese): how to use the three commands, read the final report and decide on review findings.
 
 ## Enforced rules
 
@@ -36,8 +41,7 @@ Detailed instructions for AI coding agents. The entry point, with the non-negoti
 
 ## Maintaining these files
 
-- Keep `AGENTS.md` short: rules, commands and links. Details belong here.
-- One topic per file. A new recurring task gets a workflow; a new convention goes into the matching guide.
-- Write in English, in the imperative ("Run", "Never"), with concrete paths and commands.
+- Keep `AGENTS.md` short: rules, commands and links.
+- A new convention goes into the matching guide. A new procedure is added only when a task really recurs.
 - When a rule changes, update it in one place and link to it instead of copying it.
 - These files change through pull requests like any other file.

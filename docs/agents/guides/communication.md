@@ -16,6 +16,8 @@ Ask when the answer changes what you will do: a business rule not covered by `do
 2. Say **why** the answer matters and what changes with each option.
 3. Offer the options with their trade-offs, and **mark your recommendation**.
 
+A technical decision gets the six points of [AGENTS.md](../../../AGENTS.md#the-owner): what is proposed, the problem it solves, what happens without it, its cost, the simpler alternatives and your recommendation.
+
 Do not ask about things you can find in the repository or decide with a well-known convention; decide, and mention the choice.
 
 If the owner answers "I don't know" or asks for more detail, explain both sides with concrete examples from this project before asking again. Never push the owner to accept a recommendation they do not understand.
@@ -36,4 +38,4 @@ Apply each rule **literally**. When the code would do more or less than the docu
 
 ## Actions that need the owner's explicit confirmation
 
-Publishing or changing anything on GitHub beyond the normal pull request flow and the plan comment of an issue (repository settings, rulesets, archiving, releases), deleting data (Docker volumes, branches, records), adding a dependency with architectural impact, and any change to an Accepted ADR. Machine security settings (certificates, firewall) are never changed by agents: give the owner the command.
+Publishing or changing anything on GitHub beyond the normal pull request flow and the issue body written by `/levantar-issue` (repository settings, rulesets, archiving, releases), deleting data (Docker volumes, branches, records), adding a dependency with architectural impact, and any change to an Accepted ADR. Machine security settings (certificates, firewall) are never changed by agents: give the owner the command.
