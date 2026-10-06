@@ -567,6 +567,269 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 - **Onde ver no código:** [ScreenKeys.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKeys.cs), [ScreenKey.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKey.cs), [screen-catalog.json](product/screen-catalog.json).
 - **Em uma frase:** a permissão aponta para um código que nunca muda, e não para o nome que aparece no menu.
 
+## Bloco D — Qualidade e operação
+
+### O que ainda reflete o plano antigo
+
+As decisões deste bloco descrevem o que está em uso. Estas sobras do plano anterior a 2026-10-05 ainda estão no código e saem em mudanças próprias, fora deste documento:
+
+| Sobra | Onde está | O que será feito |
+|---|---|---|
+| NSubstitute, uma biblioteca de mocks que nenhum teste usa | `ControlService.Application.Tests.csproj` | Remover (decisão 27) |
+| Mailpit, a caixa de e-mail de teste: o AppHost a sobe e a API espera por ela, mas nada envia e-mail | `AppHost.cs` | Remover; volta quando o e-mail voltar (decisão 31) |
+| `MailKit` e `Microsoft.Extensions.Caching.Hybrid`, com versão declarada e nenhum projeto usando | `Directory.Packages.props` | Remover (decisão 30) |
+| *Service discovery* e resiliência de HTTP, que vieram do modelo do Aspire | `ServiceDefaults/Extensions.cs` | Remover (decisão 31) |
+| Um pacote do Visual Studio em versão *preview*, que só serve para depurar dentro de um contêiner | `ControlService.API.csproj` | Remover (decisão 33) |
+| O CI não confere a formatação | `.github/workflows/ci.yml` | Acrescentar o passo (decisão 29) |
+| O guia de testes cita o Mailpit e os casos de link de ativação | `docs/agents/guides/testing.md` | Corrigir junto com a troca das citações de ADR |
+
+### 26. Testes em quatro projetos, cada comportamento em uma camada, contra PostgreSQL de verdade
+
+1. **O que é.** Quatro projetos de teste, com cerca de 200 testes em outubro de 2026:
+
+   | Projeto | O que testa | Testes | Precisa de |
+   |---|---|---|---|
+   | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 94 | Nada |
+   | `Application.Tests` | Handlers, com fakes (decisão 27) | 34 | Nada |
+   | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 69 | Docker |
+   | `ArchitectureTests` | Regras entre as camadas (decisão 28) | 4 | Nada |
+
+   As ferramentas são o xUnit v3, que é o framework de testes, e o Shouldly, que escreve as conferências (`result.IsSuccess.ShouldBeTrue()`). Os testes de integração sobem a API inteira em memória (`WebApplicationFactory`) contra um PostgreSQL real, num contêiner que o próprio teste liga e desliga (Testcontainers). Há um contêiner só para todos os testes:
+
+   ```csharp
+   private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18.3").Build();
+   ```
+
+   Cada comportamento é testado em **uma camada só**, a mais barata que o prova: a regra de um Value Object, no domínio; uma operação, pelo endpoint.
+2. **Que problema resolve.** A regra de negócio é testada rápido e sem banco. O que depende do banco (índice único, concorrência, chave estrangeira) é testado no mesmo banco que roda em produção.
+3. **O que acontece sem isso.** Com o banco em memória do EF Core, um teste de unicidade passaria sem o índice existir, porque esse provedor não aplica índices nem restrições.
+4. **Quanto custa.** Os testes de integração exigem o Docker ligado e rodam em sequência, porque dividem o mesmo banco. Cada teste cria os próprios dados, com nomes únicos.
+5. **Alternativas mais simples.** O banco em memória ou o SQLite. Ou só testes de unidade.
+6. **Por que escolhemos assim.** As regras de negócio são o centro do projeto, e várias delas só existem de verdade dentro do PostgreSQL.
+
+- **Onde ver no código:** [CpfTests.cs](../backend/ControlService/tests/ControlService.Domain.Tests/Users/CpfTests.cs), [SignInApiTests.cs](../backend/ControlService/tests/ControlService.Api.IntegrationTests/Auth/SignInApiTests.cs), [PostgresContainerFixture.cs](../backend/ControlService/tests/ControlService.Api.IntegrationTests/Common/PostgresContainerFixture.cs), [tests/Directory.Build.props](../backend/ControlService/tests/Directory.Build.props).
+- **Em uma frase:** a regra de negócio eu testo sem banco, e o que depende do banco eu testo num PostgreSQL de verdade, e não numa imitação.
+
+### 27. Teste antes do código, com lista numerada e fakes em memória
+
+1. **O que é.** Duas práticas:
+   - **Teste primeiro** (*test-first*). Todo comportamento começa por um teste que falha; depois vem o código que o faz passar, e por fim a limpeza (Red → Green → Refactor). Cada issue tem uma lista numerada de testes (`T01`, `T02`), que aparece igual na issue, no pull request e no relatório final, com o resultado de cada um.
+   - **Fakes em memória.** O `SignInHandler` recebe interfaces, como `IUserRepository`. Em produção, quem a implementa é o repositório que fala com o PostgreSQL. No teste de handler, quem a implementa é um *fake*: uma classe do próprio projeto de testes, que guarda os dados numa lista.
+
+     ```csharp
+     internal sealed class InMemoryUserRepository : IUserRepository
+     {
+         private readonly List<User> _users = [];
+
+         public void Add(User user) => _users.Add(user);
+
+         public Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken) =>
+             Task.FromResult(_users.Find(user => user.Login.Value == login.Value));
+     }
+     ```
+
+     O teste confere o **resultado**, e não as chamadas internas:
+
+     ```csharp
+     var bed = new AuthTestBed();
+     var user = bed.AddActiveUser("ana.souza", "senha-da-ana");
+
+     var result = await bed.CreateSignInHandler()
+         .Handle(new SignInCommand("ana.souza", "senha-da-ana"), TestContext.Current.CancellationToken);
+
+     result.IsSuccess.ShouldBeTrue();
+     var session = bed.Sessions.SessionsOf(user.Id).ShouldHaveSingleItem();
+     ```
+
+2. **Que problema resolve.** O teste escrito antes descreve a regra, e não o código que já existe. E o fake deixa refatorar o handler: o teste só quebra se o resultado mudar.
+3. **O que acontece sem isso.** Testes escritos depois tendem a confirmar o que o código já faz. Com um *mock* (um objeto que uma biblioteca fabrica durante o teste, e que confere quais métodos foram chamados), o teste quebra quando se troca o método chamado, mesmo com o resultado igual.
+4. **Quanto custa.** Mais tempo por funcionalidade, e uma classe fake para cada interface da `Application`; hoje são sete. O fake não prova que o SQL funciona: o repositório de verdade é testado contra o PostgreSQL (decisão 26).
+5. **Alternativas mais simples.** Testar depois. Teste primeiro só no domínio. Mocks em todos os testes.
+6. **Por que escolhemos assim.** O conjunto de testes é a rede de segurança para refatorar, e precisa sobreviver às refatorações. Em 2026-10-05 a forma de trabalho mudou: antes havia uma pausa a cada teste, para o dono aprovar; agora a issue é executada de uma vez, e a evidência é o relatório final. A regra do teste primeiro não mudou. Uma peça sem um teste que possa falhar antes (configuração, migrations) é nomeada na issue junto com o teste que a cobre.
+
+- **Onde ver no código:** a pasta [Fakes](../backend/ControlService/tests/ControlService.Application.Tests/Fakes/), [AuthTestBed.cs](../backend/ControlService/tests/ControlService.Application.Tests/Auth/AuthTestBed.cs), [SignInTests.cs](../backend/ControlService/tests/ControlService.Application.Tests/Auth/SignInTests.cs). As regras de trabalho estão no [AGENTS.md](../AGENTS.md#tests).
+- **Em uma frase:** escrevo o teste antes do código, e no lugar do banco uso uma classe simples em memória, para o teste conferir o resultado e não as chamadas.
+
+### 28. Testes de arquitetura
+
+1. **O que é.** Testes que leem os projetos já compilados e falham se uma camada usar o que não pode. Usam o pacote NetArchTest:
+
+   ```csharp
+   [Fact]
+   public void Domain_does_not_depend_on_other_layers_or_frameworks() =>
+       AssertNoDependency(DomainAssembly,
+           ApplicationNamespace, InfrastructureNamespace, ApiNamespace, EntityFrameworkCore, AspNetCore);
+   ```
+
+   | Regra | O que proíbe |
+   |---|---|
+   | Domínio | Usar `Application`, `Infrastructure`, `API`, EF Core ou ASP.NET Core |
+   | Application | Usar `Infrastructure`, `API`, EF Core ou ASP.NET Core |
+   | Infrastructure | Usar a `API` |
+   | Agregados | Ter uma propriedade com `set` público |
+
+2. **Que problema resolve.** A regra de camadas (decisão 2) e a do agregado que protege os próprios dados (decisão 3) deixam de depender de atenção na revisão.
+3. **O que acontece sem isso.** As referências entre projetos impedem uma parte: o `Domain` não referencia nenhum outro projeto. Mas nada impediria a `Application` de usar um pacote do EF Core, e isso só seria notado meses depois.
+4. **Quanto custa.** Um pacote e um projeto com quatro testes. A lista de agregados do último teste é manual: um agregado novo precisa ser acrescentado a ela.
+5. **Alternativas mais simples.** Só a revisão de código.
+6. **Por que escolhemos assim.** São poucas linhas para uma garantia que não depende de memória. **Planejada:** uma quinta regra, que proíbe a `API` de usar tipos da `Infrastructure` fora do `Program.cs`, para nenhum endpoint consultar o banco sem passar por um handler. Hoje o código já a cumpre; o teste entra numa issue própria, antes dos próximos endpoints.
+
+- **Onde ver no código:** [LayerDependencyTests.cs](../backend/ControlService/tests/ControlService.ArchitectureTests/LayerDependencyTests.cs), [AggregateTests.cs](../backend/ControlService/tests/ControlService.ArchitectureTests/AggregateTests.cs).
+- **Em uma frase:** as regras entre as camadas são testes: quem as viola quebra o build.
+
+### 29. As mesmas regras de qualidade em todos os projetos
+
+1. **O que é.** Um arquivo, o `Directory.Build.props`, vale para todos os projetos da solução:
+
+   ```xml
+   <Nullable>enable</Nullable>
+   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+   <AnalysisLevel>latest-recommended</AnalysisLevel>
+   <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+   ```
+
+   | Opção | O que faz |
+   |---|---|
+   | `Nullable` | O compilador avisa onde um valor pode ser `null` |
+   | `TreatWarningsAsErrors` | Um aviso quebra o build |
+   | `AnalysisLevel` | Liga os analisadores recomendados do .NET, que apontam erros comuns |
+   | `EnforceCodeStyleInBuild` | As regras de estilo do `.editorconfig` (campo privado com `_`, por exemplo) valem no build, e não só no editor |
+
+   A **formatação** é o texto do código: espaços, recuo, linhas em branco, ordem dos `using`. O padrão está no `.editorconfig`, e o comando `dotnet format` reescreve os arquivos para segui-lo. O script `check.ps1` formata, compila e testa de uma vez.
+2. **Que problema resolve.** Os avisos não se acumulam, e um projeto novo já nasce com as regras.
+3. **O que acontece sem isso.** Cada projeto teria as suas opções, e os avisos de `null` seriam ignorados até virarem `NullReferenceException`.
+4. **Quanto custa.** Um aviso pequeno trava o trabalho até ser corrigido. Só se suprime um aviso no próprio local, com a justificativa.
+5. **Alternativas mais simples.** Deixar os avisos como avisos. Configurar cada projeto.
+6. **Por que escolhemos assim.** Um aviso que não quebra o build acaba ignorado.
+
+**O CI ainda não confere a formatação.** Hoje só o `check.ps1`, na máquina de quem desenvolve, cuida dela. Um passo com `dotnet format --verify-no-changes`, que confere sem alterar, será acrescentado ao CI.
+
+- **Onde ver no código:** [Directory.Build.props](../backend/ControlService/Directory.Build.props), [.editorconfig](../backend/ControlService/.editorconfig), [check.ps1](../backend/ControlService/check.ps1).
+- **Em uma frase:** as regras de qualidade ficam num arquivo só, valem para todos os projetos, e um aviso quebra o build.
+
+### 30. As versões dos pacotes num arquivo só, com auditoria e atualização automática
+
+1. **O que é.** Três peças:
+   - **Versões centralizadas.** O `Directory.Packages.props` declara a versão de cada pacote uma vez, e os projetos citam o pacote sem versão:
+
+     ```xml
+     <!-- Directory.Packages.props -->
+     <PackageVersion Include="FluentValidation" Version="12.1.1" />
+
+     <!-- ControlService.Application.csproj -->
+     <PackageReference Include="FluentValidation" />
+     ```
+
+   - **Auditoria.** Com `NuGetAudit` no modo `all`, a restauração dos pacotes avisa quando um deles tem uma vulnerabilidade conhecida, mesmo que seja dependência de outro pacote. Como um aviso é um erro (decisão 29), o build quebra.
+   - **Dependabot.** Um serviço do GitHub que abre, toda semana, pull requests com as atualizações de pacotes, agrupadas por família.
+2. **Que problema resolve.** Dois projetos nunca usam versões diferentes do mesmo pacote, e uma vulnerabilidade não passa em silêncio.
+3. **O que acontece sem isso.** As versões ficariam espalhadas em dez arquivos `.csproj` e divergiriam com o tempo.
+4. **Quanto custa.** Uma vulnerabilidade recém-publicada pode quebrar o build de um dia para o outro, sem ninguém ter mexido no código. E os pull requests do Dependabot precisam de revisão.
+5. **Alternativas mais simples.** A versão em cada `.csproj`, atualizada à mão.
+6. **Por que escolhemos assim.** É uma opção do próprio .NET, sem pacote extra. Regra do projeto: nenhuma versão é declarada fora desse arquivo.
+
+**Sobras do plano antigo.** O arquivo tem um grupo de versões declaradas antes do uso. Duas delas são de decisões descartadas ou adiadas e serão removidas: `MailKit` (envio de e-mail) e `Microsoft.Extensions.Caching.Hybrid` (cache de permissões).
+
+- **Onde ver no código:** [Directory.Packages.props](../backend/ControlService/Directory.Packages.props), [dependabot.yml](../.github/dependabot.yml).
+- **Em uma frase:** cada pacote tem a versão declarada num lugar só, e o build quebra se algum tiver uma vulnerabilidade conhecida.
+
+### 31. .NET Aspire para rodar o sistema na máquina de desenvolvimento
+
+1. **O que é.** O Aspire é uma ferramenta do .NET para o desenvolvimento local. Um projeto, o `AppHost`, descreve em C# o que o sistema precisa para rodar:
+
+   ```csharp
+   var postgres = builder.AddPostgres("postgres")
+       .WithContainerName($"{NamePrefix}-postgres")
+       .WithLifetime(ContainerLifetime.Persistent)
+       .WithDataVolume($"{NamePrefix}-postgres-data");
+
+   var database = postgres.AddDatabase("controlservice");
+   ```
+
+   Um comando (`dotnet run --project src/ControlService.AppHost`) sobe o PostgreSQL num contêiner, entrega a *connection string* à API, inicia a API e abre um painel com os logs e os tempos de cada requisição. Um segundo projeto, o `ServiceDefaults`, é o modelo do Aspire para a telemetria e os *health checks* (decisão 32).
+2. **Que problema resolve.** Quem clona o repositório roda o sistema inteiro só com o Docker e o SDK do .NET, sem instalar o PostgreSQL nem editar uma connection string.
+3. **O que acontece sem isso.** Um `docker-compose.yml`, mais a connection string copiada à mão para a configuração.
+4. **Quanto custa.** Dois projetos a mais na solução, e uma ferramenta nova, que muda rápido. Serve só ao desenvolvimento: a publicação usa a imagem da decisão 33.
+5. **Alternativas mais simples.** O Docker Compose, que é mais conhecido. Ou o PostgreSQL instalado na máquina.
+6. **Por que escolhemos assim.** Já está construído, e o painel entrega a observabilidade local sem nenhuma configuração.
+
+**Sobras do plano antigo.** O `AppHost` ainda sobe o Mailpit, e a API espera por ele, embora nada envie e-mail. E o `ServiceDefaults` liga duas peças do modelo que só agem quando a API chama outro serviço por HTTP, o que ela não faz: a descoberta de serviços (achar o endereço de outro serviço pelo nome) e a resiliência (tentar de novo quando a chamada falha). As três serão removidas.
+
+- **Onde ver no código:** [AppHost.cs](../backend/ControlService/src/ControlService.AppHost/AppHost.cs), [Extensions.cs](../backend/ControlService/src/ControlService.ServiceDefaults/Extensions.cs), e a linha `builder.AddServiceDefaults()` do [Program.cs](../backend/ControlService/src/ControlService.API/Program.cs).
+- **Em uma frase:** um comando sobe o banco e a API já ligados um ao outro, e abre um painel para ver o que acontece.
+
+### 32. Observabilidade com o `ILogger` do .NET e o OpenTelemetry
+
+1. **O que é.** Observabilidade é conseguir ver o que o sistema fez. São três peças:
+   - **Logs:** o `ILogger`, que já vem no .NET, sem biblioteca extra.
+   - **Traces e métricas:** o OpenTelemetry, um padrão aberto que não prende o código a um fornecedor. Um *trace* é o caminho de uma requisição, com o tempo de cada etapa e de cada consulta ao banco.
+   - **Destino:** na máquina local, o painel do Aspire. O envio só é ligado quando existe um endereço configurado:
+
+     ```csharp
+     var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+     ```
+
+   Um teste (`AuthLoggingTests`) entra no sistema, renova a sessão e troca a senha, e confere que nenhuma senha, token ou cookie foi escrito nos logs.
+
+   **Não confundir com a auditoria.** "Quem criou" e "quem alterou" cada registro são dados do sistema, gravados no banco (decisão 14). O log é um texto técnico, para quem desenvolve investigar um problema, e é descartado com o tempo.
+2. **Que problema resolve.** Quando algo falha, dá para achar a requisição e ver em que etapa ela parou.
+3. **O que acontece sem isso.** Só o console, sem ligação entre uma requisição e as consultas que ela fez.
+4. **Quanto custa.** Cinco pacotes do OpenTelemetry, todos dentro do `ServiceDefaults`.
+5. **Alternativas mais simples.** Só o `ILogger`, escrevendo no console.
+6. **Por que escolhemos assim.** O `ILogger` já grava logs estruturados, e o OpenTelemetry já os leva ao painel. O Serilog, uma biblioteca de logs muito usada, estava no plano e foi descartado em 2026-10-05: seria uma dependência a mais para o mesmo resultado.
+
+**O que falta em relação ao plano antigo,** e fica para quando o sistema for publicado ([Antes de ir para o mundo real](#antes-de-ir-para-o-mundo-real)):
+- Não há uma linha de log por requisição com o id de quem a fez.
+- Os *health checks* (endereços que respondem se a API está no ar e se alcança o banco) são `/health` e `/alive`, e só existem em desenvolvimento.
+- Fora da máquina local, a telemetria não tem destino.
+
+- **Onde ver no código:** [Extensions.cs](../backend/ControlService/src/ControlService.ServiceDefaults/Extensions.cs), [AuthLoggingTests.cs](../backend/ControlService/tests/ControlService.Api.IntegrationTests/Auth/AuthLoggingTests.cs).
+- **Em uma frase:** uso o log que já vem no .NET e um padrão aberto para os traces, e um teste garante que senha e token nunca vão para o log.
+
+### 33. Imagem de contêiner por Dockerfile
+
+1. **O que é.** Uma imagem de contêiner é um pacote com a API e tudo de que ela precisa para rodar. Quem a descreve é o `Dockerfile`, em etapas: uma compila, usando a imagem do SDK; a final tem só o necessário para executar, e roda a API com um usuário sem privilégios.
+
+   ```dockerfile
+   FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+   USER $APP_UID
+   ```
+
+2. **Que problema resolve.** A API roda do mesmo jeito em qualquer hospedagem que aceite contêineres.
+3. **O que acontece sem isso.** Publicar exigiria instalar o .NET no servidor e copiar os arquivos.
+4. **Quanto custa.** Um arquivo para manter: cada projeto novo de que a API dependa precisa de uma linha `COPY`. Hoje a imagem não é usada em lugar nenhum; o CI só confere que ela é montada (decisão 34).
+5. **Alternativas mais simples.** Deixar o SDK do .NET gerar a imagem, sem Dockerfile (`dotnet publish /t:PublishContainer`), que era o plano original. Ou não ter imagem até existir onde publicá-la.
+6. **Por que escolhemos assim.** O Dockerfile já existe, o CI o valida, e é o formato que qualquer pessoa da área reconhece.
+
+**Sobra.** O projeto da API referencia `Microsoft.VisualStudio.Azure.Containers.Tools.Targets`, numa versão *preview*. Ele só serve para depurar dentro de um contêiner pelo Visual Studio, o que o projeto não usa, e será removido. O Dockerfile não depende dele.
+
+- **Onde ver no código:** [Dockerfile](../backend/ControlService/src/ControlService.API/Dockerfile), [.dockerignore](../backend/ControlService/.dockerignore).
+- **Em uma frase:** a API vira uma imagem que roda igual em qualquer lugar, com um usuário sem privilégios.
+
+### 34. Integração contínua no GitHub Actions; a publicação é manual
+
+1. **O que é.** A integração contínua (CI) roda no GitHub a cada pull request e a cada mudança na `main`, em dois trabalhos:
+   - **Build and test:** restaura os pacotes, compila em `Release` (um aviso é um erro) e roda todos os testes, com o PostgreSQL de verdade. A cobertura de código é guardada como anexo da execução.
+   - **Build API image:** monta a imagem do Dockerfile, sem publicá-la.
+
+   A `main` é protegida por uma regra do repositório: só recebe mudanças por pull request, e só com os dois trabalhos verdes. O fluxo usa um token só de leitura:
+
+   ```yaml
+   permissions:
+     contents: read
+   ```
+
+2. **Que problema resolve.** "Na minha máquina funciona" deixa de valer como prova. O selo verde no README é a evidência.
+3. **O que acontece sem isso.** Um pull request poderia quebrar o build ou um teste sem ninguém perceber.
+4. **Quanto custa.** Alguns minutos por pull request. A cobertura é coletada, mas não tem meta nem selo.
+5. **Alternativas mais simples.** Rodar o `check.ps1` à mão antes de cada merge.
+6. **Por que escolhemos assim.** É gratuito para um repositório público e fica à vista de quem avalia o portfólio. Ficaram de fora, em 2026-10-05, a publicação automática e a conferência de um `openapi.json`.
+
+**A demonstração pública.** O sistema terá uma demonstração aberta a visitantes (decisão 21), publicada à mão. Onde hospedar ainda não foi decidido: a escolha será feita quando o front-end entrar no repositório, porque depende dele. O que falta para publicar está em [Antes de ir para o mundo real](#antes-de-ir-para-o-mundo-real).
+
+- **Onde ver no código:** [ci.yml](../.github/workflows/ci.yml).
+- **Em uma frase:** todo pull request é compilado e testado num ambiente limpo antes de poder entrar na `main`.
+
 ## Antes de ir para o mundo real
 
 O sistema é, por enquanto, um portfólio: precisa ser fácil de visitar e ter o ciclo testável do início ao fim. O que está abaixo é aceito nesta fase e precisa ser revisto antes de um uso real.
@@ -576,6 +839,12 @@ O sistema é, por enquanto, um portfólio: precisa ser fácil de visitar e ter o
 | O login `admin` e a senha `admin123` são fixos e ficam à mostra na tela de entrada, e o Admin não troca a senha (decisão 21) | Tirar a senha fixa do código e da tela, e permitir que o Admin troque a própria senha. O Admin e o perfil Gerenciador continuam: são a garantia de que sempre existe alguém com todas as permissões |
 | Não existe "Esqueci minha senha" | Links de ativação e de redefinição por e-mail |
 | A senha temporária é passada por fora do sistema | O mesmo link de ativação |
+| As migrations só são aplicadas sozinhas em desenvolvimento (decisão 11) | Um passo da publicação que aplique as migrations antes de a versão nova subir |
+| A imagem da API é montada no CI, mas não é publicada em lugar nenhum (decisões 33 e 34) | Escolher a hospedagem do front-end, da API e do banco, e publicar |
+| Os health checks só existem em desenvolvimento, e a telemetria só vai para o painel local (decisão 32) | Expor os health checks à hospedagem e definir um destino para os logs e os traces |
+| Não há log de quem fez cada requisição (decisão 32) | Uma linha de log por requisição com o id do usuário, sem dados pessoais |
+| O refresh token viaja num cookie, e o front-end e a API ainda não têm endereço público (decisão 20) | Definir como os dois ficam sob o mesmo endereço, para o navegador aceitar o cookie |
+| A conta Admin é pública, e um visitante pode alterar ou apagar dados (decisão 21) | Na demonstração, restaurar o banco de tempos em tempos |
 
 ## O que ficou de fora
 
@@ -598,3 +867,11 @@ Avaliado e não adotado. Fica registrado para ninguém propor de novo sem um mot
 | Autenticação só por cookie | Serviria para este front-end, mas o JWT é o mais pedido em vagas e serve para um aplicativo de celular |
 | Provedor de identidade externo (Keycloak, Auth0) | Tiraria do código a parte de login, que é uma das que o portfólio quer mostrar |
 | `SignInManager` e `MapIdentityApi` do Identity | Trazem autenticação por cookie e rotas prontas que não emitem o JWT do projeto |
+| Banco em memória ou SQLite nos testes | Não aplicam índices nem restrições como o PostgreSQL; um teste passaria sem a regra existir no banco (decisão 26) |
+| Biblioteca de mocks (NSubstitute, Moq) | Os fakes em memória conferem o resultado, e não as chamadas internas, e sobrevivem às refatorações (decisão 27) |
+| Regra de nomes nos testes de arquitetura (`...Handler`, `...Validator`) | Um nome fora do padrão não causa defeito, e a revisão o pega (decisão 28) |
+| Meta mínima de cobertura de código | A cobertura é coletada no CI; uma meta levaria a escrever testes para o número, e não para as regras |
+| Docker Compose | O Aspire já sobe o banco e a API com um comando, e entrega a connection string (decisão 31) |
+| Serilog | O `ILogger` do .NET já grava logs estruturados, e o OpenTelemetry os leva ao painel (decisão 32) |
+| Gerar a imagem pelo SDK, sem Dockerfile | O Dockerfile já existe, é validado no CI e é o formato mais conhecido (decisão 33) |
+| Publicação automática (deploy) | A publicação será manual até o ciclo do produto estar fechado (decisão 34) |
