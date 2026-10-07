@@ -175,9 +175,10 @@ Whether the Admin may have personal data (phone, signature) is an [open question
 
 | ID | Rule |
 |---|---|
+| USR-36 | The signature is stored in the user's own record, in the database (decided by the owner on 2026-10-07). Because the image is large, only the single-record response returns it: the list and `me` never do. |
 | USR-25 | The signature is drawn on a 1200 × 400 pixel canvas, with the mouse or a finger, or uploaded as a PNG, JPG or WebP image of up to 5 MB. An uploaded image is resized to fit the canvas, keeping its proportions. |
 
-The prototype stores the image inside the record as a *data URL* (PNG with a transparent background, or JPEG with a white background when larger than 180,000 characters). Separate object storage was evaluated and left out ("O que ficou de fora" in the [decisions document](../../decisoes-de-arquitetura.md)). **The signature is out of the first back-end slice**, and where it is stored is an [open question](../open-questions.md) (OQ-01).
+The prototype stores the image inside the record as a *data URL* (PNG with a transparent background, or JPEG with a white background when larger than 180,000 characters). Separate object storage was evaluated and left out ("O que ficou de fora" in the [decisions document](../../decisoes-de-arquitetura.md)). **The signature is out of the first back-end slice**: it enters when a screen needs it on a document.
 
 ## Messages
 

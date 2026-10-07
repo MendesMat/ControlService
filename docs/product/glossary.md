@@ -40,7 +40,7 @@ The value objects (`Login`, `EmailAddress`, `Cpf`, `PhoneNumber`, `Cep`, `BloodT
 | Tipo sanguíneo | `BloodType` (value object) | `bloodType` | Closed list; sensitive personal data |
 | Endereço | `Address` | `address` | Always present, fields optional |
 | Contato de emergência | `EmergencyContact` | `emergencyContact` | Always present, fields optional |
-| Assinatura | `Signature` | `signature` | Out of the first slice (OQ-01) |
+| Assinatura | `Signature` | `signature` | Stored in the user's record (USR-36); out of the first slice |
 | Situação da conta | `UserStatus` | `status` | |
 | Ativo | `UserStatus.Active` | `active` | |
 | Desativado | `UserStatus.Inactive` | `inactive` | Users are deactivated, never deleted |

@@ -8,7 +8,6 @@ What is still undecided and affects the back-end or its integration with the fro
 
 | ID | Question |
 |---|---|
-| OQ-01 | **Where to store the signature.** The prototype keeps the image inside the user record, as text of up to about 180,000 characters. Separate object storage was evaluated and left out ("O que ficou de fora" in the [decisions document](../decisoes-de-arquitetura.md)); whether a column in the database is enough is not decided. The signature is out of the first back-end slice and must be decided before it enters (USR-25). |
 | OQ-02 | **Full change history.** Authorship records who created a record and who changed it last, but not what changed. A field-by-field history is left for a later stage (CNV-10). |
 | OQ-03 | **Live updates between people.** An open list does not refresh by itself when someone else changes a record; it refreshes when the page is reloaded, the list is reopened or the person saves something. Protection against simultaneous saves is decided (CNV-12); automatic list refresh is not. |
 
@@ -50,4 +49,5 @@ Decisions cited by number are in the [decisions document](../decisoes-de-arquite
 | Duplicated login or name: field error or conflict | Validation error (400), with the message under the field | [API conventions](../api/conventions.md#errors), decision 7 |
 | Production e-mail provider (OQ-04) | Not needed for now: access by e-mail is postponed, and the question comes back with it | decision 21 |
 | Demo access in the public environment (OQ-05) | The Admin is the demo account, with a fixed login and password shown on the sign-in screen | [authentication](features/authentication.md#the-admin-demo-account) (AUTH-13), decision 21 |
+| Where to store the signature (OQ-01) | In a column of the user's own record, as the prototype does; only the single-record response returns it. It stays out of the first back-end slice | [users](features/users.md#signature) (USR-36), "O que ficou de fora" in the decisions document |
 | Documentation language and structure | English by default, organized by feature, with stable rule IDs | [docs index](../README.md) |
