@@ -5,7 +5,7 @@ namespace ControlService.Domain.Tests.Common;
 public class ResultOfTTests
 {
     [Fact]
-    public void Result_of_T_success_exposes_value() // ADR-0009
+    public void Result_of_T_success_exposes_value()
     {
         var result = Result<int>.Success(42);
 
@@ -14,7 +14,7 @@ public class ResultOfTTests
     }
 
     [Fact]
-    public void Result_of_T_failure_does_not_expose_a_value() // ADR-0009
+    public void Result_of_T_failure_does_not_expose_a_value()
     {
         var error = new Error("not_found", "Registro não encontrado.");
 

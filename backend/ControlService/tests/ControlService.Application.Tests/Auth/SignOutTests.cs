@@ -6,7 +6,7 @@ namespace ControlService.Application.Tests.Auth;
 public class SignOutTests
 {
     [Fact]
-    public async Task Sign_out_ends_only_the_current_session() // ADR-0019
+    public async Task Sign_out_ends_only_the_current_session()
     {
         var bed = new AuthTestBed();
         var user = bed.AddActiveUser("ana.souza", "senha-da-ana");

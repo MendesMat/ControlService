@@ -11,7 +11,7 @@ namespace ControlService.Api.IntegrationTests.Auth;
 public sealed class AdminCredentialTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     [Fact]
-    public async Task Startup_creates_the_admin_credential_with_a_mandatory_change() // AUTH-13, ADR-0022
+    public async Task Startup_creates_the_admin_credential_with_a_mandatory_change() // AUTH-13
     {
         // The first host already created it; removing it lets the next start prove it is created when missing.
         await AuthTestSupport.DeleteAdminCredentialAsync(factory.Services);

@@ -31,7 +31,7 @@ public sealed class RefreshApiTests(AuthApiFactory factory) : IClassFixture<Auth
     }
 
     [Fact]
-    public async Task Refresh_slides_the_session_for_another_8_hours() // AUTH-17, ADR-0032
+    public async Task Refresh_slides_the_session_for_another_8_hours() // AUTH-17
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -48,7 +48,7 @@ public sealed class RefreshApiTests(AuthApiFactory factory) : IClassFixture<Auth
     }
 
     [Fact]
-    public async Task Refresh_after_8_idle_hours_returns_401_session_expired() // AUTH-17, ADR-0032
+    public async Task Refresh_after_8_idle_hours_returns_401_session_expired() // AUTH-17
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

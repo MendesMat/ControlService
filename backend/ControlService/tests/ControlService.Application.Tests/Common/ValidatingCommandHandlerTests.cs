@@ -7,7 +7,7 @@ namespace ControlService.Application.Tests.Common;
 public class ValidatingCommandHandlerTests
 {
     [Fact]
-    public async Task Valid_command_reaches_the_handler() // ADR-0008
+    public async Task Valid_command_reaches_the_handler()
     {
         var innerHandler = new FakeCommandHandler();
         var sut = new ValidatingCommandHandler<TestCommand, TestResponse>(innerHandler, new TestCommandValidator());
@@ -22,7 +22,7 @@ public class ValidatingCommandHandlerTests
     }
 
     [Fact]
-    public async Task Invalid_command_returns_validation_failed_and_never_reaches_the_handler() // ADR-0008
+    public async Task Invalid_command_returns_validation_failed_and_never_reaches_the_handler()
     {
         var innerHandler = new FakeCommandHandler();
         var sut = new ValidatingCommandHandler<TestCommand, TestResponse>(innerHandler, new TestCommandValidator());
@@ -37,7 +37,7 @@ public class ValidatingCommandHandlerTests
     }
 
     [Fact]
-    public async Task Validation_errors_use_camelCase_field_paths() // ADR-0008
+    public async Task Validation_errors_use_camelCase_field_paths()
     {
         var innerHandler = new FakeCommandHandler();
         var sut = new ValidatingCommandHandler<TestCommand, TestResponse>(innerHandler, new TestCommandValidator());
@@ -52,7 +52,7 @@ public class ValidatingCommandHandlerTests
     }
 
     [Fact]
-    public async Task Command_with_no_validation_rules_passes_through() // ADR-0008
+    public async Task Command_with_no_validation_rules_passes_through()
     {
         var innerHandler = new FakeCommandHandler();
         var sut = new ValidatingCommandHandler<TestCommand, TestResponse>(innerHandler, new EmptyValidator());

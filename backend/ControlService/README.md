@@ -1,6 +1,6 @@
 # Control Service: back-end
 
-API em C# com .NET 10, organizada em Clean Architecture ([ADR-0005](../../docs/adr/0005-adopt-clean-architecture.md)) com Minimal APIs ([ADR-0003](../../docs/adr/0003-use-minimal-apis-grouped-by-feature.md)). As regras de negócio estão em [`docs/`](../../docs/README.md).
+API em C# com .NET 10, organizada em Clean Architecture com Minimal APIs (as decisões estão em [`docs/decisoes-de-arquitetura.md`](../../docs/decisoes-de-arquitetura.md)). As regras de negócio estão em [`docs/`](../../docs/README.md).
 
 ## Como rodar
 
@@ -105,7 +105,7 @@ Pastas previstas para a primeira etapa: `Access` (níveis, chaves das telas, ace
 
 ## Configurações comuns
 
-- `Directory.Build.props`: .NET 10, nullable, avisos tratados como erros e analisadores ([ADR-0026](../../docs/adr/0026-enforce-build-quality-settings.md)).
+- `Directory.Build.props`: .NET 10, nullable, avisos tratados como erros e analisadores (decisão 29 em [`docs/decisoes-de-arquitetura.md`](../../docs/decisoes-de-arquitetura.md)).
 - `Directory.Packages.props`: **todas as versões de pacotes ficam aqui**. No `.csproj`, use `<PackageReference Include="Nome" />` sem versão.
 - `tests/Directory.Build.props`: xUnit v3 e Shouldly para todos os projetos de teste.
 

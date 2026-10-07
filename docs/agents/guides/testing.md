@@ -1,14 +1,14 @@
 # Testing guide
 
-The strategy is in ADR-0024, and all development is test-first. Tests are the executable version of the business rules, so they are part of every change, not an extra. Each issue carries a numbered test list ([AGENTS.md](../../../AGENTS.md#tests)); **how** to write the tests, one failing test at a time, is in the [`/executar-issue` skill](../../../.claude/skills/executar-issue/SKILL.md).
+The strategy is in decisions 26 to 28 of the [decisions document](../../decisoes-de-arquitetura.md) (in Portuguese), and all development is test-first. Tests are the executable version of the business rules, so they are part of every change, not an extra. Each issue carries a numbered test list ([AGENTS.md](../../../AGENTS.md#tests)); **how** to write the tests, one failing test at a time, is in the [`/executar-issue` skill](../../../.claude/skills/executar-issue/SKILL.md).
 
 ## Test projects
 
 | Project | Tests | Doubles |
 |---|---|---|
 | `ControlService.Domain.Tests` | Value objects, aggregates, effective access | None: the domain has no dependencies |
-| `ControlService.Application.Tests` | Handlers and validators | Hand-written in-memory fakes of the Application interfaces; NSubstitute only when a fake would be clearly heavier |
-| `ControlService.Api.IntegrationTests` | Real HTTP calls, authentication, authorization, persistence; also unit tests of the API's own helpers, such as the `Error` → Problem Details table (`Common/ErrorResultsTests.cs`), since there is no API unit test project | `WebApplicationFactory`, Testcontainers (PostgreSQL, Mailpit) |
+| `ControlService.Application.Tests` | Handlers and validators | In-memory fakes of the Application interfaces, classes of the test project (`Fakes/`); no mock library |
+| `ControlService.Api.IntegrationTests` | Real HTTP calls, authentication, authorization, persistence; also unit tests of the API's own helpers, such as the `Error` → Problem Details table (`Common/ErrorResultsTests.cs`), since there is no API unit test project | `WebApplicationFactory`, Testcontainers (PostgreSQL) |
 | `ControlService.ArchitectureTests` | Dependency rules between layers | None |
 
 Framework: xUnit v3 on Microsoft.Testing.Platform, assertions with Shouldly. Common packages come from `tests/Directory.Build.props`; do not repeat them in each project.
@@ -52,13 +52,13 @@ dotnet test --solution ControlService.slnx --coverage --coverage-output-format c
 - Integration tests run against real containers, never the EF Core in-memory provider.
 - Pass `TestContext.Current.CancellationToken` to async calls (xUnit analyzer rule).
 
-## Mandatory cases (ADR-0024)
+## Mandatory cases
 
 Effective permission: `Denied` in one profile and `Editor` in another gives `Editor`; a screen missing from a profile counts as `Denied`; the Gerenciador profile gives `Manager` on every screen, including new ones; an unknown profile id is ignored; no profiles gives `Denied` everywhere.
 
-Account flows: activation link sent on creation; link expired after 72 hours; link invalid after use or after "resend access"; identical response to password-reset requests for existing and unknown logins.
+Account flows: an unknown login and a wrong password get the same error; a refresh token works once, and the old one stops working; a session ends after 8 hours without action; changing the password ends every session; while the password change is mandatory, every endpoint except `me`, sign-out and change-password answers 401 `password_change_required`; no password, token or cookie reaches a log.
 
-Every endpoint: one allowed and one denied path for its minimum level; the 409 concurrency path for updates.
+Every endpoint, from issue #9 on: one allowed and one denied path for its minimum level; the 409 concurrency path for updates.
 
 ## API tests without a feature endpoint
 
@@ -68,7 +68,7 @@ Every endpoint: one allowed and one denied path for its minimum level; the 409 c
 
 ## Persistence tests
 
-Since `Program` needs a database to start, **every** `WebApplicationFactory` in `ControlService.Api.IntegrationTests` shares one PostgreSQL container: `Common/PostgresContainerFixture.cs` is an xUnit v3 **assembly fixture** (`[assembly: AssemblyFixture(...)]`), started once and stopped after the whole assembly runs. `Common/ApiFactory.cs` is the shared base every factory derives from (including `ErrorEndpointsFactory`); it wires the container's connection string as `ConnectionStrings:controlservice` and `Admin:Email` = `admin@example.com`, and forces `Development` so migrations and seeding run (ADR-0013). This needs **Docker running locally and in CI**.
+Since `Program` needs a database to start, **every** `WebApplicationFactory` in `ControlService.Api.IntegrationTests` shares one PostgreSQL container: `Common/PostgresContainerFixture.cs` is an xUnit v3 **assembly fixture** (`[assembly: AssemblyFixture(...)]`), started once and stopped after the whole assembly runs. `Common/ApiFactory.cs` is the shared base every factory derives from (including `ErrorEndpointsFactory`); it wires the container's connection string as `ConnectionStrings:controlservice` and `Admin:Email` = `admin@example.com`, and forces `Development` so migrations and seeding run. This needs **Docker running locally and in CI**.
 
 Because every factory targets the same database, test collections run **sequentially** (`xunit.runner.json`, `parallelizeTestCollections: false`): two hosts racing to seed the system records at the same time would violate `pk_users`. `Xunit.CollectionBehaviorAttribute.DisableTestParallelization` is obsolete in xunit v3; use the JSON setting instead.
 
@@ -85,5 +85,5 @@ Because every factory targets the same database, test collections run **sequenti
 - **The Admin is one row shared by the whole test assembly**, so a test that signs in as the Admin or changes its password starts with `AuthTestSupport.ResetAdminAsync` (initial password, mandatory change, no sessions, no activation time). `AuthTestSupport.CreateUserAsync` creates an active user with a credential under a unique login; `GrantAsync` and `DeactivateUserAsync` change what that user may do.
 - **Any other authenticated endpoint** is stood in for by `/api/v1/test-only/protected`, mapped through `MapApiV1()` by a startup filter (that filter needs its own `UseRouting`, `UseAuthentication` and `UseAuthorization`).
 - `Auth/CapturingLoggerProvider` keeps every log line, prefixed by its level, so a test can assert that no password, token or cookie value was written. To capture below `Information`, add a filter rule for the provider (`AddFilter<CapturingLoggerProvider>(null, LogLevel.Trace)`): `SetMinimumLevel` applies only when no rule matches, and `appsettings.json` always matches with `Default: Information`.
-- In `ControlService.Application.Tests`, `Auth/AuthTestBed` builds the handlers over the hand-written fakes in `Fakes/` (in-memory repositories, `FakeCredentialStore`, `InMemorySessionStore`, `FakeAccessTokenIssuer`, `FakeUnitOfWork`, `FixedTimeProvider`). Lockout counting is Identity's job, so the fake store scripts the outcome and the real counting is tested against PostgreSQL (`CredentialStoreTests`).
+- In `ControlService.Application.Tests`, `Auth/AuthTestBed` builds the handlers over the in-memory fakes in `Fakes/` (in-memory repositories, `FakeCredentialStore`, `InMemorySessionStore`, `FakeAccessTokenIssuer`, `FakeUnitOfWork`, `FixedTimeProvider`). Lockout counting is Identity's job, so the fake store scripts the outcome and the real counting is tested against PostgreSQL (`CredentialStoreTests`).
 

@@ -1,6 +1,6 @@
 <Project Sdk="Aspire.AppHost.Sdk/13.5.4">
 
-  <!-- Starts PostgreSQL, Mailpit and the API with one command for local development (ADR-0027). -->
+  <!-- Starts PostgreSQL, Mailpit and the API with one command for local development. -->
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>

@@ -1,5 +1,5 @@
 <Project>
-  <!-- Applied to every project in the solution (ADR-0026). -->
+  <!-- Applied to every project in the solution. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>

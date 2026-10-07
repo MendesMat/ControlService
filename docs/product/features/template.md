@@ -3,7 +3,7 @@
 One or two sentences: what this feature is for, in business terms. Link related features.
 
 - **Screen:** Name in the menu, key `area/screen` (from [screen-catalog.json](../screen-catalog.json)).
-- **Decisions:** the ADRs that apply.
+- **Decisions:** the numbers of the decisions in [decisoes-de-arquitetura.md](../../decisoes-de-arquitetura.md) that apply.
 - **Read with:** [conventions](../conventions.md), [API conventions](../../api/conventions.md), [glossary](../glossary.md).
 
 <!--

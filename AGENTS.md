@@ -9,7 +9,7 @@ Control Service is an ERP for service companies and the owner's **public portfol
 - **Product goal, in this order:** sign-in and security → the records the planned screens need → clients and services → the commercial and financial workflow → reports → the whole cycle closed and demonstrable.
 - **Stack:** .NET 10 / C# 14, ASP.NET Core Minimal APIs, EF Core 10, PostgreSQL 18, .NET Aspire 13.5, xUnit v3 on Microsoft.Testing.Platform. Four projects by layer (Domain, Application, Infrastructure, API) with feature folders.
 - **Business rules:** `docs/product/` is the source of truth: one document per feature in `docs/product/features/`, plus the rules shared by all in `docs/product/conventions.md`. Rules have stable IDs (`USR-06`, `PERM-05`); cite them in tests and pull requests. User-facing messages are in Portuguese, verbatim. Terms: [domain glossary](docs/product/glossary.md). Start at the [docs index](docs/README.md).
-- **Technical decisions:** `docs/adr/`, until one decisions document replaces it. Where an ADR or an older issue disagrees with this file, this file wins.
+- **Technical decisions:** [docs/decisoes-de-arquitetura.md](docs/decisoes-de-arquitetura.md), one document in Portuguese that explains each decision in six points. Where an older issue disagrees with this file, this file wins.
 - **Work items:** GitHub issues, grouped in milestones and numbered in dependency order. Unless the owner names one, take the lowest open issue of the current milestone (`gh issue list --milestone "M1: Sign-in, users and permissions"`).
 
 | Path | Content |
@@ -18,14 +18,14 @@ Control Service is an ERP for service companies and the owner's **public portfol
 | `backend/ControlService/tests/` | Domain, Application, API integration and architecture tests |
 | `docs/product/` | Business rules: overview, glossary, conventions, features, open questions, screen catalog |
 | `docs/api/` | What every endpoint shares: routes, paging, versions, errors |
-| `docs/adr/` | Architecture Decision Records |
+| `docs/decisoes-de-arquitetura.md` | Architecture decisions, in Portuguese: what, why, cost and alternatives |
 | `docs/agents/` | Guides for agents, and the owner's guide |
 | `.claude/skills/` | The three workflow commands |
 | `docs/frontend/` | The front-end prototype (not in this repository yet) and its simulated server |
 
 ### Scope decisions of 2026-10-05
 
-Taken by the owner; they override the ADRs and issues written before that date.
+Taken by the owner; they override the issues written before that date.
 
 - **No permission cache.** The account status and the effective levels are read from the database on each request.
 - **Access by e-mail is postponed.** Whoever registers a user sets a temporary password, and the person must replace it on first sign-in, through the mechanism the Admin already uses. No SMTP, activation links or reset links until the product cycle is closed.
@@ -172,6 +172,6 @@ If a request conflicts with `docs/`, point out the conflict and ask before actin
 | [Documentation](docs/agents/guides/documentation.md) | Behavior, contract or decisions change |
 | [Local environment](docs/agents/guides/local-environment.md) | Running the system, Docker, HTTPS, PowerShell |
 | [Communication](docs/agents/guides/communication.md) | Asking the owner a question or reporting a result |
-| [Record a decision](docs/agents/workflows/record-a-decision.md) | Changing an ADR, while the ADRs exist |
+| [Record a decision](docs/agents/workflows/record-a-decision.md) | Adding or changing an architecture decision |
 | [Git and pull requests](docs/agents/workflows/git-and-pull-requests.md) | Delivering any change |
 | [Review dependency updates](docs/agents/workflows/review-dependency-updates.md) | Handling Dependabot pull requests |

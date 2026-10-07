@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Implementations of the Application interfaces: EF Core, Identity, e-mail (ADR-0005). -->
+  <!-- Implementations of the Application interfaces: EF Core and Identity. -->
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <!-- ASP.NET Core Identity: password hashing and lockout, without SignInManager (ADR-0019). -->
+    <!-- ASP.NET Core Identity: password hashing and lockout, without SignInManager. -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <!-- Pins the transitive Microsoft.EntityFrameworkCore.Relational to match Design's 10.0.12,
          avoiding an MSB3277 conflict (Npgsql's provider allows >= 10.0.4). -->

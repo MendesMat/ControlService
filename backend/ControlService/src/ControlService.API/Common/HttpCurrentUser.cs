@@ -3,7 +3,7 @@ using ControlService.Domain.Common;
 
 namespace ControlService.API.Common;
 
-/// <summary>ICurrentUser backed by the request's authenticated principal (ADR-0015, ADR-0019).
+/// <summary>ICurrentUser backed by the request's authenticated principal.
 /// Outside a request (startup, seeding), there is no HttpContext at all, and the system acts
 /// as the Admin (CNV-20).</summary>
 public sealed class HttpCurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser

@@ -12,7 +12,7 @@ namespace ControlService.Api.IntegrationTests.Persistence;
 public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) : IClassFixture<PersistenceApiFactory>
 {
     [Fact]
-    public async Task Saving_over_a_change_made_by_someone_else_returns_concurrency_conflict() // CNV-13, CNV-14, ADR-0014
+    public async Task Saving_over_a_change_made_by_someone_else_returns_concurrency_conflict() // CNV-13, CNV-14
     {
         var fabio = User.Create(
             Login.Create("fabio.nunes").Value, EmailAddress.Create("fabio.nunes@example.com").Value, "Fabio Nunes", "Fabio Nunes");
@@ -96,7 +96,7 @@ public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) :
     }
 
     [Fact]
-    public async Task Saving_levels_over_a_change_made_by_someone_else_returns_concurrency_conflict() // CNV-13, CNV-14, ADR-0014
+    public async Task Saving_levels_over_a_change_made_by_someone_else_returns_concurrency_conflict() // CNV-13, CNV-14
     {
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
         var profile = PermissionProfile.Create("Compras", "Equipe de compras");

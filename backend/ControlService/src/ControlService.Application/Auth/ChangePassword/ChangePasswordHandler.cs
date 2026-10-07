@@ -41,7 +41,7 @@ public sealed class ChangePasswordHandler(
 
         await credentials.ReplacePasswordAsync(command.UserId, command.Password, cancellationToken);
 
-        // A new password ends every session, including the one that asked for the change (ADR-0019).
+        // A new password ends every session, including the one that asked for the change.
         await sessions.EndAllAsync(command.UserId, cancellationToken);
         var session = await sessions.StartAsync(command.UserId, cancellationToken);
         var accessToken = accessTokens.Issue(command.UserId, session.SessionId, mustChangePassword: false);

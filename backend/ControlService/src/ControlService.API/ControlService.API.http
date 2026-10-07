@@ -1,6 +1,6 @@
 @ControlService.API_HostAddress = https://localhost:7243
 
-# OpenAPI document generated from the endpoints (ADR-0004).
+# OpenAPI document generated from the endpoints.
 # The interactive reference is at {{ControlService.API_HostAddress}}/scalar
 GET {{ControlService.API_HostAddress}}/openapi/v1.json
 Accept: application/json
@@ -11,7 +11,7 @@ GET {{ControlService.API_HostAddress}}/health
 
 ###
 
-# Authentication (ADR-0019). Replace the password placeholder with the value you stored in the user
+# Authentication. Replace the password placeholder with the value you stored in the user
 # secrets as Admin:InitialPassword; never commit a real one. Paste the access token from the sign-in
 # response into @accessToken below. The refresh token travels in an HttpOnly cookie scoped to the refresh route.
 @accessToken = <paste the accessToken here>

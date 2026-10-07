@@ -34,7 +34,7 @@ public sealed class SignInApiTests(AuthApiFactory factory) : IClassFixture<AuthA
     }
 
     [Fact]
-    public async Task Access_token_carries_the_user_id_in_sub_and_the_session_in_sid() // ADR-0019, D3 of #7
+    public async Task Access_token_carries_the_user_id_in_sub_and_the_session_in_sid() // D3 of #7
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

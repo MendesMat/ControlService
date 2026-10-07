@@ -1,5 +1,5 @@
 <Project>
-  <!-- Inherit the solution-wide settings, then add what every test project needs (ADR-0024). -->
+  <!-- Inherit the solution-wide settings, then add what every test project needs. -->
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
   <PropertyGroup>

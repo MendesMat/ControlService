@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace ControlService.API.Auth;
 
-/// <summary>Rate limits of the authentication routes (ADR-0023, D14, T9): a sliding window of 60 seconds
+/// <summary>Rate limits of the authentication routes (D14, T9): a sliding window of 60 seconds
 /// in 6 segments per client address, with no queue. A refused request answers like a lockout does:
 /// 429 `locked_out` with `Retry-After` (AUTH-26).</summary>
 internal static class AuthRateLimiting

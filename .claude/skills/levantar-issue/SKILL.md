@@ -18,7 +18,7 @@ Talk to the owner in Portuguese. The issue body is written in Portuguese, from t
 ## Steps
 
 1. **Read the issue** and its comments: `gh issue view <n> --comments`.
-2. **Read the documentation it touches:** the feature document in `docs/product/features/`, `docs/product/conventions.md`, `docs/api/conventions.md`, the architecture decisions it cites and `docs/product/open-questions.md`. The scope decisions in `AGENTS.md` override older ADRs and issues.
+2. **Read the documentation it touches:** the feature document in `docs/product/features/`, `docs/product/conventions.md`, `docs/api/conventions.md`, the decisions that apply in `docs/decisoes-de-arquitetura.md` and `docs/product/open-questions.md`. The scope decisions in `AGENTS.md` override older issues.
 3. **Read the related code:** the files the issue will touch, and the nearest similar feature already built, which is the pattern to follow.
 4. **Survey:**
    - the requirement or the problem, in one sentence;

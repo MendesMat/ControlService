@@ -11,7 +11,7 @@ namespace ControlService.Api.IntegrationTests.Persistence;
 public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) : IClassFixture<PersistenceApiFactory>
 {
     [Fact]
-    public async Task Creating_a_record_fills_authorship_from_the_current_user_and_the_clock() // CNV-10, CNV-19, ADR-0015
+    public async Task Creating_a_record_fills_authorship_from_the_current_user_and_the_clock() // CNV-10, CNV-19
     {
         var createdAt = new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero);
         factory.Clock.Set(createdAt);

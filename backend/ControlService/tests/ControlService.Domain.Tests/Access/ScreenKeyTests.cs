@@ -5,7 +5,7 @@ namespace ControlService.Domain.Tests.Access;
 public class ScreenKeyTests
 {
     [Fact]
-    public void ScreenKey_accepts_a_key_from_the_catalog() // ADR-0021
+    public void ScreenKey_accepts_a_key_from_the_catalog()
     {
         var result = ScreenKey.Create("gerenciamento/usuarios");
 
@@ -14,7 +14,7 @@ public class ScreenKeyTests
     }
 
     [Fact]
-    public void ScreenKey_rejects_a_key_not_in_the_catalog() // PERM-24, ADR-0021, ADR-0009
+    public void ScreenKey_rejects_a_key_not_in_the_catalog() // PERM-24
     {
         var result = ScreenKey.Create("gerenciamento/tela-que-nao-existe");
 
@@ -24,7 +24,7 @@ public class ScreenKeyTests
     }
 
     [Fact]
-    public void Screen_keys_with_the_same_value_are_equal() // ADR-0021
+    public void Screen_keys_with_the_same_value_are_equal()
     {
         var first = ScreenKey.Create("gerenciamento/usuarios").Value;
         var second = ScreenKey.Create("gerenciamento/usuarios").Value;

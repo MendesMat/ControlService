@@ -55,20 +55,19 @@ Use these names exactly; do not invent others.
 
 Register the API side with the Aspire client integrations for these names, and check the exact method names and connection string format in the current Aspire documentation when you implement them. Integration tests start their own containers with Testcontainers and pass the connection strings under the same names, without the AppHost.
 
-**Configuration keys** (from the ADRs):
+**Configuration keys:**
 
 | Key | Meaning | Default | Where the value lives |
 |---|---|---|---|
-| `Auth:AccessTokenMinutes` | Access token lifetime (ADR-0032) | 15 | `appsettings.json` |
-| `Auth:RefreshTokenIdleHours` | Sliding refresh token lifetime (ADR-0032) | 8 | `appsettings.json` |
-| `Auth:SigningKey` | JWT signing key: the base64 of at least 32 random bytes (ADR-0019) | none | **User secrets** |
+| `Auth:AccessTokenMinutes` | Access token lifetime | 15 | `appsettings.json` |
+| `Auth:RefreshTokenIdleHours` | Sliding refresh token lifetime | 8 | `appsettings.json` |
+| `Auth:SigningKey` | JWT signing key: the base64 of at least 32 random bytes | none | **User secrets** |
 | `Auth:Issuer`, `Auth:Audience` | JWT issuer and audience | `control-service` | `appsettings.json` |
 | `Auth:PasswordMinLength` | Minimum password length (AUTH-16) | 8 | `appsettings.json` |
 | `Auth:LockoutMaxFailedAttempts`, `Auth:LockoutMinutes` | Consecutive failures that lock a login, and for how long (AUTH-08) | 5 and 15 | `appsettings.json` |
-| `RateLimiting:SignIn:PermitLimit`, `RateLimiting:Refresh:PermitLimit` | Requests per address in 60 seconds (ADR-0023, AUTH-26) | 20 and 60 | `appsettings.json` |
-| `Admin:Email` | E-mail of the seeded Admin (ADR-0022) | none | **User secrets** |
+| `RateLimiting:SignIn:PermitLimit`, `RateLimiting:Refresh:PermitLimit` | Requests per address in 60 seconds (AUTH-26) | 20 and 60 | `appsettings.json` |
+| `Admin:Email` | E-mail of the seeded Admin | none | **User secrets** |
 | `Admin:InitialPassword` | Initial Admin password, changed on first access (AUTH-13); at least `Auth:PasswordMinLength` characters | none | **User secrets** |
-| `Email:SendTimeoutSeconds` | Timeout for activation e-mails (ADR-0031) | 10 | `appsettings.json` |
 
 - **Secrets live only in the user secrets of the API project** (`UserSecretsId` is in `ControlService.API.csproj`) and, in deployment, in environment variables. Never in `appsettings*.json`, code, tests or documentation.
 - The API must fail at startup with a clear message when a required secret is missing, instead of running with an empty value.
@@ -107,7 +106,7 @@ dotnet ef migrations add <Name> --project src/ControlService.Infrastructure --st
 
 This uses `DesignTimeDbContextFactory`, not `Program.cs`, so it never needs a running database or Aspire: it only inspects the model. The schema has two migrations: `InitialSchema` and `AddAuthentication` (Identity's credential tables and `user_sessions`, approved in #8). From here on, each schema change adds a migration; review it before committing, since a migration has no Red of its own.
 
-Migrations are applied automatically only when `ASPNETCORE_ENVIRONMENT` is `Development` (ADR-0013), which also runs `SystemRecordsSeeder` (ADR-0022). Never in other environments; a deployment step applies them there instead.
+Migrations are applied automatically only when `ASPNETCORE_ENVIRONMENT` is `Development`, which also runs `SystemRecordsSeeder`. Never in other environments; a deployment step applies them there instead.
 
 ## HTTPS
 

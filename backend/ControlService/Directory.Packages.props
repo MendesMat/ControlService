@@ -1,5 +1,5 @@
 <Project>
-  <!-- Central Package Management (ADR-0026): versions live here, projects reference packages without a version. -->
+  <!-- Central Package Management: versions live here, projects reference packages without a version. -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
@@ -11,7 +11,7 @@
     <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.24.2-preview.1" />
   </ItemGroup>
 
-  <!-- Aspire (ADR-0027) -->
+  <!-- Aspire -->
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.5.4" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.MailPit" Version="13.5.0" />
@@ -41,7 +41,7 @@
     <PackageVersion Include="Npgsql" Version="10.0.3" />
   </ItemGroup>
 
-  <!-- Tests (ADR-0024) -->
+  <!-- Tests -->
   <ItemGroup>
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.11.2" />

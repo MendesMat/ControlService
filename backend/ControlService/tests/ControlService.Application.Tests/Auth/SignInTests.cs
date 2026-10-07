@@ -137,7 +137,7 @@ public class SignInTests
     }
 
     [Fact]
-    public async Task Account_with_a_mandatory_password_change_gets_a_restricted_token() // AUTH-14, ADR-0032
+    public async Task Account_with_a_mandatory_password_change_gets_a_restricted_token() // AUTH-14
     {
         var bed = new AuthTestBed();
         var admin = bed.AddActiveUser("admin", "senha-inicial");

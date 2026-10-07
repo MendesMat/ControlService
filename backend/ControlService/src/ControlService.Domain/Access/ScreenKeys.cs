@@ -1,6 +1,6 @@
 namespace ControlService.Domain.Access;
 
-/// <summary>Stable screen keys owned by the back-end (ADR-0021). Mirrors docs/product/screen-catalog.json.</summary>
+/// <summary>Stable screen keys owned by the back-end. Mirrors docs/product/screen-catalog.json.</summary>
 public static class ScreenKeys
 {
     public const string Users = "gerenciamento/usuarios";

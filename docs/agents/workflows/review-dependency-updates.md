@@ -28,7 +28,7 @@ Dependabot opens pull requests every Monday for NuGet packages (grouped as `aspi
    |---|---|
    | Security update, CI green | Merge soon; say which vulnerability it fixes |
    | Patch or minor, CI green | Safe to merge |
-   | Major version, or a package that changed its license | Read the release notes and the license; summarize breaking changes and whether an ADR is affected before recommending |
+   | Major version, or a package that changed its license | Read the release notes and the license; summarize breaking changes and whether a decision in the [decisions document](../../decisoes-de-arquitetura.md) is affected before recommending |
    | CI red | Investigate the failure on the Dependabot branch; propose a fix in a separate pull request if code must change |
 
 5. Report to the owner in Portuguese, one line per pull request, with your recommendation. **Merge only the pull requests the owner explicitly approves:**
@@ -41,4 +41,4 @@ Dependabot opens pull requests every Monday for NuGet packages (grouped as `aspi
 
 - Never pin a package to an older version or ignore an update without telling the owner why.
 - A license change to a commercial model (as happened with MediatR, AutoMapper and FluentAssertions) is a blocker: do not merge; raise it with the owner.
-- If `global.json` or the .NET SDK major version changes, treat it as a decision (ADR-0002) and ask the owner.
+- If `global.json` or the .NET SDK major version changes, treat it as a decision (decision 1) and ask the owner.

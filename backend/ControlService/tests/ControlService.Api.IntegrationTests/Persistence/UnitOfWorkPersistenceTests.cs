@@ -10,7 +10,7 @@ namespace ControlService.Api.IntegrationTests.Persistence;
 public sealed class UnitOfWorkPersistenceTests(PersistenceApiFactory factory) : IClassFixture<PersistenceApiFactory>
 {
     [Fact]
-    public async Task Unit_of_work_saves_the_changes() // ADR-0009
+    public async Task Unit_of_work_saves_the_changes()
     {
         var profile = PermissionProfile.Create("Perfil UoW", "Criado via IUnitOfWork");
 

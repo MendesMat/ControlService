@@ -7,7 +7,7 @@ public sealed class RateLimitApiTests(RateLimitedApiFactory factory) : IClassFix
     private const string TooManyRequests = "Muitas tentativas em pouco tempo. Aguarde alguns instantes e tente de novo.";
 
     [Fact]
-    public async Task Sign_in_over_the_rate_limit_returns_429_with_retry_after() // AUTH-26, ADR-0023
+    public async Task Sign_in_over_the_rate_limit_returns_429_with_retry_after() // AUTH-26
     {
         using var client = factory.CreateHttpsClient();
         for (var request = 1; request <= 2; request++)
@@ -24,7 +24,7 @@ public sealed class RateLimitApiTests(RateLimitedApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Refresh_over_the_rate_limit_returns_429() // AUTH-26, ADR-0023
+    public async Task Refresh_over_the_rate_limit_returns_429() // AUTH-26
     {
         using var client = factory.CreateHttpsClient();
         for (var request = 1; request <= 2; request++)

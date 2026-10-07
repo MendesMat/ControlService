@@ -9,7 +9,7 @@ Everything about Control Service that is not code: what the system does, how the
 | Understand the product                  | [product/overview.md](product/overview.md), then [product/glossary.md](product/glossary.md)                                                            |
 | Implement or change a feature           | Its file in [product/features/](product/features/), plus [product/conventions.md](product/conventions.md) and [api/conventions.md](api/conventions.md) |
 | Add a new screen                        | [product/features/template.md](product/features/template.md), then the `/levantar-issue` command ([agents/](agents/README.md#the-three-commands))  |
-| Know why the back-end is built this way | [adr/](adr/README.md)                                                                                                                                  |
+| Know why the back-end is built this way | [decisoes-de-arquitetura.md](decisoes-de-arquitetura.md) (Portuguese)                                                                                                                                  |
 | Check what is still undecided           | [product/open-questions.md](product/open-questions.md)                                                                                                 |
 | Work on the front-end prototype         | [frontend/](frontend/README.md)                                                                                                                        |
 | Work as an AI agent                     | [AGENTS.md](../AGENTS.md), then [agents/](agents/README.md)                                                                                            |
@@ -33,7 +33,7 @@ docs/
 │       └── permission-profiles.md (PERM)
 ├── api/
 │   └── conventions.md        What every endpoint shares: routes, paging, versions, errors (API)
-├── adr/                      Architecture Decision Records, numbered, with metadata
+├── decisoes-de-arquitetura.md  How the back-end is built and why: the architecture decisions (Portuguese)
 ├── frontend/                 The front-end prototype and its simulated server
 └── agents/                   Rules, guides and workflows for AI coding agents
 ```

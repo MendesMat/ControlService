@@ -12,7 +12,7 @@ namespace ControlService.Api.IntegrationTests.Persistence;
 public sealed class StartupSeedTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     [Fact]
-    public async Task Startup_applies_the_schema_and_seeds_the_system_records() // ADR-0022, USR-23, USR-24, PERM-22, PERM-23, CNV-20
+    public async Task Startup_applies_the_schema_and_seeds_the_system_records() // USR-23, USR-24, PERM-22, PERM-23, CNV-20
     {
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -39,7 +39,7 @@ public sealed class StartupSeedTests(ApiFactory factory) : IClassFixture<ApiFact
     }
 
     [Fact]
-    public async Task Restarting_does_not_duplicate_or_change_the_system_records() // ADR-0022, USR-33
+    public async Task Restarting_does_not_duplicate_or_change_the_system_records() // USR-33
     {
         // Starts the original host first, with admin@example.com, before the "restart" below.
         _ = factory.Services;
@@ -76,7 +76,7 @@ public sealed class StartupSeedTests(ApiFactory factory) : IClassFixture<ApiFact
     }
 
     [Fact]
-    public void Api_uses_the_system_clock() // ADR-0015
+    public void Api_uses_the_system_clock()
     {
         var timeProvider = factory.Services.GetRequiredService<TimeProvider>();
 

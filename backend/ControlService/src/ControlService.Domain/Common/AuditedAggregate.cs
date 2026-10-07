@@ -1,6 +1,6 @@
 namespace ControlService.Domain.Common;
 
-/// <summary>Audit and concurrency fields shared by every aggregate (ADR-0014, ADR-0015).
+/// <summary>Audit and concurrency fields shared by every aggregate.
 /// Filled by infrastructure (the interceptor, the database), never by domain logic.</summary>
 public abstract class AuditedAggregate
 {

@@ -9,7 +9,7 @@ namespace ControlService.Api.IntegrationTests.Persistence;
 public sealed class UserPersistenceTests(PersistenceApiFactory factory) : IClassFixture<PersistenceApiFactory>
 {
     [Fact]
-    public async Task User_is_saved_and_read_back_with_the_same_values() // CNV-04, ADR-0012
+    public async Task User_is_saved_and_read_back_with_the_same_values() // CNV-04
     {
         var login = Login.Create("ana.souza").Value;
         var email = EmailAddress.Create("ana.souza@example.com").Value;

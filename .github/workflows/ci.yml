@@ -43,7 +43,7 @@ jobs:
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION }}
 
-      # Warnings are errors in every project (Directory.Build.props, ADR-0026).
+      # Warnings are errors in every project (Directory.Build.props).
       - name: Build
         run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore
 
@@ -74,6 +74,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      # Validates the Dockerfile only; publishing the image is part of the delivery pipeline (ADR-0029).
+      # Validates the Dockerfile only: the image is built here but never published.
       - name: Build image
         run: docker build --file src/ControlService.API/Dockerfile --tag controlservice-api:ci .

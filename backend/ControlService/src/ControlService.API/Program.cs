@@ -33,7 +33,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 
-    // Migrations run automatically only here (ADR-0013); MigrateAsync also runs the seeder (D2).
+    // Migrations run automatically only here; MigrateAsync also runs the seeder (D2).
     using var scope = app.Services.CreateScope();
     await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
 }
@@ -43,7 +43,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Every feature registers its endpoints under /api/v1 (ADR-0003), for example: api.MapUserEndpoints();
+// Every feature registers its endpoints under /api/v1, for example: api.MapUserEndpoints();
 var api = app.MapApiV1();
 api.MapAuthEndpoints();
 

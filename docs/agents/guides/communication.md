@@ -38,4 +38,4 @@ Apply each rule **literally**. When the code would do more or less than the docu
 
 ## Actions that need the owner's explicit confirmation
 
-Publishing or changing anything on GitHub beyond the normal pull request flow and the issue body written by `/levantar-issue` (repository settings, rulesets, archiving, releases), deleting data (Docker volumes, branches, records), adding a dependency with architectural impact, and any change to an Accepted ADR. Machine security settings (certificates, firewall) are never changed by agents: give the owner the command.
+Publishing or changing anything on GitHub beyond the normal pull request flow and the issue body written by `/levantar-issue` (repository settings, rulesets, archiving, releases), deleting data (Docker volumes, branches, records), adding a dependency with architectural impact, and any change to an architecture decision. Machine security settings (certificates, firewall) are never changed by agents: give the owner the command.
