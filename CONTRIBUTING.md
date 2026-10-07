@@ -21,7 +21,7 @@
    ```
    feat(users): validate CPF check digits
    fix(auth): reset lockout after password reset
-   docs(adr): accept ADR-0018
+   docs: record the decision on signature storage
    ```
 
 3. Run the tests before pushing:
@@ -44,6 +44,6 @@
 
 - Code, identifiers, commits and documentation in English; user-facing messages in Portuguese, verbatim from `docs/product/`.
 - Business rules have stable IDs (`USR-06`, `PERM-05`): cite them in tests and pull requests ([docs index](docs/README.md#rule-ids)).
-- Development is test-driven: every behavior starts as a failing test, and each issue carries a numbered test list ([AGENTS.md](AGENTS.md#tests)). Business rules live in the Domain project (ADR-0005).
+- Development is test-driven: every behavior starts as a failing test, and each issue carries a numbered test list ([AGENTS.md](AGENTS.md#tests)). Business rules live in the Domain project.
 - Package versions are declared only in `Directory.Packages.props`.
-- A significant technical decision gets an ADR in `docs/adr/`.
+- A significant technical decision is recorded in the [decisions document](docs/decisoes-de-arquitetura.md), which is in Portuguese ([how](docs/agents/workflows/record-a-decision.md)).

@@ -15,6 +15,8 @@ No fim de cada uma há dois atalhos: **onde ver no código** e **em uma frase**,
 
 As regras de negócio não estão aqui: elas ficam em [product/](product/). Este documento trata só de *como* o sistema é construído.
 
+Este documento substitui os 33 ADRs (registros de decisão de arquitetura) que existiam em `docs/adr/`. Eles continuam no histórico do git.
+
 ## Bloco A — Estrutura e fluxo do código
 
 ### O caminho de uma requisição
@@ -581,7 +583,6 @@ As decisões deste bloco descrevem o que está em uso. Estas sobras do plano ant
 | *Service discovery* e resiliência de HTTP, que vieram do modelo do Aspire | `ServiceDefaults/Extensions.cs` | Remover (decisão 31) |
 | Um pacote do Visual Studio em versão *preview*, que só serve para depurar dentro de um contêiner | `ControlService.API.csproj` | Remover (decisão 33) |
 | O CI não confere a formatação | `.github/workflows/ci.yml` | Acrescentar o passo (decisão 29) |
-| O guia de testes cita o Mailpit e os casos de link de ativação | `docs/agents/guides/testing.md` | Corrigir junto com a troca das citações de ADR |
 
 ### 26. Testes em quatro projetos, cada comportamento em uma camada, contra PostgreSQL de verdade
 

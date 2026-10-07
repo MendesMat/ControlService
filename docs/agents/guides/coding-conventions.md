@@ -6,8 +6,8 @@ The compiler enforces most of these: `TreatWarningsAsErrors`, `AnalysisLevel=lat
 
 | Artifact | Language |
 |---|---|
-| Identifiers, code comments, commit messages, pull requests, ADRs, agent guides | English |
-| Documentation in `docs/` (except the owner's guide) | English |
+| Identifiers, code comments, commit messages, pull requests, agent guides | English |
+| Documentation in `docs/` (except the owner's guide and the decisions document) | English |
 | User-facing messages, e-mail templates | Portuguese (pt-BR) |
 | Wire values that already exist in the front-end contract (`negado`, `leitor`, `editor`, `gerenciador`, screen keys) | Keep exactly as documented |
 
@@ -41,9 +41,9 @@ Translate business terms exactly as in the [domain glossary](../../product/gloss
 ## Packages
 
 - Versions exist only in `backend/ControlService/Directory.Packages.props`. In a `.csproj`, write `<PackageReference Include="Name" />`.
-- Before adding a package, check whether an ADR already chose one for that purpose. A new dependency with architectural impact needs an ADR.
+- Before adding a package, check whether the [decisions document](../../decisoes-de-arquitetura.md) already chose one for that purpose. A new dependency with architectural impact needs the owner's approval.
 - Never add packages to `ControlService.Domain`.
-- Avoid libraries with commercial licenses for this project, such as MediatR 13+ (ADR-0007), FluentAssertions 8+ (ADR-0024) and AutoMapper, which has had a commercial edition since July 2025 (ADR-0010).
+- Avoid libraries with commercial licenses for this project, such as MediatR 13+, FluentAssertions 8+ and AutoMapper, which have had commercial editions since 2025 (decisions 5 and 8).
 
 ## Suppressing a diagnostic
 

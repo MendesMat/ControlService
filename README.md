@@ -14,9 +14,9 @@ An ERP for service companies: users and permissions, service catalog, clients an
 - **Invitation-based accounts.** Nobody signs up alone: a new user receives a single-use activation link by e-mail and creates their own password. Nobody ever sees or types someone else's password.
 - **Safe concurrent editing.** Optimistic concurrency rejects a save when someone else changed the record in the meantime, and tells who did it.
 - **Traceability.** Every record stores who created it, who last changed it and when. Users are deactivated, never deleted.
-- **Test-driven development.** Every behavior starts as a failing test, in every layer, and business rules carry stable IDs that the tests cite ([ADR-0033](docs/adr/0033-develop-test-first-in-pair-mode.md)).
+- **Test-driven development.** Every behavior starts as a failing test, in every layer, and business rules carry stable IDs that the tests cite ([decision 27](docs/decisoes-de-arquitetura.md)).
 - **Architecture enforced by tests.** Clean Architecture layers are separate projects, and architecture tests fail the build if a layer depends on the wrong one.
-- **Decisions on record.** Every significant technical choice has an [Architecture Decision Record](docs/adr/README.md) with the alternatives considered.
+- **Decisions on record.** Every significant technical choice is explained in the [decisions document](docs/decisoes-de-arquitetura.md), with what it costs and the alternatives considered.
 - **AI-assisted, human-reviewed.** AI coding agents implement changes following [AGENTS.md](AGENTS.md): they work on branches and open pull requests, and the owner reviews and merges every one of them.
 
 ## Tech stack
@@ -45,7 +45,7 @@ backend/ControlService/src
 └── ControlService.ServiceDefaults  Telemetry, health checks and resilience
 ```
 
-Dependencies point inward only: `API → Application → Domain`, with `Infrastructure` implementing the Application interfaces. Inside each project, code is grouped by feature (`Users`, `PermissionProfiles`, `Auth`). See [ADR-0005](docs/adr/0005-adopt-clean-architecture.md) and the [back-end README](backend/ControlService/README.md).
+Dependencies point inward only: `API → Application → Domain`, with `Infrastructure` implementing the Application interfaces. Inside each project, code is grouped by feature (`Users`, `PermissionProfiles`, `Auth`). See the [decisions document](docs/decisoes-de-arquitetura.md) and the [back-end README](backend/ControlService/README.md).
 
 ## Getting started
 
@@ -77,7 +77,7 @@ dotnet test --solution ControlService.slnx
 | Document | Language | Content |
 |---|---|---|
 | [Product documentation](docs/README.md) | English | Product overview, glossary, business rules by feature (with stable rule IDs), API conventions and open questions |
-| [Architecture Decision Records](docs/adr/README.md) | English | What was decided for the back-end, why, and which alternatives were rejected |
+| [Architecture decisions](docs/decisoes-de-arquitetura.md) | Portuguese | How the back-end is built, why, what each choice costs and which alternatives were rejected |
 | [Back-end guide](backend/ControlService/README.md) | Portuguese | How to run, project structure and what each Docker resource is |
 | [AGENTS.md](AGENTS.md) and [agent guides](docs/agents/README.md) | English | Rules, guides and workflows for the AI coding agents that work on this repository |
 | [Trabalhando com agentes](docs/agents/trabalhando-com-agentes.md) | Portuguese | How the owner pairs with AI agents: asking for tasks, reviewing pull requests |

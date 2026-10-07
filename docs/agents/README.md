@@ -28,7 +28,7 @@ Work on an issue goes through three commands, each one a skill in `.claude/skill
 | Procedure | Use it to |
 |---|---|
 | [git-and-pull-requests.md](workflows/git-and-pull-requests.md) | Deliver any change through a branch and a pull request |
-| [record-a-decision.md](workflows/record-a-decision.md) | Change an ADR, while the ADRs exist |
+| [record-a-decision.md](workflows/record-a-decision.md) | Add or change an architecture decision |
 | [review-dependency-updates.md](workflows/review-dependency-updates.md) | Evaluate and merge Dependabot pull requests |
 
 ## For the owner
