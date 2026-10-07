@@ -3,7 +3,7 @@
 Access levels, profiles, effective access and what each person sees. This is the most distinctive business rule of the project.
 
 - **Screen:** Permissões, key `gerenciamento/permissoes`.
-- **Decisions:** ADR-0006 (effective access as a domain service), ADR-0020 (authorization per screen), ADR-0021 (screen keys), ADR-0022 (Gerenciador profile).
+- **Decisions:** in the [decisions document](../../decisoes-de-arquitetura.md): 3 (effective access as a domain service), 16 (Gerenciador profile), 23 (levels per screen), 24 (authorization per screen), 25 (screen keys).
 - **Read with:** [conventions](../conventions.md), [API conventions](../../api/conventions.md), [overview: screen keys](../overview.md#screen-keys).
 
 In this document, a **screen** is each submenu item (Usuários, Contas a Pagar) and an **area** is each menu group (Gerenciamento, Financeiro).
@@ -28,14 +28,14 @@ In this document, a **screen** is each submenu item (Usuários, Contas a Pagar) 
 
 | ID | Rule |
 |---|---|
-| PERM-03 | Operations require a minimum level on their screen. This table is the reference for every screen; a screen with exceptions documents them (ADR-0020, confirmed by the owner on 2026-09-24). |
+| PERM-03 | Operations require a minimum level on their screen. This table is the reference for every screen; a screen with exceptions documents them (decision 24, confirmed by the owner on 2026-09-24). |
 | PERM-04 | Exception: listing profiles is also allowed with Reader on the **Usuários** screen, even without access to Permissões, because the user form needs the profiles to choose from. |
 
 | Operation | Minimum level |
 |---|---|
 | Open the screen, list and view records | Reader |
-| Create, change, duplicate a profile, resend access | Editor |
-| Delete a profile, deactivate or reactivate a user | Manager |
+| Create, change, duplicate a profile | Editor |
+| Delete a profile, deactivate or reactivate a user, reset a user's password (AUTH-29) | Manager |
 
 A Reader on Usuários therefore sees people's signatures, as confirmed by the owner.
 
@@ -74,14 +74,14 @@ Changing a profile affects everyone who has it. Lowering a level in a profile on
 | PERM-08 | A screen whose effective access is `negado` does not appear in the menu or in the screen search ("Buscar tela…"). An area where **every** screen is `negado` does not appear either. |
 | PERM-09 | Opening a denied screen through a saved link or a restored tab shows *"Você não tem acesso a esta tela. Se precisar dela, fale com o responsável pelo sistema."* No data is loaded, because the server refuses the request. |
 | PERM-10 | A person without access to any screen (no profiles, or profiles that deny everything) sees an empty menu, and the home screen shows *"Você ainda não tem acesso a nenhuma tela. Fale com o responsável pelo sistema."* |
-| PERM-11 | Buttons follow PERM-03. A **Reader** sees records read-only, with the notice *"Você pode consultar este cadastro, mas não alterar. Para mudar alguma informação, fale com quem tem acesso de Editor nesta tela."*; the buttons "Novo", "Salvar", "Duplicar perfil" and "Reenviar acesso" are hidden, and "Cancelar" becomes "Voltar para a lista". An **Editor** does not see "Excluir perfil", "Desativar usuário" or "Reativar usuário". Nobody sees "Desativar usuário" on their own record. |
+| PERM-11 | Buttons follow PERM-03. A **Reader** sees records read-only, with the notice *"Você pode consultar este cadastro, mas não alterar. Para mudar alguma informação, fale com quem tem acesso de Editor nesta tela."*; the buttons "Novo", "Salvar" and "Duplicar perfil" are hidden, and "Cancelar" becomes "Voltar para a lista". An **Editor** does not see "Excluir perfil", "Desativar usuário", "Reativar usuário" or "Redefinir senha". Nobody sees "Desativar usuário" on their own record. |
 | PERM-12 | **The server decides.** Hiding screens and buttons helps people; the real barrier is the server, which refuses any request above the person's level (CNV-01). |
 
 ## When permissions change
 
 | ID | Rule |
 |---|---|
-| PERM-13 | A change to someone's profiles takes effect on the server from that person's next request, without signing out (ADR-0020, ADR-0032). |
+| PERM-13 | A change to someone's profiles takes effect on the server from that person's next request, without signing out (decision 24). |
 | PERM-14 | The person's menu is refreshed when they sign in, when they reload the page and whenever they themselves save, deactivate, reactivate or delete a record. Opening a new tab does **not** refresh it. If they try something they lost in the meantime, the server refuses, and the menu is refreshed with the no-access message. |
 | PERM-15 | A new screen appears on the Permissões screen with `negado` in every existing profile until someone changes and saves the profile. Only the Gerenciador profile sees it right away. This follows from "missing means `negado`" and needs no data migration. |
 
@@ -123,7 +123,7 @@ Collection `profiles`. Besides these fields, every profile has the audit fields 
 |---|---|---|---|
 | PERM-16 | `name` | Required. | Dê um nome ao perfil. |
 | PERM-17 | `name` | Unique among all profiles, **including the Gerenciador**, with the comparison of CNV-09: "Financeiro", "financeiro" and "FINANCEIRO" are the same name. | Já existe um perfil chamado *{nome existente}*. Escolha outro nome. |
-| PERM-24 | `levels` | Every `screen` must be a key of the catalog (ADR-0021). An unknown key refuses the whole save instead of being ignored: ignoring it would drop the level without warning, so a key mistyped in the front-end menu would look saved and grant nothing. It happens only with a page opened before a screen was retired, or with a front-end bug. | Esta tela não existe mais no sistema. Atualize a página e tente de novo. |
+| PERM-24 | `levels` | Every `screen` must be a key of the catalog (decision 25). An unknown key refuses the whole save instead of being ignored: ignoring it would drop the level without warning, so a key mistyped in the front-end menu would look saved and grant nothing. It happens only with a page opened before a screen was retired, or with a front-end bug. | Esta tela não existe mais no sistema. Atualize a página e tente de novo. |
 
 ### Creating, duplicating and deleting
 
@@ -131,7 +131,7 @@ Collection `profiles`. Besides these fields, every profile has the audit fields 
 |---|---|
 | PERM-18 | A new profile starts with every screen at `negado`. |
 | PERM-19 | Any profile, including the Gerenciador, can be duplicated. The copy is named "Cópia de *{nome original}*", with the same description and levels, and is stored only when the person saves. Duplicating is done by the front-end, which opens a new record prefilled with the original's data. |
-| PERM-20 | A profile can be truly deleted, but only when **no user** has it, whether active, pending or deactivated. A database constraint guarantees it even if someone assigns the profile at the same moment. The Gerenciador profile can never be deleted. |
+| PERM-20 | A profile can be truly deleted, but only when **no user** has it, whether active or deactivated. A database constraint guarantees it even if someone assigns the profile at the same moment. The Gerenciador profile can never be deleted. |
 | PERM-21 | Each area on the Permissões screen has the selector **Mudar todas desta área para**, which sets the same level on every screen of the area and warns *"Telas de {área} marcadas como {nível}. Salve o perfil para confirmar."* Nothing is stored until the person saves. |
 
 The delete confirmation is **Excluir este perfil?** *O perfil {nome} será apagado. Não dá para desfazer.* If someone has the profile, deletion is refused with **Este perfil está em uso** and *"{nomes} usa(m) este perfil. Tire o perfil dessa(s) pessoa(s) na tela Usuários e depois volte para excluir."*
@@ -140,7 +140,7 @@ The delete confirmation is **Excluir este perfil?** *O perfil {nome} será apaga
 
 | ID | Rule |
 |---|---|
-| PERM-22 | The **Gerenciador** profile always exists and cannot be changed or deleted. It is stored in the database with a fixed id and marked `isSystem: true` (ADR-0022). |
+| PERM-22 | The **Gerenciador** profile always exists and cannot be changed or deleted. It is stored in the database with a fixed id and marked `isSystem: true` (decision 16). |
 | PERM-23 | Its levels are **not stored**. The server computes `gerenciador` for every screen of the catalog and returns the full `levels` list like any other profile, so a new screen is covered without data changes. |
 | PERM-25 | Changing a level or deleting the Gerenciador profile is refused with the message *"O perfil Gerenciador é do sistema e não pode ser alterado nem excluído."* |
 
@@ -168,7 +168,7 @@ Verbatim, in Portuguese. The other messages of this feature are inside the rules
 | `createProfile(data)` | `POST /api/v1/permission-profiles` | Editor | |
 | `updateProfile(id, data, version)` | `PUT /api/v1/permission-profiles/{id}` | Editor | Version in `If-Match` |
 | `deleteProfile(id, version)` | `DELETE /api/v1/permission-profiles/{id}` | Manager | Version in `If-Match` |
-| `listScreens()` | `GET /api/v1/screens` | Signed in | Areas, screens and keys (ADR-0021) |
+| `listScreens()` | `GET /api/v1/screens` | Signed in | Areas, screens and keys (decision 25) |
 
 The effective level of the signed-in person on every screen comes from `me()` ([authentication](authentication.md#operations)).
 

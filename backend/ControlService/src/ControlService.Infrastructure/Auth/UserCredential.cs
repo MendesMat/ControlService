@@ -7,6 +7,6 @@ namespace ControlService.Infrastructure.Auth;
 /// needs syncing when a login changes; Identity's e-mail and phone columns stay empty (D12).</summary>
 public sealed class UserCredential : IdentityUser<Guid>
 {
-    /// <summary>True while the account still has its initial password (AUTH-14).</summary>
+    /// <summary>True while the account still has a temporary password (AUTH-14).</summary>
     public bool MustChangePassword { get; set; }
 }

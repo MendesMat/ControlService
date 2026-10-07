@@ -12,6 +12,6 @@ public interface ICredentialStore
     /// <summary>Sets a new password and clears the mandatory-change flag.</summary>
     Task ReplacePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken);
 
-    /// <summary>True while the account still has its initial password (AUTH-14).</summary>
+    /// <summary>True while the account still has a temporary password (AUTH-14).</summary>
     Task<bool> MustChangePasswordAsync(Guid userId, CancellationToken cancellationToken);
 }

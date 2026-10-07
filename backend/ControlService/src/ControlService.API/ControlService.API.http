@@ -26,7 +26,7 @@ Content-Type: application/json
 
 ###
 
-# First access of the Admin: the initial password must be replaced (AUTH-14).
+# Previous plan, still in the code (decision 21): the Admin must replace its initial password.
 POST {{ControlService.API_HostAddress}}/api/v1/auth/change-password
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json

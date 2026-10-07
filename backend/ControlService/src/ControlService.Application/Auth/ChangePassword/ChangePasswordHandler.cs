@@ -30,7 +30,7 @@ public sealed class ChangePasswordHandler(
             return Result<SessionGrant>.Failure(AuthErrors.NewPasswordEqualsInitial);
         }
 
-        // The account with a mandatory change is the Admin, and this is its own first access (USR-34).
+        // Previous plan, still in the code (decision 21): the account with a mandatory change is the Admin.
         // The user is saved before the password changes: a retry after a failure repeats harmlessly.
         user.CompleteFirstAccess(timeProvider.GetUtcNow());
         var saved = await unitOfWork.SaveChangesAsync(cancellationToken);

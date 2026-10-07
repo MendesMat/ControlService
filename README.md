@@ -11,7 +11,7 @@ An ERP for service companies: users and permissions, service catalog, clients an
 ## Highlights
 
 - **Per-screen permissions.** Each permission profile gives one of four ordered levels (*Denied < Reader < Editor < Manager*) to every screen. A user may hold several profiles, and the effective level on each screen is the highest one among them.
-- **Invitation-based accounts.** Nobody signs up alone: a new user receives a single-use activation link by e-mail and creates their own password. Nobody ever sees or types someone else's password.
+- **Accounts created by the team.** Nobody signs up alone: whoever registers a user sets a temporary password, and the system makes the person replace it when they first sign in.
 - **Safe concurrent editing.** Optimistic concurrency rejects a save when someone else changed the record in the meantime, and tells who did it.
 - **Traceability.** Every record stores who created it, who last changed it and when. Users are deactivated, never deleted.
 - **Test-driven development.** Every behavior starts as a failing test, in every layer, and business rules carry stable IDs that the tests cite ([decision 27](docs/decisoes-de-arquitetura.md)).
@@ -28,7 +28,6 @@ An ERP for service companies: users and permissions, service catalog, clients an
 | Architecture | Clean Architecture, tactical DDD, CQRS without MediatR, Result pattern with Problem Details |
 | Data | PostgreSQL, EF Core |
 | Security | ASP.NET Core Identity, JWT with rotating refresh tokens, rate limiting |
-| E-mail | SMTP with MailKit; Mailpit as the local test inbox |
 | Local environment | .NET Aspire (PostgreSQL and Mailpit in Docker, dashboard with logs and traces) |
 | Tests | xUnit v3, Shouldly, NSubstitute, NetArchTest, WebApplicationFactory, Testcontainers |
 | Quality | Warnings as errors, analyzers, central package management, GitHub Actions, Dependabot |
@@ -39,7 +38,7 @@ An ERP for service companies: users and permissions, service catalog, clients an
 backend/ControlService/src
 ├── ControlService.Domain           Entities, value objects and business rules (no dependencies)
 ├── ControlService.Application      Use cases and the interfaces they need
-├── ControlService.Infrastructure   EF Core, Identity, e-mail: implementations of those interfaces
+├── ControlService.Infrastructure   EF Core, Identity: implementations of those interfaces
 ├── ControlService.API              Minimal API endpoints and composition root
 ├── ControlService.AppHost          Aspire orchestration for local development
 └── ControlService.ServiceDefaults  Telemetry, health checks and resilience
@@ -92,7 +91,7 @@ The current slice is tracked in the milestone [M1: Sign-in, users and permission
 - [x] Persistence: EF Core, audit fields, concurrency, seeded system records
 - [x] Sign-in, sessions and the current user (`/me`)
 - [ ] Per-screen authorization
-- [ ] Permission profiles and users endpoints, activation and password reset links
+- [ ] Permission profiles and users endpoints, with temporary passwords
 - [ ] Connect the front-end to the real API
 - [ ] Remaining screens: catalog, commercial, finance and reports
 

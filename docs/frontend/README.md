@@ -1,6 +1,6 @@
 # Front-end prototype
 
-The front-end is a single-page prototype, `control-service-erp.html`, with no build step. It is **not in this repository yet**. It implements the navigation, the Users and Permissions screens and every business rule of [product](../product/), using a [simulated server](simulated-server.md) instead of the real API.
+The front-end is a single-page prototype, `control-service-erp.html`, with no build step. It is **not in this repository yet**. It implements the navigation, the Users and Permissions screens and the business rules of [product](../product/), using a [simulated server](simulated-server.md) instead of the real API. Its access screens still follow the model with e-mail links, postponed on 2026-10-05: this document describes the prototype as it is, and the [differences](simulated-server.md#differences-from-the-real-back-end) list what changes.
 
 Back-end work does not need this document: the contract between both sides is in the [API conventions](../api/conventions.md) and in each [feature](../product/features/). Read it when working on the front-end or when connecting it to the real API.
 
@@ -118,4 +118,4 @@ The menu uses buttons with `aria-expanded` for the drawers and marks the current
 
 ## Connecting to the real back-end
 
-Every decision in [product](../product/) is already implemented in the prototype with the simulated server. The only step left is to replace the simulated server with an HTTP client for the real API, handling the differences listed in [simulated server](simulated-server.md#differences-from-the-real-back-end).
+The prototype implements the rules of [product](../product/) with the simulated server, except the access model, which changed on 2026-10-05 (a temporary password instead of e-mail links). Two steps are left: replace the simulated server with an HTTP client for the real API, and adjust the access screens. Both are listed in [simulated server](simulated-server.md#differences-from-the-real-back-end).

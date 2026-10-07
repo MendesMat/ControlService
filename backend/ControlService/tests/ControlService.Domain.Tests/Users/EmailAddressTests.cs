@@ -14,7 +14,7 @@ public class EmailAddressTests
     }
 
     [Fact]
-    public void EmailAddress_left_blank_is_rejected() // USR-07
+    public void EmailAddress_left_blank_is_rejected() // previous plan, see decision 21: the e-mail became optional (USR-07)
     {
         var result = EmailAddress.Create("");
 
