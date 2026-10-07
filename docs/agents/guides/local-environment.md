@@ -10,14 +10,13 @@ From `backend/ControlService`:
 dotnet run --project src/ControlService.AppHost
 ```
 
-Aspire starts PostgreSQL, Mailpit and the API. The console prints the dashboard login link.
+Aspire starts PostgreSQL and the API. The console prints the dashboard login link.
 
 | Resource | Address |
 |---|---|
 | Aspire dashboard | `https://localhost:17150` (login link with `?t=` in the console) |
 | API | `https://localhost:7243` (HTTP: `http://localhost:5283`) |
 | API reference (Scalar) | `https://localhost:7243/scalar` |
-| Mailpit inbox | Link of the `mailpit` resource in the dashboard |
 
 When you start the AppHost for verification, run it in the background, check what you need, and stop the whole process tree afterwards. Do not leave it running.
 
@@ -28,7 +27,6 @@ Every Docker resource of the project is named `controlservice-<service>`:
 | Name | Kind | Notes |
 |---|---|---|
 | `controlservice-postgres` | Container | Persistent lifetime: keeps running after the AppHost stops and is reused on the next start |
-| `controlservice-mailpit` | Container | Persistent lifetime |
 | `controlservice-postgres-data` | Volume | **The database files. Never delete it without an explicit request from the owner.** |
 | `controlservice-api:<tag>` | Image | Built from `src/ControlService.API/Dockerfile` |
 
@@ -51,9 +49,8 @@ Use these names exactly; do not invent others.
 | Resource | Name | Reaches the API as |
 |---|---|---|
 | PostgreSQL database | `controlservice` | `ConnectionStrings:controlservice` |
-| Mailpit (SMTP test inbox) | `mailpit` | `ConnectionStrings:mailpit` |
 
-Register the API side with the Aspire client integrations for these names, and check the exact method names and connection string format in the current Aspire documentation when you implement them. Integration tests start their own containers with Testcontainers and pass the connection strings under the same names, without the AppHost.
+Register the API side with the Aspire client integration for this name, and check the exact method names and connection string format in the current Aspire documentation when you implement them. Integration tests start their own containers with Testcontainers and pass the connection strings under the same names, without the AppHost.
 
 **Configuration keys:**
 
