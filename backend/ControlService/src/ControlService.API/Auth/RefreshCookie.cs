@@ -1,6 +1,6 @@
 namespace ControlService.API.Auth;
 
-/// <summary>The refresh token cookie (T6). Its `Path` is the refresh route only, so the
+/// <summary>The refresh token cookie. Its `Path` is the refresh route only, so the
 /// browser sends it nowhere else; expiring it needs the same name and `Path`.</summary>
 internal static class RefreshCookie
 {

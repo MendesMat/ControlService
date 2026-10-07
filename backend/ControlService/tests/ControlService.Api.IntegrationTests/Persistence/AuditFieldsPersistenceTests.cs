@@ -166,7 +166,7 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
     }
 
     [Fact]
-    public async Task Saving_during_a_request_without_a_signed_in_person_fails() // CNV-20 (D3)
+    public async Task Saving_during_a_request_without_a_signed_in_person_fails() // CNV-20
     {
         // Starts the host (and its seeding, as the Admin) before removing the current user.
         _ = factory.Services;
@@ -185,8 +185,8 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
         (await verifyDb.PermissionProfiles.AnyAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
     }
 
-    // The editor must be a real user (D7), and both tests reuse the same row, since the display
-    // name is unique across the shared database (T13).
+    // The editor must be a real user (USR-16), and both tests reuse the same row, since the display
+    // name is unique across the shared database.
     private async Task<Guid> GetOrCreateUserAsync(string login, string displayName)
     {
         await using var scope = factory.Services.CreateAsyncScope();

@@ -85,7 +85,7 @@ public static class AuthEndpoints
     }
 
     // The refresh cookie is scoped to the refresh route, so sign-out never receives it: the session comes
-    // from the access token's `sid` claim instead (D3).
+    // from the access token's `sid` claim instead.
     private static async Task<Results<NoContent, ProblemHttpResult>> SignOut(
         ClaimsPrincipal principal,
         ICommandHandler<SignOutCommand, Unit> handler,

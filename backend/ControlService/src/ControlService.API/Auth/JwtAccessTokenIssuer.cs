@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ControlService.API.Auth;
 
-/// <summary>Issues the HS256 access token (T5). It carries the user id in `sub` (ICurrentUser reads it),
+/// <summary>Issues the HS256 access token. It carries the user id in `sub` (ICurrentUser reads it),
 /// the session in `sid`, and `must_change_password` only while the change is mandatory. No personal data.</summary>
 public sealed class JwtAccessTokenIssuer(IOptions<JwtOptions> options, TimeProvider timeProvider) : IAccessTokenIssuer
 {

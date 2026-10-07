@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ControlService.API.Auth;
 
-/// <summary>How access tokens are checked (T5, T7). Claim names stay as issued (`sub`, `sid`), because
+/// <summary>How access tokens are checked. Claim names stay as issued (`sub`, `sid`), because
 /// ICurrentUser reads `sub`; the lifetime is judged by the application's clock, with no skew, so 15
 /// minutes means 15 minutes; and every failed authentication looks like any other error (API-12).</summary>
 public sealed class ConfigureJwtBearer(IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider)

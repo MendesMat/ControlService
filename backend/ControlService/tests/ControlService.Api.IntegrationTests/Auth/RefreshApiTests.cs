@@ -71,7 +71,7 @@ public sealed class RefreshApiTests(AuthApiFactory factory) : IClassFixture<Auth
     }
 
     [Fact]
-    public async Task Refresh_of_a_deactivated_account_returns_401_account_inactive() // AUTH-18, D10
+    public async Task Refresh_of_a_deactivated_account_returns_401_account_inactive() // AUTH-18
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

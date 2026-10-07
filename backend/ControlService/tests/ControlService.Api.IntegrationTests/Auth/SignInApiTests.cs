@@ -9,7 +9,7 @@ namespace ControlService.Api.IntegrationTests.Auth;
 public sealed class SignInApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>
 {
     [Fact]
-    public async Task Sign_in_returns_200_with_an_access_token_and_the_refresh_cookie() // AUTH-07, AUTH-17, D1
+    public async Task Sign_in_returns_200_with_an_access_token_and_the_refresh_cookie() // AUTH-07, AUTH-17
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -34,7 +34,7 @@ public sealed class SignInApiTests(AuthApiFactory factory) : IClassFixture<AuthA
     }
 
     [Fact]
-    public async Task Access_token_carries_the_user_id_in_sub_and_the_session_in_sid() // D3 of #7
+    public async Task Access_token_carries_the_user_id_in_sub_and_the_session_in_sid()
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -61,7 +61,7 @@ public sealed class SignInApiTests(AuthApiFactory factory) : IClassFixture<AuthA
     }
 
     [Fact]
-    public async Task Fifth_wrong_password_returns_429_locked_out_with_retry_after() // AUTH-08, D6, T10
+    public async Task Fifth_wrong_password_returns_429_locked_out_with_retry_after() // AUTH-08
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

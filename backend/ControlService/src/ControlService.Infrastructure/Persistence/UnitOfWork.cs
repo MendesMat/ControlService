@@ -19,8 +19,8 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
         }
     }
 
-    // A conflict on a row deleted meanwhile is out of scope here (#10): GetDatabaseValuesAsync
-    // returns null and this throws, propagating as an unexpected failure, as the plan decided (D5).
+    // A conflict on a row deleted meanwhile is out of scope here: GetDatabaseValuesAsync
+    // returns null and this throws, propagating as an unexpected failure.
     private async Task<Result> ConcurrencyConflict(DbUpdateConcurrencyException exception, CancellationToken cancellationToken)
     {
         var entry = exception.Entries.Single();

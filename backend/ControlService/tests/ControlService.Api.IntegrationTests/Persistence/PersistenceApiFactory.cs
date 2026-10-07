@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ControlService.Api.IntegrationTests.Persistence;
 
-/// <summary>Replaces ICurrentUser and TimeProvider with fakes the test controls (T13), so
+/// <summary>Replaces ICurrentUser and TimeProvider with fakes the test controls, so
 /// authorship can be asserted without a real sign-in or the real clock.</summary>
 public sealed class PersistenceApiFactory(PostgresContainerFixture postgres) : ApiFactory(postgres)
 {

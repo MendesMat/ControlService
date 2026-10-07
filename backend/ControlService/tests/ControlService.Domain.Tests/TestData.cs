@@ -3,7 +3,7 @@ using ControlService.Domain.Users;
 
 namespace ControlService.Domain.Tests;
 
-/// <summary>Centralizes aggregate construction so a constructor signature change touches one file (plan of #7).</summary>
+/// <summary>Centralizes aggregate construction so a constructor signature change touches one file.</summary>
 internal static class TestData
 {
     public static User NewUser() => User.Create(

@@ -19,7 +19,7 @@ public sealed class RefreshSessionHandler(
             return Result<SessionGrant>.Failure(AuthErrors.SessionExpired);
         }
 
-        // Refresh is anonymous (cookie only), so the per-request account check does not cover it (D10).
+        // Refresh is anonymous (cookie only), so the per-request account check does not cover it.
         var user = await users.GetByIdAsync(rotated.UserId, cancellationToken);
         if (user is null)
         {

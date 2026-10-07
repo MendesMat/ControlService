@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ControlService.Api.IntegrationTests.Auth;
 
 /// <summary>The real API with a clock the test controls (sessions and tokens expire with it) and rate
-/// limits high enough that no other test hits them (T12). The refresh cookie is `Secure`, so the
+/// limits high enough that no other test hits them. The refresh cookie is `Secure`, so the
 /// clients of this factory talk to `https://localhost`.</summary>
 public class AuthApiFactory(PostgresContainerFixture postgres) : ApiFactory(postgres)
 {
@@ -37,7 +37,7 @@ public class AuthApiFactory(PostgresContainerFixture postgres) : ApiFactory(post
         });
     }
 
-    // Stands for "any other endpoint" while #8 has no other authenticated route (T8, T12). It is mapped
+    // Stands for "any other endpoint" while the API has no other authenticated route. It is mapped
     // through MapApiV1() like a real one. A startup filter gets a plain ApplicationBuilder, so it needs its
     // own routing, and authorization must run after that routing selects the endpoint.
     private sealed class TestOnlyEndpoints : IStartupFilter

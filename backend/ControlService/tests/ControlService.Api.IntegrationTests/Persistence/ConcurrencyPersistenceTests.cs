@@ -142,8 +142,8 @@ public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) :
         saved.UpdatedBy.ShouldBe(brunoId);
     }
 
-    // Bruno Lima is the real user D7 requires as the conflict's actor; the display name is unique
-    // across the shared database (T13), so both tests reuse the same row instead of each creating
+    // Bruno Lima is the real user USR-16 requires as the conflict's actor; the display name is unique
+    // across the shared database, so both tests reuse the same row instead of each creating
     // their own "Bruno Lima".
     private static async Task<User> GetOrCreateBrunoAsync(AppDbContext db, CancellationToken cancellationToken)
     {
