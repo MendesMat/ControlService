@@ -4,8 +4,8 @@ const string NamePrefix = "controlservice";
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Persistent containers keep running after the AppHost stops and are reused on the next start,
-// which a fixed container name requires. Stop them in Docker Desktop when you are done for the day.
+// A persistent container keeps running after the AppHost stops and is reused on the next start,
+// which a fixed container name requires. Stop it in Docker Desktop when you are done for the day.
 // The database files live in the named volume, so they survive even if the container is removed.
 var postgres = builder.AddPostgres("postgres")
     .WithContainerName($"{NamePrefix}-postgres")
