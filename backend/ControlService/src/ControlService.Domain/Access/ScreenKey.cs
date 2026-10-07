@@ -6,7 +6,7 @@ public sealed class ScreenKey : IEquatable<ScreenKey>
 {
     private ScreenKey(string value) => Value = value;
 
-    public string Value { get; }
+  public string Value { get; }
 
     public static Result<ScreenKey> Create(string key)
     {
