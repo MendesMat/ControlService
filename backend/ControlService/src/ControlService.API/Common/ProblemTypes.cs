@@ -1,6 +1,6 @@
 namespace ControlService.API.Common;
 
-/// <summary>The `type` and `title` pair for each status code this API returns (ADR-0009): RFC 9110,
+/// <summary>The `type` and `title` pair for each status code this API returns: RFC 9110,
 /// and RFC 6585 for 429, which RFC 9110 does not define.</summary>
 internal static class ProblemTypes
 {

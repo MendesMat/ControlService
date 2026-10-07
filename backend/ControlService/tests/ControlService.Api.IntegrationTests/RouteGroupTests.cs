@@ -3,7 +3,7 @@ using ControlService.Api.IntegrationTests.Common;
 
 namespace ControlService.Api.IntegrationTests;
 
-// The /api/v1 group itself is wiring (ADR-0003, API-01): no feature registers a route under it yet,
+// The /api/v1 group itself is wiring (API-01): no feature registers a route under it yet,
 // so there is no meaningful Red here. This just proves the group mounts without the pipeline breaking.
 public sealed class RouteGroupTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {

@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace ControlService.Application.Common;
 
-/// <summary>Validates a command before it reaches its handler (ADR-0008).</summary>
+/// <summary>Validates a command before it reaches its handler.</summary>
 public sealed class ValidatingCommandHandler<TCommand, TResponse>(
     ICommandHandler<TCommand, TResponse> innerHandler,
     IValidator<TCommand> validator) : ICommandHandler<TCommand, TResponse>

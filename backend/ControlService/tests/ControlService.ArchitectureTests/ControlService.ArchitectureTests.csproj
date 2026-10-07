@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Dependency rules between the layers, checked on every test run (ADR-0025). -->
+  <!-- Dependency rules between the layers, checked on every test run. -->
 
   <ItemGroup>
     <PackageReference Include="NetArchTest.Rules" />

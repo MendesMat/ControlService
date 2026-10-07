@@ -7,7 +7,7 @@ namespace ControlService.Infrastructure.Auth;
 /// <summary>Identity's lockout reads `DateTimeOffset.UtcNow` directly, which tests cannot control.
 /// This manager overrides only the two virtual methods that compare or set the lockout end so they
 /// use the application's <see cref="TimeProvider"/>; the counting and the threshold are Identity's
-/// own logic, copied unchanged (ADR-0019).</summary>
+/// own logic, copied unchanged.</summary>
 public sealed class CredentialUserManager(
     IUserStore<UserCredential> store,
     IOptions<IdentityOptions> optionsAccessor,

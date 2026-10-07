@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ControlService.Infrastructure.Persistence;
 
-/// <summary>Fills the audit fields on every save (ADR-0015, CNV-10, CNV-19). A save during a request
+/// <summary>Fills the audit fields on every save (CNV-10, CNV-19). A save during a request
 /// without a signed-in user throws, so nothing is written without an author (D3 of #7).</summary>
 public sealed class AuditFieldsInterceptor(ICurrentUser currentUser, TimeProvider timeProvider) : SaveChangesInterceptor
 {

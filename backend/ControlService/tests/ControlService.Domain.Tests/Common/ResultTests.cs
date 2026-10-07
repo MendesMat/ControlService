@@ -5,7 +5,7 @@ namespace ControlService.Domain.Tests.Common;
 public class ResultTests
 {
     [Fact]
-    public void Result_success_has_no_error() // ADR-0009
+    public void Result_success_has_no_error()
     {
         var result = Result.Success();
 
@@ -15,7 +15,7 @@ public class ResultTests
     }
 
     [Fact]
-    public void Result_failure_exposes_error() // ADR-0009
+    public void Result_failure_exposes_error()
     {
         var error = new Error("validation_failed", "Alguns campos precisam ser corrigidos.");
 

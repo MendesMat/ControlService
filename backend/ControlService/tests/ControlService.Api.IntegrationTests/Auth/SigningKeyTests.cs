@@ -11,7 +11,7 @@ public sealed class SigningKeyTests(ApiFactory factory) : IClassFixture<ApiFacto
     [InlineData("")]
     [InlineData("AAAAAAAAAAAAAAAAAAAAAA==")] // base64 of 16 bytes: too short for HS256
     [InlineData("not base64 at all!")]
-    public void Api_does_not_start_without_a_valid_signing_key(string? invalidKey) // ADR-0019, T5
+    public void Api_does_not_start_without_a_valid_signing_key(string? invalidKey) // T5
     {
         using var invalid = factory.WithWebHostBuilder(builder =>
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
@@ -29,7 +29,7 @@ public sealed class SigningKeyTests(ApiFactory factory) : IClassFixture<ApiFacto
     }
 
     [Fact]
-    public void Api_starts_with_a_signing_key_longer_than_64_bytes() // ADR-0019, T5: "at least 32 bytes"
+    public void Api_starts_with_a_signing_key_longer_than_64_bytes() // T5: "at least 32 bytes"
     {
         var longKey = Convert.ToBase64String(new byte[96].Select(_ => (byte)9).ToArray());
         using var valid = factory.WithWebHostBuilder(builder =>

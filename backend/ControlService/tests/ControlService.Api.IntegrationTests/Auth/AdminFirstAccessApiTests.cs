@@ -35,7 +35,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Admin_with_the_initial_password_gets_401_password_change_required_on_another_endpoint() // AUTH-14, AUTH-27, ADR-0032
+    public async Task Admin_with_the_initial_password_gets_401_password_change_required_on_another_endpoint() // AUTH-14, AUTH-27
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -47,7 +47,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Admin_with_the_initial_password_can_use_me_and_sign_out() // ADR-0032
+    public async Task Admin_with_the_initial_password_can_use_me_and_sign_out()
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -91,7 +91,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Change_password_ends_the_other_sessions() // ADR-0019
+    public async Task Change_password_ends_the_other_sessions()
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

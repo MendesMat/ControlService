@@ -27,7 +27,7 @@ public static class AuthServiceCollectionExtensions
         services.AddAuthorization();
         services.AddAuthRateLimiting(configuration);
 
-        // Handlers are registered by hand (ADR-0008); the ones with input to validate are wrapped in the decorator.
+        // Handlers are registered by hand; the ones with input to validate are wrapped in the decorator.
         services.AddScoped<ICommandHandler<SignInCommand, SessionGrant>, SignInHandler>();
         services.AddScoped<ICommandHandler<ChangePasswordCommand, SessionGrant>>(serviceProvider =>
             new ValidatingCommandHandler<ChangePasswordCommand, SessionGrant>(

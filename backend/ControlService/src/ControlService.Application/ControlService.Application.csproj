@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Use cases (commands and queries) and the interfaces they need from the outside (ADR-0005, ADR-0007). -->
+  <!-- Use cases (commands and queries) and the interfaces they need from the outside. -->
 
   <ItemGroup>
-    <!-- Validates commands before they reach the handler (ADR-0008). -->
+    <!-- Validates commands before they reach the handler. -->
     <PackageReference Include="FluentValidation" />
   </ItemGroup>
 

@@ -6,7 +6,7 @@ namespace ControlService.ArchitectureTests;
 public sealed class AggregateTests
 {
     [Fact]
-    public void Domain_aggregates_have_no_public_setters() // issue #5 done-when, ADR-0006
+    public void Domain_aggregates_have_no_public_setters() // issue #5 done-when
     {
         Type[] aggregates = [typeof(User), typeof(PermissionProfile)];
 

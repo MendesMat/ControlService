@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace ControlService.Infrastructure.Auth;
 
 /// <summary>Refresh tokens are 32 random bytes; only their SHA-256 is stored (AUTH-19). A session is
-/// valid while now &lt; expires_at, and every use slides that time forward (ADR-0032, T4).</summary>
+/// valid while now &lt; expires_at, and every use slides that time forward (T4).</summary>
 public sealed class SessionStore(AppDbContext db, IOptions<AuthOptions> options, TimeProvider timeProvider) : ISessionStore
 {
     private TimeSpan IdleTime => TimeSpan.FromHours(options.Value.RefreshTokenIdleHours);

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Shared setup for telemetry, health checks, service discovery and resilience (ADR-0027, ADR-0028). -->
+  <!-- Shared setup for telemetry, health checks, service discovery and resilience. -->
 
   <PropertyGroup>
     <IsAspireSharedProject>true</IsAspireSharedProject>

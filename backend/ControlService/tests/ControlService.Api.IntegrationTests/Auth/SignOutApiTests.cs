@@ -5,7 +5,7 @@ namespace ControlService.Api.IntegrationTests.Auth;
 public sealed class SignOutApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>
 {
     [Fact]
-    public async Task Sign_out_returns_204_expires_the_cookie_and_ends_the_session() // ADR-0019, D3
+    public async Task Sign_out_returns_204_expires_the_cookie_and_ends_the_session() // D3
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

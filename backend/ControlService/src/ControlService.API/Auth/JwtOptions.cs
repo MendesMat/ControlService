@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ControlService.API.Auth;
 
-/// <summary>The `Auth` keys that decide how access tokens are signed and checked (ADR-0019, ADR-0032).
+/// <summary>The `Auth` keys that decide how access tokens are signed and checked.
 /// The keys Infrastructure reads live in the same section.</summary>
 public sealed class JwtOptions
 {

@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ControlService.Api.IntegrationTests.Common;
 
-// Unit tests of the Error -> Problem Details mapping itself (ADR-0009). The full JSON shape, traceId
+// Unit tests of the Error -> Problem Details mapping itself. The full JSON shape, traceId
 // and the generic 500 are checked through the real HTTP pipeline in ErrorResponseTests.
 public sealed class ErrorResultsTests
 {
-    // Every row of the ADR-0009 table. account_inactive defaults to 401 (during a session);
-    // the sign-in endpoint returns its 403 explicitly.
+    // Every row of the error code table in docs/api/conventions.md#error-codes. account_inactive
+    // defaults to 401 (during a session); the sign-in endpoint returns its 403 explicitly.
     [Theory]
     [InlineData("validation_failed", 400, "https://tools.ietf.org/html/rfc9110#section-15.5.1", "Bad Request")]
     [InlineData("session_expired", 401, "https://tools.ietf.org/html/rfc9110#section-15.5.2", "Unauthorized")]
@@ -31,7 +31,7 @@ public sealed class ErrorResultsTests
     [InlineData("link_invalid", 410, "https://tools.ietf.org/html/rfc9110#section-15.5.11", "Gone")]
     [InlineData("locked_out", 429, "https://tools.ietf.org/html/rfc6585#section-4", "Too Many Requests")]
     [InlineData("unexpected_error", 500, "https://tools.ietf.org/html/rfc9110#section-15.6.1", "Internal Server Error")]
-    public async Task Every_documented_error_code_maps_to_its_status(string code, int status, string type, string title) // ADR-0009, API-14
+    public async Task Every_documented_error_code_maps_to_its_status(string code, int status, string type, string title) // API-14
     {
         var body = await ExecuteAsync(new Error(code, "Mensagem de teste."));
 
@@ -42,7 +42,7 @@ public sealed class ErrorResultsTests
     }
 
     [Fact]
-    public async Task Details_of_an_error_are_returned_under_details() // ADR-0009
+    public async Task Details_of_an_error_are_returned_under_details()
     {
         var error = new Error(
             "concurrency_conflict",
@@ -55,7 +55,7 @@ public sealed class ErrorResultsTests
     }
 
     [Fact]
-    public void An_error_becomes_a_typed_problem_result() // ADR-0003: typed results feed the OpenAPI document
+    public void An_error_becomes_a_typed_problem_result() // Typed results feed the OpenAPI document
     {
         ProblemHttpResult result = new Error("not_found", "Registro não encontrado.").ToProblem();
 

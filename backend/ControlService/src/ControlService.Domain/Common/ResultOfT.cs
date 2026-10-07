@@ -5,7 +5,7 @@ namespace ControlService.Domain.Common;
 [SuppressMessage(
     "Design",
     "CA1000:Do not declare static members on generic types",
-    Justification = "Result<T>.Success/Failure factories are the API shape decided in ADR-0009.")]
+    Justification = "Result<T>.Success/Failure are the factories of the Result pattern used across the solution.")]
 public sealed class Result<T>
 {
     private readonly T? _value;

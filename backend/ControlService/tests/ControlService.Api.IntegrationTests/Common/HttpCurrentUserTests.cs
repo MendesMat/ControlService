@@ -8,7 +8,7 @@ namespace ControlService.Api.IntegrationTests.Common;
 public class HttpCurrentUserTests
 {
     [Fact]
-    public void Current_user_is_read_from_the_sub_claim() // ADR-0015, ADR-0019
+    public void Current_user_is_read_from_the_sub_claim()
     {
         var userId = Guid.CreateVersion7();
         var identity = new ClaimsIdentity([new Claim("sub", userId.ToString())], authenticationType: "Test");

@@ -30,7 +30,7 @@ public sealed class MeApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFa
     }
 
     [Fact]
-    public async Task Me_without_a_token_returns_401_session_expired() // ADR-0009, AUTH-27, T7
+    public async Task Me_without_a_token_returns_401_session_expired() // AUTH-27, T7
     {
         using var client = factory.CreateHttpsClient();
 

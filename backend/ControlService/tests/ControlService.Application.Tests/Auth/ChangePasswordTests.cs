@@ -98,7 +98,7 @@ public class ChangePasswordTests
     }
 
     [Fact]
-    public async Task Changing_the_password_ends_every_session_and_starts_a_new_one() // ADR-0019, ADR-0032
+    public async Task Changing_the_password_ends_every_session_and_starts_a_new_one()
     {
         var bed = new AuthTestBed();
         var admin = bed.AddAdminWithInitialPassword("senha-inicial");
@@ -148,7 +148,7 @@ public class ChangePasswordTests
     }
 
     [Fact]
-    public async Task Change_password_stops_when_the_user_cannot_be_saved() // ADR-0014
+    public async Task Change_password_stops_when_the_user_cannot_be_saved()
     {
         var bed = new AuthTestBed();
         var admin = bed.AddAdminWithInitialPassword("senha-inicial");

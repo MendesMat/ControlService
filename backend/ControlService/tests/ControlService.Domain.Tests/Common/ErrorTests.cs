@@ -5,7 +5,7 @@ namespace ControlService.Domain.Tests.Common;
 public class ErrorTests
 {
     [Fact]
-    public void Error_stores_code_and_message() // ADR-0009
+    public void Error_stores_code_and_message()
     {
         var error = new Error("validation_failed", "Alguns campos precisam ser corrigidos.");
 
@@ -14,7 +14,7 @@ public class ErrorTests
     }
 
     [Fact]
-    public void Error_can_be_created_with_field_errors() // ADR-0009
+    public void Error_can_be_created_with_field_errors()
     {
         var fields = new Dictionary<string, string[]>
         {
@@ -27,7 +27,7 @@ public class ErrorTests
     }
 
     [Fact]
-    public void Error_can_be_created_with_details() // ADR-0009
+    public void Error_can_be_created_with_details()
     {
         var details = new Dictionary<string, object?> { ["updatedByName"] = "Bruno Lima" };
 

@@ -12,7 +12,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-# Configurações comuns da solução (ADR-0026) e os projetos de que a API depende, para o restore ficar em cache
+# Configurações comuns da solução e os projetos de que a API depende, para o restore ficar em cache
 COPY ["global.json", "Directory.Build.props", "Directory.Packages.props", ".editorconfig", "./"]
 COPY ["src/ControlService.API/ControlService.API.csproj", "src/ControlService.API/"]
 COPY ["src/ControlService.Application/ControlService.Application.csproj", "src/ControlService.Application/"]

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Real HTTP calls against the API. Testcontainers (PostgreSQL, Mailpit) is added with the persistence slice. -->
+  <!-- Real HTTP calls against the API, with PostgreSQL in a Testcontainers container. -->
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />

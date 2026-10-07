@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ControlService.Infrastructure.Persistence;
 
 /// <summary>The domain aggregates plus the Identity tables of the credentials, with no roles:
-/// permissions are per screen (ADR-0020).</summary>
+/// permissions are per screen.</summary>
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityUserContext<UserCredential, Guid>(options)
 {
     // Identity's base context already has a `Users` set, of credentials. The domain users keep the

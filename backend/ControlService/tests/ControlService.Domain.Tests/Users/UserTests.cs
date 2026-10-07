@@ -52,7 +52,7 @@ public class UserTests
     }
 
     [Fact]
-    public void New_user_gets_a_version_7_id() // CNV-04, ADR-0012
+    public void New_user_gets_a_version_7_id() // CNV-04
     {
         var user = TestData.NewUser();
 
@@ -220,7 +220,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Assigning_profiles_replaces_them_and_ignores_repeated_ids() // ADR-0006
+    public void Assigning_profiles_replaces_them_and_ignores_repeated_ids()
     {
         var user = TestData.NewUser();
         var first = Guid.CreateVersion7();

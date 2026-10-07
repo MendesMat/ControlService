@@ -14,7 +14,7 @@ var postgres = builder.AddPostgres("postgres")
 
 var database = postgres.AddDatabase("controlservice");
 
-// Test inbox: catches every e-mail the API sends (ADR-0030). Nothing reaches real people.
+// Test inbox: catches every e-mail the API sends. Nothing reaches real people.
 var mailpit = builder.AddMailPit("mailpit")
     .WithContainerName($"{NamePrefix}-mailpit")
     .WithLifetime(ContainerLifetime.Persistent);

@@ -9,7 +9,7 @@ namespace ControlService.Api.IntegrationTests.Persistence;
 public sealed class PermissionProfilePersistenceTests(PersistenceApiFactory factory) : IClassFixture<PersistenceApiFactory>
 {
     [Fact]
-    public async Task Profile_is_saved_and_read_back_with_its_levels() // ADR-0011, PERM-05
+    public async Task Profile_is_saved_and_read_back_with_its_levels() // PERM-05
     {
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
         var customers = ScreenKey.Create(ScreenKeys.Customers).Value;

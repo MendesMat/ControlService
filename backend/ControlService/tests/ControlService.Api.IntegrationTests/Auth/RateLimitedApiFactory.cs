@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 namespace ControlService.Api.IntegrationTests.Auth;
 
 /// <summary>The real API with rate limits of two requests per window, so the third request is refused
-/// without a test having to send dozens (T12, ADR-0023).</summary>
+/// without a test having to send dozens (T12).</summary>
 public sealed class RateLimitedApiFactory(PostgresContainerFixture postgres) : AuthApiFactory(postgres)
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)

@@ -47,7 +47,7 @@ public class PermissionProfileTests
     }
 
     [Fact]
-    public void Setting_a_level_to_denied_removes_the_screen_from_the_stored_levels() // PERM-05, ADR-0011
+    public void Setting_a_level_to_denied_removes_the_screen_from_the_stored_levels() // PERM-05
     {
         var profile = TestData.NewProfile();
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
@@ -60,7 +60,7 @@ public class PermissionProfileTests
     }
 
     [Fact]
-    public void SetLevel_changes_only_that_screen() // ADR-0006
+    public void SetLevel_changes_only_that_screen()
     {
         var profile = TestData.NewProfile();
         var users = ScreenKey.Create(ScreenKeys.Users).Value;
