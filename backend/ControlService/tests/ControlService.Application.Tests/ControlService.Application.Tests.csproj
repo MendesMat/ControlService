@@ -3,10 +3,6 @@
   <!-- Handlers and validators with fake dependencies. -->
 
   <ItemGroup>
-    <PackageReference Include="NSubstitute" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\ControlService.Application\ControlService.Application.csproj" />
   </ItemGroup>
 
