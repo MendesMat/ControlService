@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Identity;
 namespace ControlService.Infrastructure.Auth;
 
 /// <summary>Passwords, lockout and the mandatory-change flag on top of Identity's UserManager, without
-/// SignInManager (T2). Lockout is checked before the password, and an attempt made while locked out is
-/// not counted (D6).</summary>
+/// SignInManager. Lockout is checked before the password, and an attempt made while locked out is
+/// not counted.</summary>
 public sealed class CredentialStore(UserManager<UserCredential> users) : ICredentialStore
 {
     public async Task<CredentialCheck> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken)

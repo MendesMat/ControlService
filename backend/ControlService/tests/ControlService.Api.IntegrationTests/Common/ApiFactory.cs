@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace ControlService.Api.IntegrationTests.Common;
 
-/// <summary>The real API against the shared PostgreSQL container (T13). Every test factory in this
+/// <summary>The real API against the shared PostgreSQL container. Every test factory in this
 /// project derives from this one, since Program now needs a database to start.</summary>
 public class ApiFactory(PostgresContainerFixture postgres) : WebApplicationFactory<Program>
 {

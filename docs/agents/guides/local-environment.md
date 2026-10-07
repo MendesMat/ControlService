@@ -42,15 +42,15 @@ On this machine, ports published on all interfaces make `localhost` hang, becaus
 
 ## Resource names and configuration keys
 
-Use these names exactly; do not invent others.
+Use the resource name and the configuration keys below exactly; do not invent others.
 
-**Aspire resources** (declared in `src/ControlService.AppHost/AppHost.cs`). Aspire injects each referenced resource into the API as a connection string with the same name:
+**Aspire resource** (declared in `src/ControlService.AppHost/AppHost.cs`). Aspire injects the referenced resource into the API as a connection string with the same name:
 
 | Resource | Name | Reaches the API as |
 |---|---|---|
 | PostgreSQL database | `controlservice` | `ConnectionStrings:controlservice` |
 
-Register the API side with the Aspire client integration for this name, and check the exact method names and connection string format in the current Aspire documentation when you implement them. Integration tests start their own containers with Testcontainers and pass the connection strings under the same names, without the AppHost.
+Register the API side with the Aspire client integration for this name, and check the exact method names and connection string format in the current Aspire documentation when you implement it. Integration tests start their own container with Testcontainers and pass the connection string under the same name, without the AppHost.
 
 **Configuration keys:**
 

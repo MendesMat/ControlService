@@ -13,7 +13,7 @@ using ControlService.Domain.Users;
 namespace ControlService.Application.Tests.Auth;
 
 /// <summary>Builds the fakes and the handlers of the authentication use cases, and the users the
-/// tests sign in as, so a constructor change touches one file (plan of #7).</summary>
+/// tests sign in as, so a constructor change touches one file.</summary>
 internal sealed class AuthTestBed(AuthSettings? settings = null)
 {
     public AuthSettings Settings { get; } = settings ?? new AuthSettings(PasswordMinLength: 8, LockoutMinutes: 15);

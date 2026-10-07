@@ -10,7 +10,7 @@ namespace ControlService.Api.IntegrationTests.Persistence;
 public sealed class ForeignKeyConstraintsPersistenceTests(PersistenceApiFactory factory) : IClassFixture<PersistenceApiFactory>
 {
     [Fact]
-    public async Task Authorship_must_point_to_an_existing_user() // USR-16 (D7)
+    public async Task Authorship_must_point_to_an_existing_user() // USR-16
     {
         // Starts the host (and its seeding, as the Admin) before the current user stops existing.
         _ = factory.Services;

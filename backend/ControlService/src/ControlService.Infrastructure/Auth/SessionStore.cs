@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace ControlService.Infrastructure.Auth;
 
 /// <summary>Refresh tokens are 32 random bytes; only their SHA-256 is stored (AUTH-19). A session is
-/// valid while now &lt; expires_at, and every use slides that time forward (T4).</summary>
+/// valid while now &lt; expires_at, and every use slides that time forward.</summary>
 public sealed class SessionStore(AppDbContext db, IOptions<AuthOptions> options, TimeProvider timeProvider) : ISessionStore
 {
     private TimeSpan IdleTime => TimeSpan.FromHours(options.Value.RefreshTokenIdleHours);
@@ -41,7 +41,7 @@ public sealed class SessionStore(AppDbContext db, IOptions<AuthOptions> options,
         var newHash = Hash(newToken);
         var expiresAt = now + IdleTime;
 
-        // One UPDATE: two refreshes with the same token cannot both match the old hash (T4).
+        // One UPDATE: two refreshes with the same token cannot both match the old hash.
         var rotated = await db.Sessions
             .Where(session => session.TokenHash == oldHash && session.ExpiresAt > now)
             .ExecuteUpdateAsync(

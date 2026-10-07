@@ -29,7 +29,7 @@ public sealed class AdminCredentialTests(ApiFactory factory) : IClassFixture<Api
     }
 
     [Fact]
-    public async Task Restarting_does_not_change_the_admin_credential() // previous plan, see decision 21 (was AUTH-13), T3
+    public async Task Restarting_does_not_change_the_admin_credential() // previous plan, see decision 21 (was AUTH-13)
     {
         await AuthTestSupport.DeleteAdminCredentialAsync(factory.Services);
         using var first = factory.WithWebHostBuilder(_ => { });

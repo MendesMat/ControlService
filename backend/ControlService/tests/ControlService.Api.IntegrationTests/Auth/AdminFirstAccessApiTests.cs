@@ -61,7 +61,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Change_password_returns_new_tokens_and_unlocks_other_endpoints() // AUTH-14, D3 of #7; activation time is the previous plan, see decision 21 (was USR-34)
+    public async Task Change_password_returns_new_tokens_and_unlocks_other_endpoints() // AUTH-14; activation time is the previous plan, see decision 21 (was USR-34)
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

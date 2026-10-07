@@ -15,7 +15,7 @@ builder.Services.AddExceptionHandler<UnexpectedErrorExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
-// ICurrentUser and TimeProvider.System are registered here (T12) because AuditFieldsInterceptor
+// ICurrentUser and TimeProvider.System are registered here because AuditFieldsInterceptor
 // (registered by AddInfrastructure) depends on both.
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<ICurrentUser, HttpCurrentUser>();
@@ -33,7 +33,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 
-    // Migrations run automatically only here; MigrateAsync also runs the seeder (D2).
+    // Migrations run automatically only here; MigrateAsync also runs the seeder.
     using var scope = app.Services.CreateScope();
     await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
 }

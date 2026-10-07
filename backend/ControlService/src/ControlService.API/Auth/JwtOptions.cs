@@ -17,7 +17,7 @@ public sealed class JwtOptions
     [Required]
     public string Audience { get; init; } = string.Empty;
 
-    /// <summary>The base64 of at least 32 random bytes. A secret: user secrets locally (T5).</summary>
+    /// <summary>The base64 of at least 32 random bytes. A secret: user secrets locally.</summary>
     public string SigningKey { get; init; } = string.Empty;
 
     public byte[] SigningKeyBytes() => Convert.FromBase64String(SigningKey);

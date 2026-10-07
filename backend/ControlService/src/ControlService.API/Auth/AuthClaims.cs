@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 namespace ControlService.API.Auth;
 
-/// <summary>Reads the claims the access token carries (T5).</summary>
+/// <summary>Reads the claims the access token carries.</summary>
 internal static class AuthClaims
 {
     public static Guid? UserId(this ClaimsPrincipal principal) => GuidClaim(principal, "sub");

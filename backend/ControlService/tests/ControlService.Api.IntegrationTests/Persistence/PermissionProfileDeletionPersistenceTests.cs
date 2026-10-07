@@ -35,7 +35,7 @@ public sealed class PermissionProfileDeletionPersistenceTests(PersistenceApiFact
         var exception = await Should.ThrowAsync<DbUpdateException>(() => deleteDb.SaveChangesAsync(TestContext.Current.CancellationToken));
         var postgresException = exception.InnerException.ShouldBeOfType<PostgresException>();
         // PostgreSQL reports an immediate ON DELETE RESTRICT violation as 23001 (restrict_violation),
-        // not 23503 (foreign_key_violation, used by NO ACTION): T5/D7 chose RESTRICT deliberately.
+        // not 23503 (foreign_key_violation, used by NO ACTION): RESTRICT was chosen deliberately (PERM-20, USR-16).
         postgresException.SqlState.ShouldBe("23001");
 
         await using var verifyScope = factory.Services.CreateAsyncScope();

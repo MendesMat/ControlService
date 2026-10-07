@@ -1,6 +1,6 @@
 namespace ControlService.Api.IntegrationTests.Common;
 
-/// <summary>A controllable clock so tests never depend on the real time (T12, testing guide).</summary>
+/// <summary>A controllable clock so tests never depend on the real time (testing guide).</summary>
 public sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
 {
     private DateTimeOffset _utcNow = utcNow;

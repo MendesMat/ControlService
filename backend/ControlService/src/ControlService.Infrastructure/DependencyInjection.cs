@@ -16,9 +16,9 @@ namespace ControlService.Infrastructure;
 
 public static class DependencyInjection
 {
-    // ICurrentUser and TimeProvider are registered by the caller (API/Program.cs, T12):
+    // ICurrentUser and TimeProvider are registered by the caller (API/Program.cs):
     // AuditFieldsInterceptor depends on both, and the Admin's own creation depends on ICurrentUser
-    // answering the Admin's id outside a request (D3).
+    // answering the Admin's id outside a request.
     public static IHostApplicationBuilder AddInfrastructure(this IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton<AuditFieldsInterceptor>();
@@ -28,7 +28,7 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        // Message texts state these two values (D11, AUTH-28), and Application cannot read options.
+        // Message texts state these two values (AUTH-28), and Application cannot read options.
         builder.Services.AddSingleton(serviceProvider =>
         {
             var auth = serviceProvider.GetRequiredService<IOptions<AuthOptions>>().Value;
@@ -45,7 +45,7 @@ public static class DependencyInjection
             .ValidateOnStart();
 
         // No SignInManager: it pulls in cookie authentication. The credential store uses UserManager
-        // for hashing and lockout only (T2).
+        // for hashing and lockout only.
         builder.Services.AddIdentityCore<UserCredential>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddUserManager<CredentialUserManager>();
@@ -75,7 +75,7 @@ public static class DependencyInjection
                     SystemRecordsSeeder.SeedAsync(context, admin.Email, admin.InitialPassword, cancellationToken));
         });
 
-        // AddNpgsqlDbContext pools contexts, which does not fit a scoped interceptor (T7): the
+        // AddNpgsqlDbContext pools contexts, which does not fit a scoped interceptor: the
         // context above is registered by hand and only enriched with Aspire's retries, health
         // checks, logging and telemetry.
         builder.EnrichNpgsqlDbContext<AppDbContext>();

@@ -8,7 +8,7 @@ public sealed class MeApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFa
     private const string SessionEnded = "Sua sessão terminou. Entre de novo para continuar. Suas abas continuam abertas.";
 
     [Fact]
-    public async Task Me_returns_the_signed_in_person_and_their_levels() // Operations, D2
+    public async Task Me_returns_the_signed_in_person_and_their_levels() // Operations
     {
         var user = await AuthTestSupport.CreateUserAsync(factory.Services);
         await AuthTestSupport.GrantAsync(factory.Services, user.Id, ScreenKeys.Users, AccessLevel.Editor);
@@ -30,7 +30,7 @@ public sealed class MeApiTests(AuthApiFactory factory) : IClassFixture<AuthApiFa
     }
 
     [Fact]
-    public async Task Me_without_a_token_returns_401_session_expired() // AUTH-27, T7
+    public async Task Me_without_a_token_returns_401_session_expired() // AUTH-27
     {
         using var client = factory.CreateHttpsClient();
 

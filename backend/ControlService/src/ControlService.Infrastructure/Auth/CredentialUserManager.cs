@@ -42,7 +42,7 @@ public sealed class CredentialUserManager(
             return await UpdateAsync(user);
         }
 
-        // Reaching the threshold locks the login and starts counting again (AUTH-08, D6).
+        // Reaching the threshold locks the login and starts counting again (AUTH-08).
         await lockoutStore.SetLockoutEndDateAsync(
             user, timeProvider.GetUtcNow().Add(Options.Lockout.DefaultLockoutTimeSpan), CancellationToken);
         await lockoutStore.ResetAccessFailedCountAsync(user, CancellationToken);

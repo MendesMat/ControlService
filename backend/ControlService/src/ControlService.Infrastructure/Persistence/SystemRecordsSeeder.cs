@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 namespace ControlService.Infrastructure.Persistence;
 
 /// <summary>Inserts the Admin, its credential and the Gerenciador profile only when missing, so
-/// restarting the application never duplicates or changes them (D2, D7: the Admin comes
+/// restarting the application never duplicates or changes them (the Admin comes
 /// first, since the profile's authorship references it). The credential is checked apart from the
-/// Admin row, so databases created before authentication get it too (T3).</summary>
+/// Admin row, so databases created before authentication get it too.</summary>
 public static class SystemRecordsSeeder
 {
     public static void Seed(DbContext context, string adminEmail, string adminInitialPassword)
