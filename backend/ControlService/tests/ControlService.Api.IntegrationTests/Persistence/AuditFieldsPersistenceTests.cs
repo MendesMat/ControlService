@@ -185,8 +185,8 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
         (await verifyDb.PermissionProfiles.AnyAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
     }
 
-    // The editor must be a real user (USR-16), and both tests reuse the same row, since the display
-    // name is unique across the shared database.
+    // The editor must exist in `users`, since the authorship columns are foreign keys to it. Both tests
+    // reuse the same row, because the display name is unique across the shared database.
     private async Task<Guid> GetOrCreateUserAsync(string login, string displayName)
     {
         await using var scope = factory.Services.CreateAsyncScope();

@@ -37,9 +37,9 @@ public class AuthApiFactory(PostgresContainerFixture postgres) : ApiFactory(post
         });
     }
 
-    // Stands for "any other endpoint" while the API has no other authenticated route. It is mapped
-    // through MapApiV1() like a real one. A startup filter gets a plain ApplicationBuilder, so it needs its
-    // own routing, and authorization must run after that routing selects the endpoint.
+    // Stands for "any other endpoint" while the API has no authenticated route outside authentication.
+    // It is mapped through MapApiV1() like a real one. A startup filter gets a plain ApplicationBuilder,
+    // so it needs its own routing, and authorization must run after that routing selects the endpoint.
     private sealed class TestOnlyEndpoints : IStartupFilter
     {
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
