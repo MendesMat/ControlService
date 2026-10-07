@@ -73,7 +73,7 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
         return user;
     }
 
-    /// <summary>The Admin as the seeder creates it, with the initial password that must be replaced (AUTH-13).</summary>
+    /// <summary>The Admin as the seeder creates it, with the initial password that must be replaced (previous plan, see decision 21).</summary>
     public User AddAdminWithInitialPassword(string initialPassword)
     {
         var admin = User.CreateAdmin(EmailAddress.Create("admin@example.com").Value);

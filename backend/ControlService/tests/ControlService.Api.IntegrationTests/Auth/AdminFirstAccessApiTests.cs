@@ -20,7 +20,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     private const string ChangeRequired = "Por segurança, a senha inicial precisa ser trocada no primeiro acesso.";
 
     [Fact]
-    public async Task Admin_with_the_initial_password_signs_in_with_must_change_password() // AUTH-13, AUTH-14
+    public async Task Admin_with_the_initial_password_signs_in_with_must_change_password() // AUTH-14, on the Admin by the previous plan, see decision 21
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -35,7 +35,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Admin_with_the_initial_password_gets_401_password_change_required_on_another_endpoint() // AUTH-14, AUTH-27
+    public async Task Admin_with_the_initial_password_gets_401_password_change_required_on_another_endpoint() // AUTH-14, AUTH-27, on the Admin by the previous plan, see decision 21
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -61,7 +61,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Change_password_returns_new_tokens_and_unlocks_other_endpoints() // AUTH-14, USR-34, D3 of #7
+    public async Task Change_password_returns_new_tokens_and_unlocks_other_endpoints() // AUTH-14, D3 of #7; activation time is the previous plan, see decision 21 (was USR-34)
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();

@@ -44,7 +44,7 @@ public class UserTests
     }
 
     [Fact]
-    public void New_user_is_pending() // AUTH-02
+    public void New_user_is_pending() // previous plan, see decision 21 (was AUTH-02)
     {
         var user = TestData.NewUser();
 
@@ -62,7 +62,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Activating_a_pending_user_makes_it_active_with_the_activation_date() // AUTH-02
+    public void Activating_a_pending_user_makes_it_active_with_the_activation_date() // previous plan, see decision 21 (was AUTH-02)
     {
         var user = TestData.NewUser();
         var now = new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero);
@@ -75,7 +75,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Activating_an_active_user_is_refused_as_invalid_link() // AUTH-23
+    public void Activating_an_active_user_is_refused_as_invalid_link() // previous plan, see decision 21 (was AUTH-23)
     {
         var user = TestData.NewUser();
         user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
@@ -89,7 +89,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Activating_an_inactive_user_is_refused_as_invalid_link() // AUTH-23, AUTH-21
+    public void Activating_an_inactive_user_is_refused_as_invalid_link() // previous plan, see decision 21 (was AUTH-23)
     {
         var user = TestData.NewUser();
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
@@ -170,7 +170,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Reactivating_a_user_who_never_had_a_password_makes_it_pending() // USR-18
+    public void Reactivating_a_user_who_never_had_a_password_makes_it_pending() // previous plan, see decision 21 (USR-18 no longer has this case)
     {
         var user = TestData.NewUser();
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
@@ -234,7 +234,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Admin_has_the_fixed_system_values_and_the_configured_email() // USR-23, USR-24, USR-32
+    public void Admin_has_the_fixed_system_values_and_the_configured_email() // USR-23, USR-24
     {
         var email = EmailAddress.Create("admin@example.com").Value;
 
@@ -278,7 +278,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Completing_the_first_access_fills_activated_at() // USR-34
+    public void Completing_the_first_access_fills_activated_at() // previous plan, see decision 21 (was USR-34)
     {
         var admin = TestData.NewAdmin();
         var now = new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero);
@@ -290,7 +290,7 @@ public class UserTests
     }
 
     [Fact]
-    public void Completing_the_first_access_again_keeps_the_first_time() // USR-34
+    public void Completing_the_first_access_again_keeps_the_first_time() // previous plan, see decision 21 (was USR-34)
     {
         var admin = TestData.NewAdmin();
         var first = new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero);

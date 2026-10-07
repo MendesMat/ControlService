@@ -83,8 +83,8 @@ Domain  ◄──  Application  ◄──  Infrastructure
 | Projeto | O que vai aqui | Pode referenciar |
 |---|---|---|
 | `ControlService.Domain` | Entidades, objetos de valor e regras de negócio. Nada de EF Core ou ASP.NET. | Nada |
-| `ControlService.Application` | Casos de uso (comandos e consultas), validação e as **interfaces** de que eles precisam (repositórios, e-mail, usuário atual). | Domain |
-| `ControlService.Infrastructure` | As **implementações** dessas interfaces: EF Core, Identity, envio de e-mail. | Application, Domain |
+| `ControlService.Application` | Casos de uso (comandos e consultas), validação e as **interfaces** de que eles precisam (repositórios, credenciais, usuário atual). | Domain |
+| `ControlService.Infrastructure` | As **implementações** dessas interfaces: EF Core, Identity. | Application, Domain |
 | `ControlService.API` | Endpoints HTTP, autenticação, autorização e o `Program.cs`, que liga tudo. | Application, Infrastructure |
 | `ControlService.AppHost` / `ServiceDefaults` | Ambiente local com Aspire e telemetria. | API |
 
@@ -116,6 +116,6 @@ Pastas previstas para a primeira etapa: `Access` (níveis, chaves das telas, ace
 3. Autenticação (Identity, JWT, token de renovação).
 4. Autorização por tela.
 5. Perfis de permissão.
-6. Usuários e links de ativação e troca de senha.
+6. Usuários, com senha temporária e troca obrigatória.
 
 As rotas de cada funcionalidade estão na seção *Operations* do documento dela, em [docs/product/features](../../docs/product/features/), e o que vale para todas as rotas está em [docs/api/conventions.md](../../docs/api/conventions.md).

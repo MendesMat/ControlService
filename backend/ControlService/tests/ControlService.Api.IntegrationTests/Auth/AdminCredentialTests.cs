@@ -11,7 +11,7 @@ namespace ControlService.Api.IntegrationTests.Auth;
 public sealed class AdminCredentialTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     [Fact]
-    public async Task Startup_creates_the_admin_credential_with_a_mandatory_change() // AUTH-13
+    public async Task Startup_creates_the_admin_credential_with_a_mandatory_change() // previous plan, see decision 21 (was AUTH-13)
     {
         // The first host already created it; removing it lets the next start prove it is created when missing.
         await AuthTestSupport.DeleteAdminCredentialAsync(factory.Services);
@@ -29,7 +29,7 @@ public sealed class AdminCredentialTests(ApiFactory factory) : IClassFixture<Api
     }
 
     [Fact]
-    public async Task Restarting_does_not_change_the_admin_credential() // AUTH-13, T3
+    public async Task Restarting_does_not_change_the_admin_credential() // previous plan, see decision 21 (was AUTH-13), T3
     {
         await AuthTestSupport.DeleteAdminCredentialAsync(factory.Services);
         using var first = factory.WithWebHostBuilder(_ => { });
@@ -54,7 +54,7 @@ public sealed class AdminCredentialTests(ApiFactory factory) : IClassFixture<Api
     [InlineData(null)] // the user secret was never set
     [InlineData("")]
     [InlineData("1234567")]
-    public void Api_does_not_start_without_a_valid_initial_password(string? invalidPassword) // AUTH-13, AUTH-16
+    public void Api_does_not_start_without_a_valid_initial_password(string? invalidPassword) // AUTH-16; previous plan, see decision 21 (was AUTH-13)
     {
         using var invalid = factory.WithWebHostBuilder(builder =>
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>

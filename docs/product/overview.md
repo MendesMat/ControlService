@@ -17,7 +17,7 @@ The system will be used by people with very different roles, and most of them ar
 
 ## Access
 
-Every use of the system starts at the sign-in screen, with login and password. Nobody creates their own account: each person is registered by someone with access to the Users screen and receives an e-mail link to create their own password. See [authentication](features/authentication.md).
+Every use of the system starts at the sign-in screen, with login and password. Nobody creates their own account: each person is registered by someone with access to the Users screen, who sets a temporary password, and the person replaces it with their own when they first sign in. See [authentication](features/authentication.md).
 
 ## Navigation
 
@@ -34,7 +34,7 @@ Each screen has a fixed **key**, in the format `area/screen`, that identifies it
 | Key | `relatorios/relatorio-de-vendas` | The system | **Never** |
 | Name | "Relatório de Vendas" | People | Whenever needed |
 
-- **Defined in code** (`ScreenKeys` in the Domain project, ADR-0021), written once when the screen is created and never recalculated from the name. If keys followed names, renaming a screen would silently make it disappear for everyone except the Gerenciador profile, because stored permissions would point to the old key.
+- **Defined in code** (`ScreenKeys` in the Domain project, decision 25 of the [decisions document](../decisoes-de-arquitetura.md)), written once when the screen is created and never recalculated from the name. If keys followed names, renaming a screen would silently make it disappear for everyone except the Gerenciador profile, because stored permissions would point to the old key.
 - **Format:** lowercase, without accents, hyphens instead of spaces. This is only a readability convention: once created, a key does not follow changes to the name.
 - **Never reused.** A removed screen has its key retired, and its stored levels are cleaned up by a migration.
 - **Values preserved.** The current keys were kept exactly as the prototype used them, so no stored permission needs migration.

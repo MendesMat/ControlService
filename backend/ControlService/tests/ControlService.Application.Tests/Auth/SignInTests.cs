@@ -63,7 +63,7 @@ public class SignInTests
     }
 
     [Fact]
-    public async Task Pending_account_is_refused_as_invalid_credentials() // AUTH-02, AUTH-08
+    public async Task Pending_account_is_refused_as_invalid_credentials() // AUTH-08; the pending status is the previous plan, see decision 21
     {
         var bed = new AuthTestBed();
         var user = bed.AddPendingUser("bruno.lima");

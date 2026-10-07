@@ -122,7 +122,7 @@ public class ChangePasswordTests
     }
 
     [Fact]
-    public async Task Changing_the_initial_password_fills_the_admin_activation_time() // USR-34
+    public async Task Changing_the_initial_password_fills_the_admin_activation_time() // previous plan, see decision 21 (was USR-34)
     {
         var bed = new AuthTestBed();
         var admin = bed.AddAdminWithInitialPassword("senha-inicial");
