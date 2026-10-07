@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Shared setup for telemetry, health checks, service discovery and resilience. -->
+  <!-- Shared setup for telemetry and health checks. -->
 
   <PropertyGroup>
     <IsAspireSharedProject>true</IsAspireSharedProject>
@@ -11,8 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
-    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />

@@ -179,6 +179,8 @@ As sete primeiras também são o que permite testar um handler com um repositór
 5. **Alternativas mais simples.** Data Annotations, que são limitadas para regras como "se preenchido, deve ser válido". Ou chamar o validador dentro do handler, sem decorator.
 6. **Por que escolhemos assim.** A validação é automática e o handler fica só com a regra de negócio. Reavaliada em 2026-10-05, com as alternativas "validar dentro do handler" e "handlers sem interface": o dono escolheu manter.
 
+**Registro dos handlers validados.** Um método auxiliar de uma linha para registrar o handler e o decorator juntos foi avaliado em 2026-10-07 e adiado, porque só existe um handler validado. Reavaliar no levantamento da primeira issue que registrar o segundo (#10 ou #11).
+
 - **Onde ver no código:** [ValidatingCommandHandler.cs](../backend/ControlService/src/ControlService.Application/Common/ValidatingCommandHandler.cs), [ChangePasswordValidator.cs](../backend/ControlService/src/ControlService.Application/Auth/ChangePassword/ChangePasswordValidator.cs).
 - **Em uma frase:** um "porteiro" confere os dados antes do handler; se estiverem errados, o handler nem roda.
 
@@ -573,15 +575,10 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 
 ### O que ainda reflete o plano antigo
 
-As decisões deste bloco descrevem o que está em uso. Estas sobras do plano anterior a 2026-10-05 ainda estão no código e saem em mudanças próprias, fora deste documento:
+As decisões deste bloco descrevem o que está em uso. Esta sobra do plano anterior a 2026-10-05 ainda está no código e sai em mudança própria, fora deste documento:
 
 | Sobra | Onde está | O que será feito |
 |---|---|---|
-| NSubstitute, uma biblioteca de mocks que nenhum teste usa | `ControlService.Application.Tests.csproj` | Remover (decisão 27) |
-| Mailpit, a caixa de e-mail de teste: o AppHost a sobe e a API espera por ela, mas nada envia e-mail | `AppHost.cs` | Remover; volta quando o e-mail voltar (decisão 31) |
-| `MailKit` e `Microsoft.Extensions.Caching.Hybrid`, com versão declarada e nenhum projeto usando | `Directory.Packages.props` | Remover (decisão 30) |
-| *Service discovery* e resiliência de HTTP, que vieram do modelo do Aspire | `ServiceDefaults/Extensions.cs` | Remover (decisão 31) |
-| Um pacote do Visual Studio em versão *preview*, que só serve para depurar dentro de um contêiner | `ControlService.API.csproj` | Remover (decisão 33) |
 | O CI não confere a formatação | `.github/workflows/ci.yml` | Acrescentar o passo (decisão 29) |
 
 ### 26. Testes em quatro projetos, cada comportamento em uma camada, contra PostgreSQL de verdade
@@ -729,7 +726,7 @@ As decisões deste bloco descrevem o que está em uso. Estas sobras do plano ant
 5. **Alternativas mais simples.** A versão em cada `.csproj`, atualizada à mão.
 6. **Por que escolhemos assim.** É uma opção do próprio .NET, sem pacote extra. Regra do projeto: nenhuma versão é declarada fora desse arquivo.
 
-**Sobras do plano antigo.** O arquivo tem um grupo de versões declaradas antes do uso. Duas delas são de decisões descartadas ou adiadas e serão removidas: `MailKit` (envio de e-mail) e `Microsoft.Extensions.Caching.Hybrid` (cache de permissões).
+**Regra de manutenção.** Uma versão só é declarada quando um projeto a usa. `MailKit` (envio de e-mail), `Microsoft.Extensions.Caching.Hybrid` (cache de permissões) e `FluentValidation.DependencyInjectionExtensions` foram removidos por falta de uso. O último pode voltar se houver justificativa, por exemplo registrar os validadores automaticamente.
 
 - **Onde ver no código:** [Directory.Packages.props](../backend/ControlService/Directory.Packages.props), [dependabot.yml](../.github/dependabot.yml).
 - **Em uma frase:** cada pacote tem a versão declarada num lugar só, e o build quebra se algum tiver uma vulnerabilidade conhecida.
@@ -753,8 +750,6 @@ As decisões deste bloco descrevem o que está em uso. Estas sobras do plano ant
 4. **Quanto custa.** Dois projetos a mais na solução, e uma ferramenta nova, que muda rápido. Serve só ao desenvolvimento: a publicação usa a imagem da decisão 33.
 5. **Alternativas mais simples.** O Docker Compose, que é mais conhecido. Ou o PostgreSQL instalado na máquina.
 6. **Por que escolhemos assim.** Já está construído, e o painel entrega a observabilidade local sem nenhuma configuração.
-
-**Sobras do plano antigo.** O `AppHost` ainda sobe o Mailpit, e a API espera por ele, embora nada envie e-mail. E o `ServiceDefaults` liga duas peças do modelo que só agem quando a API chama outro serviço por HTTP, o que ela não faz: a descoberta de serviços (achar o endereço de outro serviço pelo nome) e a resiliência (tentar de novo quando a chamada falha). As três serão removidas.
 
 - **Onde ver no código:** [AppHost.cs](../backend/ControlService/src/ControlService.AppHost/AppHost.cs), [Extensions.cs](../backend/ControlService/src/ControlService.ServiceDefaults/Extensions.cs), e a linha `builder.AddServiceDefaults()` do [Program.cs](../backend/ControlService/src/ControlService.API/Program.cs).
 - **Em uma frase:** um comando sobe o banco e a API já ligados um ao outro, e abre um painel para ver o que acontece.
@@ -801,8 +796,6 @@ As decisões deste bloco descrevem o que está em uso. Estas sobras do plano ant
 4. **Quanto custa.** Um arquivo para manter: cada projeto novo de que a API dependa precisa de uma linha `COPY`. Hoje a imagem não é usada em lugar nenhum; o CI só confere que ela é montada (decisão 34).
 5. **Alternativas mais simples.** Deixar o SDK do .NET gerar a imagem, sem Dockerfile (`dotnet publish /t:PublishContainer`), que era o plano original. Ou não ter imagem até existir onde publicá-la.
 6. **Por que escolhemos assim.** O Dockerfile já existe, o CI o valida, e é o formato que qualquer pessoa da área reconhece.
-
-**Sobra.** O projeto da API referencia `Microsoft.VisualStudio.Azure.Containers.Tools.Targets`, numa versão *preview*. Ele só serve para depurar dentro de um contêiner pelo Visual Studio, o que o projeto não usa, e será removido. O Dockerfile não depende dele.
 
 - **Onde ver no código:** [Dockerfile](../backend/ControlService/src/ControlService.API/Dockerfile), [.dockerignore](../backend/ControlService/.dockerignore).
 - **Em uma frase:** a API vira uma imagem que roda igual em qualquer lugar, com um usuário sem privilégios.

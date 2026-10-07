@@ -18,14 +18,13 @@ Depois, para subir o sistema:
 dotnet run --project src/ControlService.AppHost
 ```
 
-O Aspire sobe o PostgreSQL, o Mailpit (caixa de e-mails de teste) e a API. O console mostra o link de login do **painel do Aspire** (`https://localhost:17150/login?t=...`), com os endereços, logs e situação de cada parte. No Visual Studio, basta escolher `ControlService.AppHost` como projeto de inicialização e apertar F5.
+O Aspire sobe o PostgreSQL e a API. O console mostra o link de login do **painel do Aspire** (`https://localhost:17150/login?t=...`), com os endereços, logs e situação de cada parte. No Visual Studio, basta escolher `ControlService.AppHost` como projeto de inicialização e apertar F5.
 
 | O quê | Endereço |
 |---|---|
 | Painel do Aspire | `https://localhost:17150` (use o link com `?t=` que aparece no console) |
 | API | `https://localhost:7243` |
 | Documentação interativa da API (Scalar) | `https://localhost:7243/scalar` |
-| Caixa de e-mails de teste (Mailpit) | Link do recurso `mailpit` no painel do Aspire |
 
 Sem o certificado confiável, o navegador mostra um aviso de segurança. Nesse caso, use o perfil `http` (`--launch-profile http`), com o painel em `http://localhost:15150`.
 
@@ -48,11 +47,10 @@ Tudo o que o projeto cria no Docker começa com **`controlservice-`**, para ser 
 | Nome | Tipo | Para que serve | Quem cria |
 |---|---|---|---|
 | `controlservice-postgres` | Container | Banco de dados PostgreSQL | Aspire, ao rodar o AppHost |
-| `controlservice-mailpit` | Container | Caixa de e-mails de teste; nenhum e-mail chega a pessoas reais | Aspire, ao rodar o AppHost |
 | `controlservice-postgres-data` | Volume | Os arquivos do banco. É aqui que os dados ficam guardados. | Aspire, ao rodar o AppHost |
 | `controlservice-api:dev` | Imagem | A API empacotada para rodar em container (usada na publicação) | Você, com `docker build` (abaixo) |
 
-**Por que os containers continuam ligados depois que paro o sistema?** Eles são *persistentes*: o Aspire reaproveita os mesmos containers no próximo início, o que deixa a subida mais rápida e evita conflito de nomes. Ao terminar o dia, pare os dois no Docker Desktop (botão ■). Da próxima vez, o Aspire os liga de novo sozinho.
+**Por que o container continua ligado depois que paro o sistema?** Ele é *persistente*: o Aspire reaproveita o mesmo container no próximo início, o que deixa a subida mais rápida e evita conflito de nomes. Ao terminar o dia, pare-o no Docker Desktop (botão ■). Da próxima vez, o Aspire o liga de novo sozinho.
 
 **Container × volume.** O container é o "programa" do banco e pode ser apagado e recriado sem perder nada. O volume é o "HD" com os dados. **Apagar o volume `controlservice-postgres-data` apaga todos os dados do banco.** Faça isso só quando quiser começar do zero.
 

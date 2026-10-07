@@ -28,8 +28,8 @@ An ERP for service companies: users and permissions, service catalog, clients an
 | Architecture | Clean Architecture, tactical DDD, CQRS without MediatR, Result pattern with Problem Details |
 | Data | PostgreSQL, EF Core |
 | Security | ASP.NET Core Identity, JWT with rotating refresh tokens, rate limiting |
-| Local environment | .NET Aspire (PostgreSQL and Mailpit in Docker, dashboard with logs and traces) |
-| Tests | xUnit v3, Shouldly, NSubstitute, NetArchTest, WebApplicationFactory, Testcontainers |
+| Local environment | .NET Aspire (PostgreSQL in Docker, dashboard with logs and traces) |
+| Tests | xUnit v3, Shouldly, NetArchTest, WebApplicationFactory, Testcontainers |
 | Quality | Warnings as errors, analyzers, central package management, GitHub Actions, Dependabot |
 
 ## Architecture
@@ -41,7 +41,7 @@ backend/ControlService/src
 ├── ControlService.Infrastructure   EF Core, Identity: implementations of those interfaces
 ├── ControlService.API              Minimal API endpoints and composition root
 ├── ControlService.AppHost          Aspire orchestration for local development
-└── ControlService.ServiceDefaults  Telemetry, health checks and resilience
+└── ControlService.ServiceDefaults  Telemetry and health checks
 ```
 
 Dependencies point inward only: `API → Application → Domain`, with `Infrastructure` implementing the Application interfaces. Inside each project, code is grouped by feature (`Users`, `PermissionProfiles`, `Auth`). See the [decisions document](docs/decisoes-de-arquitetura.md) and the [back-end README](backend/ControlService/README.md).
@@ -56,7 +56,7 @@ Trust the HTTPS development certificate once per machine:
 dotnet dev-certs https --trust
 ```
 
-Start PostgreSQL, Mailpit and the API with one command:
+Start PostgreSQL and the API with one command:
 
 ```bash
 cd backend/ControlService

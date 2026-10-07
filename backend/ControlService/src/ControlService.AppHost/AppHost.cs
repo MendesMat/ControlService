@@ -14,15 +14,8 @@ var postgres = builder.AddPostgres("postgres")
 
 var database = postgres.AddDatabase("controlservice");
 
-// Test inbox: catches every e-mail the API sends. Nothing reaches real people.
-var mailpit = builder.AddMailPit("mailpit")
-    .WithContainerName($"{NamePrefix}-mailpit")
-    .WithLifetime(ContainerLifetime.Persistent);
-
 builder.AddProject<Projects.ControlService_API>("api", launchProfileName: "https")
     .WithReference(database)
-    .WaitFor(database)
-    .WithReference(mailpit)
-    .WaitFor(mailpit);
+    .WaitFor(database);
 
 builder.Build().Run();
