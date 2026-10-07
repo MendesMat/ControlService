@@ -9,7 +9,7 @@ updates:
     open-pull-requests-limit: 5
     groups:
       aspire:
-        patterns: ["Aspire.*", "CommunityToolkit.Aspire.*"]
+        patterns: ["Aspire.*"]
       opentelemetry:
         patterns: ["OpenTelemetry.*"]
       microsoft:
