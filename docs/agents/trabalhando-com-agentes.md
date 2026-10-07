@@ -19,6 +19,8 @@ Todo trabalho em uma issue passa por eles, nesta ordem. O procedimento completo 
 | `/executar-issue <n>` | Implementa tudo sem parar: teste antes do código, um teste por vez | Nada, até o relatório chegar | O pull request aberto, com o CI verde, e o relatório final |
 | `/revisar-issue <n>` | Compara o pull request com a issue e com as regras | Lê os achados e decide quais aplicar | Os achados corrigidos; aí você faz o merge |
 
+**O merge vem depois da revisão.** Com o CI verde, o pull request já parece pronto, mas é a revisão que confere se ele faz o que a issue pede.
+
 Use uma **conversa nova para cada comando**. A conversa fica curta, o que gasta menos cota, e a revisão é feita por um agente que não escreveu o código.
 
 ## A lista de testes

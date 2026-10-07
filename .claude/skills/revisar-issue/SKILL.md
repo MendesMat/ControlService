@@ -14,7 +14,7 @@ Talk to the owner in Portuguese. The review report is written in Portuguese, fro
 
 ## Steps
 
-1. **Read the issue** (`gh issue view <n> --comments`) and find the pull request that closes it (`gh pr list --state all --search "<n> in:body"`; confirm the `Closes #<n>`). Without a pull request, stop and say so.
+1. **Read the issue** (`gh issue view <n> --comments`) and find the pull request that closes it (`gh pr list --state all --search "<n> in:body"`; confirm the `Closes #<n>`). Without a pull request, stop and say so. If the pull request is already merged, say so in the first line of the report and review `main` at the merge commit: in step 4, update `main` instead of checking out the pull request, and in step 7 the fixes go in a new branch and a new pull request.
 2. **Read the pull request:** `gh pr view <pr>`, `gh pr diff <pr>` and the CI status.
 3. **Read the documents** the issue cites. The review is against the written rule, not against a memory of it.
 4. **Bring the code:** `gh pr checkout <pr>`, then run `powershell.exe -NoProfile -File check.ps1` in `backend/ControlService`.

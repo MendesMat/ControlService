@@ -98,7 +98,7 @@ gh pr update-branch
 
 ## 7. Hand over to the owner
 
-When CI is green, tell the owner in Portuguese: the pull request link, what changed, how you verified it, and anything they should look at closely. Then stop.
+When CI is green, tell the owner in Portuguese: the pull request link, what changed, how you verified it, and anything they should look at closely. End with the next step: `/revisar-issue <n>` in a new conversation, before the merge. Then stop.
 
 ## 8. After the owner merges
 

@@ -29,7 +29,7 @@ Talk to the owner in Portuguese. The final report is written in Portuguese, from
 6. **Check end to end** when the issue delivers an endpoint or a screen: start the AppHost, exercise it and stop it.
 7. **Update `docs/`** in the same pull request (`docs/agents/guides/documentation.md`).
 8. **Open the pull request** with `Closes #<n>`, the title in English in the Conventional Commits format, and the test list with the result of each test. Wait for CI.
-9. **Deliver the final report** and stop. The owner merges.
+9. **Deliver the final report** and stop. The owner merges after `/revisar-issue`.
 
 ## When to stop in the middle
 
@@ -96,5 +96,5 @@ Classes, interfaces, camadas, padrões ou pacotes novos: <cada um com o porquê>
 
 Problemas fora do escopo, que não foram alterados: <lista>, ou "nenhum".
 
-Próximo passo: `/revisar-issue <n>`, numa conversa nova.
+Próximo passo: `/revisar-issue <n>`, numa conversa nova, **antes do merge**.
 ```
