@@ -573,14 +573,6 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 
 ## Bloco D — Qualidade e operação
 
-### O que ainda reflete o plano antigo
-
-As decisões deste bloco descrevem o que está em uso. Esta sobra do plano anterior a 2026-10-05 ainda está no código e sai em mudança própria, fora deste documento:
-
-| Sobra | Onde está | O que será feito |
-|---|---|---|
-| O CI não confere a formatação | `.github/workflows/ci.yml` | Acrescentar o passo (decisão 29) |
-
 ### 26. Testes em quatro projetos, cada comportamento em uma camada, contra PostgreSQL de verdade
 
 1. **O que é.** Quatro projetos de teste, com cerca de 200 testes em outubro de 2026:
@@ -700,7 +692,7 @@ As decisões deste bloco descrevem o que está em uso. Esta sobra do plano anter
 5. **Alternativas mais simples.** Deixar os avisos como avisos. Configurar cada projeto.
 6. **Por que escolhemos assim.** Um aviso que não quebra o build acaba ignorado.
 
-**O CI ainda não confere a formatação.** Hoje só o `check.ps1`, na máquina de quem desenvolve, cuida dela. Um passo com `dotnet format --verify-no-changes`, que confere sem alterar, será acrescentado ao CI.
+**O CI confere a formatação.** O trabalho **Build and test** roda `dotnet format ControlService.slnx --verify-no-changes --no-restore` antes de compilar: o comando confere sem alterar, e um arquivo fora do padrão reprova o pull request. O `check.ps1` continua corrigindo a formatação na máquina de quem desenvolve.
 
 - **Onde ver no código:** [Directory.Build.props](../backend/ControlService/Directory.Build.props), [.editorconfig](../backend/ControlService/.editorconfig), [check.ps1](../backend/ControlService/check.ps1).
 - **Em uma frase:** as regras de qualidade ficam num arquivo só, valem para todos os projetos, e um aviso quebra o build.
@@ -803,7 +795,7 @@ As decisões deste bloco descrevem o que está em uso. Esta sobra do plano anter
 ### 34. Integração contínua no GitHub Actions; a publicação é manual
 
 1. **O que é.** A integração contínua (CI) roda no GitHub a cada pull request e a cada mudança na `main`, em dois trabalhos:
-   - **Build and test:** restaura os pacotes, compila em `Release` (um aviso é um erro) e roda todos os testes, com o PostgreSQL de verdade. A cobertura de código é guardada como anexo da execução.
+   - **Build and test:** restaura os pacotes, confere a formatação (decisão 29), compila em `Release` (um aviso é um erro) e roda todos os testes, com o PostgreSQL de verdade. A cobertura de código é guardada como anexo da execução.
    - **Build API image:** monta a imagem do Dockerfile, sem publicá-la.
 
    A `main` é protegida por uma regra do repositório: só recebe mudanças por pull request, e só com os dois trabalhos verdes. O fluxo usa um token só de leitura:

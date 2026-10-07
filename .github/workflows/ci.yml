@@ -43,6 +43,10 @@ jobs:
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION }}
 
+      # Checks without changing files; check.ps1 fixes the formatting locally.
+      - name: Check formatting
+        run: dotnet format ${{ env.SOLUTION }} --verify-no-changes --no-restore
+
       # Warnings are errors in every project (Directory.Build.props).
       - name: Build
         run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore

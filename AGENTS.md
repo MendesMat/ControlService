@@ -63,6 +63,8 @@ All work on an issue goes through these commands and no others. Each one is a sk
 
 **Agents open pull requests; the owner merges them.** Delivery follows [git and pull requests](docs/agents/workflows/git-and-pull-requests.md).
 
+The owner merges after `/revisar-issue`, not before: a review only protects `main` if it comes first.
+
 ## Tests
 
 - **One numbered list per issue.** Each test has a stable ID (`T01`, `T02`; `#10-T03` outside the issue) and a sentence in Portuguese ("Deve rejeitar login com senha incorreta"). The same list, with the same IDs, appears in the issue, in the pull request and in the final report. IDs are never renumbered or reused.
