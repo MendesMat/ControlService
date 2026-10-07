@@ -582,7 +582,7 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
    | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 94 | Nada |
    | `Application.Tests` | Handlers, com fakes (decisão 27) | 34 | Nada |
    | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 69 | Docker |
-   | `ArchitectureTests` | Regras entre as camadas (decisão 28) | 4 | Nada |
+   | `ArchitectureTests` | Regras entre as camadas (decisão 28) | 5 | Nada |
 
    As ferramentas são o xUnit v3, que é o framework de testes, e o Shouldly, que escreve as conferências (`result.IsSuccess.ShouldBeTrue()`). Os testes de integração sobem a API inteira em memória (`WebApplicationFactory`) contra um PostgreSQL real, num contêiner que o próprio teste liga e desliga (Testcontainers). Há um contêiner só para todos os testes:
 
@@ -656,13 +656,14 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
    | Domínio | Usar `Application`, `Infrastructure`, `API`, EF Core ou ASP.NET Core |
    | Application | Usar `Infrastructure`, `API`, EF Core ou ASP.NET Core |
    | Infrastructure | Usar a `API` |
+   | API | Usar a `Infrastructure`, exceto no `Program` |
    | Agregados | Ter uma propriedade com `set` público |
 
 2. **Que problema resolve.** A regra de camadas (decisão 2) e a do agregado que protege os próprios dados (decisão 3) deixam de depender de atenção na revisão.
 3. **O que acontece sem isso.** As referências entre projetos impedem uma parte: o `Domain` não referencia nenhum outro projeto. Mas nada impediria a `Application` de usar um pacote do EF Core, e isso só seria notado meses depois.
-4. **Quanto custa.** Um pacote e um projeto com quatro testes. A lista de agregados do último teste é manual: um agregado novo precisa ser acrescentado a ela.
+4. **Quanto custa.** Um pacote e um projeto com cinco testes. A lista de agregados do último teste é manual: um agregado novo precisa ser acrescentado a ela.
 5. **Alternativas mais simples.** Só a revisão de código.
-6. **Por que escolhemos assim.** São poucas linhas para uma garantia que não depende de memória. **Planejada:** uma quinta regra, que proíbe a `API` de usar tipos da `Infrastructure` fora do `Program.cs`, para nenhum endpoint consultar o banco sem passar por um handler. Hoje o código já a cumpre; o teste entra numa issue própria, antes dos próximos endpoints.
+6. **Por que escolhemos assim.** São poucas linhas para uma garantia que não depende de memória. A regra da `API` garante que nenhum endpoint consulte o banco sem passar por um handler: só o `Program` (que registra os serviços) pode usar a `Infrastructure`.
 
 - **Onde ver no código:** [LayerDependencyTests.cs](../backend/ControlService/tests/ControlService.ArchitectureTests/LayerDependencyTests.cs), [AggregateTests.cs](../backend/ControlService/tests/ControlService.ArchitectureTests/AggregateTests.cs).
 - **Em uma frase:** as regras entre as camadas são testes: quem as viola quebra o build.
