@@ -386,7 +386,7 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 | Bloqueio por tentativas e limite de requisições no login | Construído e testado |
 | Cálculo do nível por tela e chaves de tela | Construído e testado |
 | Troca obrigatória da senha | Construída, mas hoje só o Admin passa por ela; o desenho decidido é o contrário (decisão 21) |
-| Autorização por tela e conferência da conta a cada requisição | **Não construída** (issue #9). Hoje qualquer pessoa logada chama qualquer endpoint |
+| Autorização por tela e conferência da conta a cada requisição | Construída e testada (decisão 24) |
 | Rota com o catálogo de telas (`GET /screens`) | **Não construída** (issue #10) |
 
 ### 18. Senhas guardadas pelo ASP.NET Core Identity, separadas do usuário
@@ -523,19 +523,17 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 
 ### 24. Autorização conferida no endpoint, lida do banco a cada requisição
 
-**Ainda não está construído:** chega com a issue #9. Os nomes abaixo são os planejados.
-
-1. **O que é.** Cada endpoint declara a tela e o nível mínimo que exige:
+1. **O que é.** Cada endpoint declara a tela e o nível mínimo que *aquela operação* exige (o nível é da operação, e não da tela):
 
    ```csharp
    api.MapPost("/users", Create).RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor);
    ```
 
-   Por trás dessa linha há um *filtro de endpoint*: uma classe que roda antes do método do endpoint e pode responder no lugar dele. É o mesmo molde do filtro da decisão 21. Serão dois:
-   - um no grupo `/api/v1`, que confere se a conta está ativa e responde 401 `account_inactive` se não estiver;
-   - um por endpoint, que lê os perfis da pessoa, calcula o nível (decisão 23) e responde 403 se for menor que o exigido.
+   Por trás dessa linha há um *filtro de endpoint*: uma classe que roda antes do método do endpoint e pode responder no lugar dele. É o mesmo molde do filtro da decisão 21. São dois:
+   - `AccountCheckFilter`, no grupo `/api/v1`, que confere se a conta existe e está ativa e responde 401 `account_inactive` (ou `session_expired`, se a pessoa não existe mais). Roda também em `me`, sair e trocar a senha, e pula só as rotas anônimas;
+   - `ScreenAccessFilter`, um por endpoint, que lê os perfis da pessoa, calcula o nível (decisão 23) e responde 403 `forbidden` se for menor que o exigido. A exceção de listar perfis com Leitor em Usuários (PERM-04) é uma segunda tela aceita pela mesma declaração: `.RequireScreenAccess(ScreenKeys.PermissionProfiles, AccessLevel.Reader, ScreenKeys.Users)`.
 
-   Os dois leem o banco a cada requisição, sem cache. A tabela vale para todas as telas:
+   Os filtros só traduzem o resultado; a regra fica em dois handlers da `Application`, `CheckAccountHandler` e `CheckScreenAccessHandler`, no molde do `GetMeHandler`. Os dois leem o banco a cada requisição, sem cache. A ordem das recusas é a ordem dos filtros: conta (401 `account_inactive`), depois troca de senha pendente (401 `password_change_required`), depois nível (403 `forbidden`). Um teste de guarda falha se alguma rota de `/api/v1` não declarar tela e nível (API-11). A tabela vale para todas as telas:
 
    | Operação | Nível mínimo |
    |---|---|
@@ -545,12 +543,12 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 
    No front-end, a tela com nível negado não aparece no menu, e os botões seguem a mesma tabela. Isso é conforto, não segurança: quem recusa de verdade é a API.
 2. **Que problema resolve.** A regra de permissão fica num lugar só, e nenhuma tela precisa lembrar de conferi-la. Mudar um perfil ou desativar alguém vale já na requisição seguinte.
-3. **O que acontece sem isso.** É o estado de hoje: qualquer pessoa logada chama qualquer endpoint, e quem é desativado continua com acesso até o token vencer (até 15 minutos).
-4. **Quanto custa.** Duas consultas a mais por requisição (o usuário e os perfis dele). Para um ERP de uma empresa, não pesa.
+3. **O que acontece sem isso.** Qualquer pessoa logada chamaria qualquer endpoint, e quem é desativado continuaria com acesso até o token vencer (até 15 minutos). Era o estado do código antes da issue #9.
+4. **Quanto custa.** Até três consultas a mais por requisição: uma da conta, no filtro do grupo, e duas do nível, no filtro do endpoint (o usuário de novo e os perfis dele). Para um ERP de uma empresa, não pesa.
 5. **Alternativas mais simples.** Conferir a permissão dentro de cada handler, o que um dia alguém esquece. Ou pôr as permissões no JWT (decisão 19).
-6. **Por que escolhemos assim.** O filtro devolve o erro do mesmo jeito que o resto da API (decisão 7) e não traz conceito novo. A alternativa oficial do ASP.NET, *requirement* com *authorization handler* (o que fica por trás de `[Authorize(Policy = "...")]`), exigiria duas classes, e ela só sabe responder 403, o que encaixa mal no 401 da conta desativada. O cache de permissões foi descartado em 2026-10-05: seria uma peça a mais para invalidar, a fim de economizar duas consultas.
+6. **Por que escolhemos assim.** O filtro devolve o erro do mesmo jeito que o resto da API (decisão 7) e não traz conceito novo. A alternativa oficial do ASP.NET, *requirement* com *authorization handler* (o que fica por trás de `[Authorize(Policy = "...")]`), exigiria duas classes, e ela só sabe responder 403, o que encaixa mal no 401 da conta desativada. O cache de permissões foi descartado em 2026-10-05: seria uma peça a mais para invalidar, a fim de economizar até três consultas.
 
-- **Onde ver no código:** ainda não há; o filtro que serve de molde é [PasswordChangeRequiredFilter.cs](../backend/ControlService/src/ControlService.API/Auth/PasswordChangeRequiredFilter.cs). A tabela de níveis é a regra PERM-03 em [product/features/permission-profiles.md](product/features/permission-profiles.md).
+- **Onde ver no código:** [AccountCheckFilter.cs](../backend/ControlService/src/ControlService.API/Auth/AccountCheckFilter.cs), [ScreenAccessFilter.cs](../backend/ControlService/src/ControlService.API/Auth/ScreenAccessFilter.cs), [ApiV1Group.cs](../backend/ControlService/src/ControlService.API/Common/ApiV1Group.cs) (a ordem dos filtros), [CheckScreenAccessHandler.cs](../backend/ControlService/src/ControlService.Application/Auth/CheckScreenAccess/CheckScreenAccessHandler.cs) e [ScreenAccessApiTests.cs](../backend/ControlService/tests/ControlService.Api.IntegrationTests/Access/ScreenAccessApiTests.cs). A tabela de níveis é a regra PERM-03 em [product/features/permission-profiles.md](product/features/permission-profiles.md).
 - **Em uma frase:** cada endpoint diz a tela e o nível que exige, e a resposta vem do banco na hora, sem cache.
 
 ### 25. Chaves de tela como constantes estáveis
@@ -575,13 +573,13 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 
 ### 26. Testes em quatro projetos, cada comportamento em uma camada, contra PostgreSQL de verdade
 
-1. **O que é.** Quatro projetos de teste, com cerca de 240 testes em outubro de 2026:
+1. **O que é.** Quatro projetos de teste, com cerca de 270 testes em outubro de 2026:
 
    | Projeto | O que testa | Testes | Precisa de |
    |---|---|---|---|
    | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 113 | Nada |
-   | `Application.Tests` | Handlers, com fakes (decisão 27) | 35 | Nada |
-   | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 91 | Docker |
+   | `Application.Tests` | Handlers, com fakes (decisão 27) | 37 | Nada |
+   | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 111 | Docker |
    | `ArchitectureTests` | Regras entre as camadas (decisão 28) | 5 | Nada |
 
    As ferramentas são o xUnit v3, que é o framework de testes, e o Shouldly, que escreve as conferências (`result.IsSuccess.ShouldBeTrue()`). Os testes de integração sobem a API inteira em memória (`WebApplicationFactory`) contra um PostgreSQL real, num contêiner que o próprio teste liga e desliga (Testcontainers). Há um contêiner só para todos os testes:
@@ -845,7 +843,7 @@ Avaliado e não adotado. Fica registrado para ninguém propor de novo sem um mot
 | Guardar um `openapi.json` no repositório e conferi-lo no CI | A página `/scalar` já mostra o contrato; seria um arquivo a mais para manter |
 | MediatR e AutoMapper | Duas dependências, hoje com edição comercial, para algo que cabe em poucas linhas do próprio projeto |
 | Controllers | Nenhum ganho de funcionalidade; exigiria reescrever o que já está testado |
-| Cache de permissões (HybridCache, Redis) | Ler o usuário e os perfis a cada requisição custa duas consultas; o cache seria uma peça a mais para invalidar (decisão 24) |
+| Cache de permissões (HybridCache, Redis) | Ler a conta, o usuário e os perfis a cada requisição custa até três consultas; o cache seria uma peça a mais para invalidar (decisão 24) |
 | Links de ativação e de redefinição de senha por e-mail | Adiado, não descartado: volta quando o ciclo do produto estiver fechado (decisão 21) |
 | Limite global de requisições | Só as rotas sem login são limitadas; as outras já exigem um token válido (decisão 22) |
 | Permissões dentro do JWT | Mudar um perfil só valeria quando o token vencesse, e o token cresceria a cada tela nova |

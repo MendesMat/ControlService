@@ -71,6 +71,7 @@ There is no "Esqueci minha senha" for now. Someone who forgot the password asks 
 | AUTH-17 | A session ends after **8 hours without any action**. In the back-end: a 15-minute access token kept only in the page's memory, and a refresh token in an `HttpOnly` cookie, valid for 8 hours from the last refresh and rotated on each use (decisions 19 and 20). The front-end refreshes only when it needs to make a request, never on a timer. |
 | AUTH-18 | The server checks on **every request** that the account is still active. A deactivated person is rejected on their next request, even with a valid access token. Refresh is anonymous (it carries only the cookie), so it makes the same check itself: a non-active account is refused with `account_inactive` and its session is removed. |
 | AUTH-27 | The server's `message` for 401 `session_expired`, `password_change_required` and `account_inactive` (during a session) is, respectively, the "Session ended" message, the AUTH-14 text and the "Deactivated account" message. A missing, invalid or expired access token is answered as `session_expired`. |
+| AUTH-30 | When more than one refusal applies to a request, the server answers the most definitive first: `account_inactive` (AUTH-18), then `password_change_required` (AUTH-14), then `forbidden` (PERM-26). A deactivated account therefore never hears about the password change, and someone who must still replace the password never hears about their level. A user that no longer exists is answered as `session_expired`. |
 
 When a session ends, the sign-in screen appears **over** the system without closing the tabs. If the same person signs in again, everything is where it was, including unsaved forms.
 
@@ -131,7 +132,7 @@ Sign-in and refresh are rate limited (decision 22, AUTH-26). Until the temporary
 | 401 | `account_inactive` | **During a session**, including at refresh: the account was deactivated (AUTH-18) |
 | 401 | `password_change_required` | The temporary password was not changed yet (AUTH-14) |
 | 401 | `session_expired` | The session ended |
-| 403 | `forbidden` | Change password on an account without a mandatory change (AUTH-24) |
+| 403 | `forbidden` | Change password on an account without a mandatory change (AUTH-24); operation above the person's level (PERM-26) |
 | 429 | `locked_out` | Lockout (AUTH-08) or rate limit (AUTH-26), with `Retry-After` and `details.retryAfterSeconds` (the seconds left, rounded up) |
 | 400 | `validation_failed` | Password rules; fields `password` and `passwordConfirmation` |
 

@@ -30,6 +30,7 @@ In this document, a **screen** is each submenu item (Usuários, Contas a Pagar) 
 |---|---|
 | PERM-03 | Operations require a minimum level on their screen. This table is the reference for every screen; a screen with exceptions documents them (decision 24, confirmed by the owner on 2026-09-24). |
 | PERM-04 | Exception: listing profiles is also allowed with Reader on the **Usuários** screen, even without access to Permissões, because the user form needs the profiles to choose from. |
+| PERM-26 | A request above the person's level on the screen (including a screen at `negado`) is refused with 403 `forbidden` and the message *"Você não tem permissão para fazer isso. Se precisar, fale com o responsável pelo sistema."* The same text serves a screen without access and an operation above the level. When several refusals apply, the account and the password change come first (AUTH-30). |
 
 | Operation | Minimum level |
 |---|---|
@@ -158,6 +159,7 @@ Verbatim, in Portuguese. The other messages of this feature are inside the rules
 |---|---|
 | Profile saved | Perfil *{nome}* salvo. |
 | Profile deleted | Perfil *{nome}* excluído. |
+| Operation above the person's level (PERM-26) | Você não tem permissão para fazer isso. Se precisar, fale com o responsável pelo sistema. |
 
 ## Operations
 
@@ -177,7 +179,7 @@ The effective level of the signed-in person on every screen comes from `me()` ([
 | Status | `code` | When |
 |---|---|---|
 | 400 | `validation_failed` | PERM-16, PERM-17 |
-| 403 | `forbidden` | Operation above the person's level; the front-end refreshes the menu (PERM-14) |
+| 403 | `forbidden` | Operation above the person's level, with the message of PERM-26; the front-end refreshes the menu (PERM-14) |
 | 404 | `not_found` | Unknown profile id |
 | 409 | `concurrency_conflict` | CNV-13 |
 | 409 | `profile_in_use` | PERM-20; `details.userNames` lists who has it |
