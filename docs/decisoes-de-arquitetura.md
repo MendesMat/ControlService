@@ -578,7 +578,7 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
    | Projeto | O que testa | Testes | Precisa de |
    |---|---|---|---|
    | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 113 | Nada |
-   | `Application.Tests` | Handlers, com fakes (decisão 27) | 37 | Nada |
+   | `Application.Tests` | Handlers, com fakes (decisão 27) | 38 | Nada |
    | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 111 | Docker |
    | `ArchitectureTests` | Regras entre as camadas (decisão 28) | 5 | Nada |
 
