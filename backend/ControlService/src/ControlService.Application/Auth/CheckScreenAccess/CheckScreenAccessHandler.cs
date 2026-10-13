@@ -20,7 +20,9 @@ public sealed class CheckScreenAccessHandler(
 
         var userProfiles = await profiles.ListByIdsAsync(user.ProfileIds, cancellationToken);
 
-        return EffectiveAccess.GetLevel(userProfiles, query.Screen) >= query.Minimum
+        var screens = query.AlternativeScreen is null ? [query.Screen] : new[] { query.Screen, query.AlternativeScreen };
+
+        return screens.Any(screen => EffectiveAccess.GetLevel(userProfiles, screen) >= query.Minimum)
             ? Result<Unit>.Success(default)
             : Result<Unit>.Failure(AuthErrors.Forbidden);
     }
