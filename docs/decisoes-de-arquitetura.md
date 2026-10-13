@@ -575,13 +575,13 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 
 ### 26. Testes em quatro projetos, cada comportamento em uma camada, contra PostgreSQL de verdade
 
-1. **O que é.** Quatro projetos de teste, com cerca de 200 testes em outubro de 2026:
+1. **O que é.** Quatro projetos de teste, com cerca de 240 testes em outubro de 2026:
 
    | Projeto | O que testa | Testes | Precisa de |
    |---|---|---|---|
-   | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 94 | Nada |
-   | `Application.Tests` | Handlers, com fakes (decisão 27) | 34 | Nada |
-   | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 69 | Docker |
+   | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 113 | Nada |
+   | `Application.Tests` | Handlers, com fakes (decisão 27) | 35 | Nada |
+   | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 91 | Docker |
    | `ArchitectureTests` | Regras entre as camadas (decisão 28) | 5 | Nada |
 
    As ferramentas são o xUnit v3, que é o framework de testes, e o Shouldly, que escreve as conferências (`result.IsSuccess.ShouldBeTrue()`). Os testes de integração sobem a API inteira em memória (`WebApplicationFactory`) contra um PostgreSQL real, num contêiner que o próprio teste liga e desliga (Testcontainers). Há um contêiner só para todos os testes:
