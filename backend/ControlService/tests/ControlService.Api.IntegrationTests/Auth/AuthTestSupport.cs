@@ -44,6 +44,15 @@ internal static class AuthTestSupport
             .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.ActivatedAt, (DateTimeOffset?)null));
     }
 
+    /// <summary>Marks the user's password as temporary, so the next sign-in carries `must_change_password`.</summary>
+    public static async Task RequirePasswordChangeAsync(IServiceProvider services, Guid userId)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Set<UserCredential>().Where(credential => credential.Id == userId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(credential => credential.MustChangePassword, true));
+    }
+
     public static async Task DeactivateUserAsync(IServiceProvider services, Guid userId)
     {
         await using var scope = services.CreateAsyncScope();

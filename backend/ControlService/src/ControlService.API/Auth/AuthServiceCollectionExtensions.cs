@@ -1,5 +1,6 @@
 using ControlService.Application.Auth;
 using ControlService.Application.Auth.ChangePassword;
+using ControlService.Application.Auth.CheckAccount;
 using ControlService.Application.Auth.GetMe;
 using ControlService.Application.Auth.RefreshSession;
 using ControlService.Application.Auth.SignIn;
@@ -36,6 +37,7 @@ public static class AuthServiceCollectionExtensions
         services.AddScoped<ICommandHandler<RefreshSessionCommand, SessionGrant>, RefreshSessionHandler>();
         services.AddScoped<ICommandHandler<SignOutCommand, Unit>, SignOutHandler>();
         services.AddScoped<IQueryHandler<GetMeQuery, MeResponse>, GetMeHandler>();
+        services.AddScoped<IQueryHandler<CheckAccountQuery, Unit>, CheckAccountHandler>();
 
         return services;
     }
