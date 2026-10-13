@@ -2,8 +2,8 @@ using ControlService.Domain.Common;
 
 namespace ControlService.Application.Auth;
 
-/// <summary>The authentication errors and their Portuguese messages, verbatim from
-/// docs/product/features/authentication.md.</summary>
+/// <summary>The authentication and access errors and their Portuguese messages, verbatim from
+/// docs/product/features/authentication.md and permission-profiles.md.</summary>
 public static class AuthErrors
 {
     public static Error InvalidCredentials { get; } = new("invalid_credentials", "Login ou senha incorretos.");
@@ -21,6 +21,10 @@ public static class AuthErrors
 
     public static Error AccountInactive { get; } = new(
         "account_inactive", "Este acesso está desativado. Fale com o responsável pelo sistema.");
+
+    /// <summary>The operation needs a level the person does not have on the screen (PERM-26).</summary>
+    public static Error Forbidden { get; } = new(
+        "forbidden", "Você não tem permissão para fazer isso. Se precisar, fale com o responsável pelo sistema.");
 
     public static Error PasswordAlreadyCreated { get; } = new(
         "forbidden", "Sua senha já foi criada. Para trocá-la, use “Esqueci minha senha”.");

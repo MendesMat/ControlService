@@ -1,5 +1,7 @@
 using ControlService.Application.Auth;
 using ControlService.Application.Auth.ChangePassword;
+using ControlService.Application.Auth.CheckAccount;
+using ControlService.Application.Auth.CheckScreenAccess;
 using ControlService.Application.Auth.GetMe;
 using ControlService.Application.Auth.RefreshSession;
 using ControlService.Application.Auth.SignIn;
@@ -42,6 +44,10 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
         new(new ChangePasswordHandler(Users, Credentials, Sessions, Tokens, UnitOfWork, Clock), new ChangePasswordValidator(Settings));
 
     public GetMeHandler CreateGetMeHandler() => new(Users, Profiles);
+
+    public CheckAccountHandler CreateCheckAccountHandler() => new(Users);
+
+    public CheckScreenAccessHandler CreateCheckScreenAccessHandler() => new(Users, Profiles);
 
     /// <summary>Gives the user a new profile with the given levels.</summary>
     public PermissionProfile AddProfile(User user, params (string Screen, AccessLevel Level)[] levels)
