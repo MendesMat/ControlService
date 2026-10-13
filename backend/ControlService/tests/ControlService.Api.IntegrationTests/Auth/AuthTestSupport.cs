@@ -62,8 +62,9 @@ internal static class AuthTestSupport
         await db.SaveChangesAsync();
     }
 
-    /// <summary>Gives the user a new profile (unique name, so profile uniqueness never collides) with one level.</summary>
-    public static async Task GrantAsync(IServiceProvider services, Guid userId, string screen, AccessLevel level)
+    /// <summary>Gives the user a new profile (unique name, so profile uniqueness never collides) with one level,
+    /// and returns the profile's id.</summary>
+    public static async Task<Guid> GrantAsync(IServiceProvider services, Guid userId, string screen, AccessLevel level)
     {
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -72,6 +73,16 @@ internal static class AuthTestSupport
         db.PermissionProfiles.Add(profile);
         var user = await db.Users.SingleAsync(candidate => candidate.Id == userId);
         user.AssignProfiles([.. user.ProfileIds, profile.Id]).IsSuccess.ShouldBeTrue();
+        await db.SaveChangesAsync();
+        return profile.Id;
+    }
+
+    public static async Task SetProfileLevelAsync(IServiceProvider services, Guid profileId, string screen, AccessLevel level)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var profile = await db.PermissionProfiles.SingleAsync(candidate => candidate.Id == profileId);
+        profile.SetLevel(ScreenKey.Create(screen).Value, level).IsSuccess.ShouldBeTrue();
         await db.SaveChangesAsync();
     }
 

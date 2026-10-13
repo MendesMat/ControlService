@@ -1,5 +1,7 @@
 using ControlService.Api.IntegrationTests.Common;
+using ControlService.API.Auth;
 using ControlService.API.Common;
+using ControlService.Domain.Access;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,6 +16,11 @@ namespace ControlService.Api.IntegrationTests.Auth;
 public class AuthApiFactory(PostgresContainerFixture postgres) : ApiFactory(postgres)
 {
     public const string ProtectedPath = "/api/v1/test-only/protected";
+
+    // The minimum level each route of the Users screen requires (PERM-03).
+    public const string UsersReaderPath = "/api/v1/test-only/users-reader";
+    public const string UsersEditorPath = "/api/v1/test-only/users-editor";
+    public const string UsersManagerPath = "/api/v1/test-only/users-manager";
 
     public FixedTimeProvider Clock { get; } = new(new DateTimeOffset(2026, 9, 30, 12, 0, 0, TimeSpan.Zero));
 
@@ -48,7 +55,14 @@ public class AuthApiFactory(PostgresContainerFixture postgres) : ApiFactory(post
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseEndpoints(endpoints => endpoints.MapApiV1().MapGet("/test-only/protected", () => "ok"));
+            app.UseEndpoints(endpoints =>
+            {
+                var api = endpoints.MapApiV1();
+                api.MapGet("/test-only/protected", () => "ok");
+                api.MapGet("/test-only/users-reader", () => "ok").RequireScreenAccess(ScreenKeys.Users, AccessLevel.Reader);
+                api.MapGet("/test-only/users-editor", () => "ok").RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor);
+                api.MapGet("/test-only/users-manager", () => "ok").RequireScreenAccess(ScreenKeys.Users, AccessLevel.Manager);
+            });
         };
     }
 }
