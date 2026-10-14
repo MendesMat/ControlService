@@ -51,3 +51,58 @@ POST {{ControlService.API_HostAddress}}/api/v1/auth/sign-out
 Authorization: Bearer {{accessToken}}
 
 ###
+
+# Permission profiles. The id and the version come from a previous response: the version goes back in If-Match.
+@profileId = <paste a profile id here>
+@version = <paste the ETag here, with its quotes>
+
+GET {{ControlService.API_HostAddress}}/api/v1/screens
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{ControlService.API_HostAddress}}/api/v1/permission-profiles
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{ControlService.API_HostAddress}}/api/v1/permission-profiles/{{profileId}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+POST {{ControlService.API_HostAddress}}/api/v1/permission-profiles
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Vendedor",
+  "description": "Equipe comercial",
+  "levels": [
+    { "screen": "comercial/clientes", "level": "editor" },
+    { "screen": "financeiro/contas-a-receber", "level": "leitor" }
+  ]
+}
+
+###
+
+PUT {{ControlService.API_HostAddress}}/api/v1/permission-profiles/{{profileId}}
+Authorization: Bearer {{accessToken}}
+If-Match: {{version}}
+Content-Type: application/json
+
+{
+  "name": "Vendedor",
+  "description": "Equipe comercial",
+  "levels": [
+    { "screen": "comercial/clientes", "level": "gerenciador" }
+  ]
+}
+
+###
+
+DELETE {{ControlService.API_HostAddress}}/api/v1/permission-profiles/{{profileId}}
+Authorization: Bearer {{accessToken}}
+If-Match: {{version}}
+
+###

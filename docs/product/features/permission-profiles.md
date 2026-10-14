@@ -125,6 +125,9 @@ Collection `profiles`. Besides these fields, every profile has the audit fields 
 | PERM-16 | `name` | Required. | Dê um nome ao perfil. |
 | PERM-17 | `name` | Unique among all profiles, **including the Gerenciador**, with the comparison of CNV-09: "Financeiro", "financeiro" and "FINANCEIRO" are the same name. | Já existe um perfil chamado *{nome existente}*. Escolha outro nome. |
 | PERM-24 | `levels` | Every `screen` must be a key of the catalog (decision 25). An unknown key refuses the whole save instead of being ignored: ignoring it would drop the level without warning, so a key mistyped in the front-end menu would look saved and grant nothing. It happens only with a page opened before a screen was retired, or with a front-end bug. | Esta tela não existe mais no sistema. Atualize a página e tente de novo. |
+| PERM-27 | `levels` | Every `level` must be one of the four wire values (`negado`, `leitor`, `editor`, `gerenciador`). An unknown value refuses the whole save, for the same reason as PERM-24: it happens only with a page opened before a level was retired, or with a front-end bug. | Este nível de acesso não existe. Atualize a página e tente de novo. |
+
+The errors of `levels` (PERM-24 and PERM-27) come under the field `levels`, with a single message, however many items are wrong.
 
 ### Creating, duplicating and deleting
 
@@ -135,7 +138,7 @@ Collection `profiles`. Besides these fields, every profile has the audit fields 
 | PERM-20 | A profile can be truly deleted, but only when **no user** has it, whether active or deactivated. A database constraint guarantees it even if someone assigns the profile at the same moment. The Gerenciador profile can never be deleted. |
 | PERM-21 | Each area on the Permissões screen has the selector **Mudar todas desta área para**, which sets the same level on every screen of the area and warns *"Telas de {área} marcadas como {nível}. Salve o perfil para confirmar."* Nothing is stored until the person saves. |
 
-The delete confirmation is **Excluir este perfil?** *O perfil {nome} será apagado. Não dá para desfazer.* If someone has the profile, deletion is refused with **Este perfil está em uso** and *"{nomes} usa(m) este perfil. Tire o perfil dessa(s) pessoa(s) na tela Usuários e depois volte para excluir."*
+The delete confirmation is **Excluir este perfil?** *O perfil {nome} será apagado. Não dá para desfazer.* If someone has the profile, deletion is refused with **Este perfil está em uso** and *"{nomes} usa(m) este perfil. Tire o perfil dessa(s) pessoa(s) na tela Usuários e depois volte para excluir."* `{nomes}` is the display names of everyone who has the profile, deactivated users included, in alphabetical order (CNV-09) and separated by a comma and a space; `details.userNames` lists the same names. "(m)" and "(s)" are written literally, so the sentence reads well for one person or several.
 
 ### The Gerenciador system profile
 
@@ -174,13 +177,31 @@ Verbatim, in Portuguese. The other messages of this feature are inside the rules
 
 The effective level of the signed-in person on every screen comes from `me()` ([authentication](authentication.md#operations)).
 
+### Requests and responses
+
+| Operation | Response |
+|---|---|
+| `GET /api/v1/permission-profiles` | `200`, a plain list (not paged, API-08) of `{ id, name, description, isSystem, userCount, grantedCount, screenCount }`, in alphabetical order of the name with the comparison of CNV-09; the Gerenciador profile sits wherever its name falls |
+| `GET /api/v1/permission-profiles/{id}` | `200`, `{ id, name, description, isSystem, levels, createdAt, createdBy, createdByName, updatedAt, updatedBy, updatedByName, version }` and the `ETag` |
+| `POST /api/v1/permission-profiles` with `{ name, description, levels }` | `201`, the record as above, `Location` and `ETag` (API-05) |
+| `PUT /api/v1/permission-profiles/{id}` with the same body and `If-Match` | `200`, the record as above and the new `ETag` |
+| `DELETE /api/v1/permission-profiles/{id}` with `If-Match` | `204` |
+| `GET /api/v1/screens` | `200`, `{ areas: [ { id, label, screens: [ { key, label } ] } ] }`, in menu order |
+
+- **`userCount`** counts everyone who has the profile, deactivated users included: it is the number that blocks the deletion (PERM-20). **`grantedCount`** is the number of screens above `negado`, and **`screenCount`** is the number of screens of the catalog. The Gerenciador profile has both at the total (PERM-23).
+- **`isSystem`** is `true` only for the Gerenciador profile.
+- **`levels` in a response** always has every screen of the catalog, in catalog order, with `negado` for the ones not stored (the same format as `me()`).
+- **`levels` in a request:** a screen left out becomes `negado` (PERM-18); if the same screen comes twice, the last one counts; `levels` may be omitted. The whole list replaces the stored one on `PUT`. Unknown screens and levels refuse the save (PERM-24, PERM-27).
+- **`version` and `ETag`.** `version` is text in the body, and the `ETag` carries the same value between quotes (`"318"`). `If-Match` is accepted with or without quotes. A missing or unreadable `If-Match` is answered like an old version: 409 `concurrency_conflict`, with the message of CNV-14 (API-06).
+- **The catalog** of `GET /api/v1/screens` is written in code next to the screen keys, and any signed-in person may read it, whatever their levels.
+
 ## Errors
 
 | Status | `code` | When |
 |---|---|---|
-| 400 | `validation_failed` | PERM-16, PERM-17 |
+| 400 | `validation_failed` | PERM-16, PERM-17, PERM-24, PERM-27 (the last two under `levels`) |
 | 403 | `forbidden` | Operation above the person's level, with the message of PERM-26; the front-end refreshes the menu (PERM-14) |
-| 404 | `not_found` | Unknown profile id |
-| 409 | `concurrency_conflict` | CNV-13 |
-| 409 | `profile_in_use` | PERM-20; `details.userNames` lists who has it |
-| 409 | `system_record` | Changing or deleting the Gerenciador profile (PERM-22, PERM-25) |
+| 404 | `not_found` | Unknown profile id, or a profile deleted by someone else while the save was running (API-16) |
+| 409 | `concurrency_conflict` | CNV-13, also when `If-Match` is missing |
+| 409 | `profile_in_use` | PERM-20; `details.userNames` lists who has it, in alphabetical order |
+| 409 | `system_record` | Changing or deleting the Gerenciador profile (PERM-22, PERM-25), checked before `profile_in_use` |
