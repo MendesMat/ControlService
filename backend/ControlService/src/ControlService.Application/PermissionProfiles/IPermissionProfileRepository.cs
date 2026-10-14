@@ -7,6 +7,9 @@ public interface IPermissionProfileRepository
     /// <summary>The profiles that exist among the given ids; an unknown id is ignored (PERM-05).</summary>
     Task<IReadOnlyList<PermissionProfile>> ListByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
 
+    /// <summary>The profile whose normalized name is the given one (CNV-09), not tracked, or null.</summary>
+    Task<PermissionProfile?> GetByNormalizedNameAsync(string normalizedName, CancellationToken cancellationToken);
+
     void Add(PermissionProfile profile);
 
     /// <summary>The profile with its levels, not tracked, or null when no profile has the id.</summary>

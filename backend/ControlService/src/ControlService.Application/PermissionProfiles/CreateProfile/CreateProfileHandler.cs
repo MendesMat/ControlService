@@ -13,6 +13,12 @@ public sealed class CreateProfileHandler(
     public async Task<Result<ProfileResponse>> Handle(CreateProfileCommand command, CancellationToken cancellationToken)
     {
         var profile = PermissionProfile.Create(command.Name, command.Description);
+        var taken = await profiles.GetByNormalizedNameAsync(profile.NormalizedName, cancellationToken);
+        if (taken is not null)
+        {
+            return Result<ProfileResponse>.Failure(PermissionProfileErrors.NameTaken(taken.Name));
+        }
+
         var applied = profile.ReplaceLevels(LevelInput.ParseAll(command.Levels));
         if (applied.IsFailure)
         {

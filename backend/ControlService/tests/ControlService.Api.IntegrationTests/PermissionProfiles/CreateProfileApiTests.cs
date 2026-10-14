@@ -77,4 +77,34 @@ public sealed class CreateProfileApiTests(AuthApiFactory factory) : IClassFixtur
         var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
         problem.FieldErrors("name").ShouldBe(["Dê um nome ao perfil."]);
     }
+
+    // #10-T18
+    [Fact]
+    public async Task A_name_equal_to_another_profiles_ignoring_case_accents_and_spaces_is_refused() // PERM-17, API-13
+    {
+        var suffix = ProfileTestSupport.UniqueSuffix();
+        await ProfileTestSupport.CreateProfileAsync(factory.Services, $"Vendedór {suffix}");
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+
+        using var response = await client.SendWithTokenAsync(
+            HttpMethod.Post, ProfileTestSupport.ProfilesPath, token, new { name = $"  VENDEDOR {suffix} ", description = string.Empty });
+
+        var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
+        problem.FieldErrors("name").ShouldBe([$"Já existe um perfil chamado Vendedór {suffix}. Escolha outro nome."]);
+    }
+
+    // #10-T19
+    [Fact]
+    public async Task The_name_gerenciador_is_refused() // PERM-17
+    {
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+
+        using var response = await client.SendWithTokenAsync(
+            HttpMethod.Post, ProfileTestSupport.ProfilesPath, token, new { name = "gerenciador", description = string.Empty });
+
+        var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
+        problem.FieldErrors("name").ShouldBe(["Já existe um perfil chamado Gerenciador. Escolha outro nome."]);
+    }
 }
