@@ -147,4 +147,19 @@ public sealed class CreateProfileApiTests(AuthApiFactory factory) : IClassFixtur
         var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
         problem.FieldErrors("levels").ShouldBe(["Este nível de acesso não existe. Atualize a página e tente de novo."]);
     }
+
+    // #10-T22
+    [Fact]
+    public async Task A_reader_on_permissions_cannot_create_a_profile() // PERM-03
+    {
+        var name = $"Sem permissão {ProfileTestSupport.UniqueSuffix()}";
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Reader);
+
+        using var response = await client.SendWithTokenAsync(
+            HttpMethod.Post, ProfileTestSupport.ProfilesPath, token, new { name, description = string.Empty });
+
+        await response.ShouldBeProblemAsync(HttpStatusCode.Forbidden, "forbidden", ProfileTestSupport.Denied);
+        (await ProfileTestSupport.ProfileNameExistsAsync(factory.Services, name)).ShouldBeFalse();
+    }
 }
