@@ -183,6 +183,69 @@ public sealed class UpdateProfileApiTests(AuthApiFactory factory) : IClassFixtur
         await response.ShouldBeProblemAsync(HttpStatusCode.Forbidden, "forbidden", ProfileTestSupport.Denied);
     }
 
+    // #10-T39
+    [Fact]
+    public async Task The_manager_profile_cannot_be_changed_even_with_the_name_of_another_profile() // PERM-22, PERM-25
+    {
+        var otherName = $"Já existe {ProfileTestSupport.UniqueSuffix()}";
+        await ProfileTestSupport.CreateProfileAsync(factory.Services, otherName);
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+        var (_, etag) = await ReadProfileAsync(client, token, SystemIds.ManagerProfile);
+
+        using var response = await client.SendWithTokenAsync(
+            HttpMethod.Put, ProfilePath(SystemIds.ManagerProfile), token, new { name = otherName, description = string.Empty }, etag);
+
+        await response.ShouldBeProblemAsync(HttpStatusCode.Conflict, "system_record", SystemRecordMessage);
+    }
+
+    // #10-T40
+    [Fact]
+    public async Task Saving_keeps_changes_and_adds_levels_on_screens_that_already_had_one() // PERM-05
+    {
+        var name = $"Mesmas telas {ProfileTestSupport.UniqueSuffix()}";
+        var profileId = await ProfileTestSupport.CreateProfileAsync(
+            factory.Services, name, (ScreenKeys.Users, AccessLevel.Reader), (ScreenKeys.Customers, AccessLevel.Editor));
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+        var (_, etag) = await ReadProfileAsync(client, token, profileId);
+        var body = new
+        {
+            name,
+            description = "Perfil de teste",
+            levels = new[]
+            {
+                new { screen = ScreenKeys.Users, level = "editor" },
+                new { screen = ScreenKeys.Customers, level = "editor" },
+                new { screen = ScreenKeys.Products, level = "leitor" },
+            },
+        };
+
+        using var response = await client.SendWithTokenAsync(HttpMethod.Put, ProfilePath(profileId), token, body, etag);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var (reread, _) = await ReadProfileAsync(client, token, profileId);
+        LevelOf(reread, ScreenKeys.Users).ShouldBe("editor");
+        LevelOf(reread, ScreenKeys.Customers).ShouldBe("editor");
+        LevelOf(reread, ScreenKeys.Products).ShouldBe("leitor");
+    }
+
+    // #10-T41
+    [Fact]
+    public async Task If_match_is_accepted_without_the_quotes() // API-06
+    {
+        var name = $"Sem aspas {ProfileTestSupport.UniqueSuffix()}";
+        var profileId = await ProfileTestSupport.CreateProfileAsync(factory.Services, name);
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+        var (_, etag) = await ReadProfileAsync(client, token, profileId);
+
+        using var response = await client.SendWithTokenAsync(
+            HttpMethod.Put, ProfilePath(profileId), token, new { name, description = "Nova descrição" }, etag.Trim('"'));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
     internal const string SystemRecordMessage = "O perfil Gerenciador é do sistema e não pode ser alterado nem excluído.";
 
     internal static string ChangedBy(string displayName) =>

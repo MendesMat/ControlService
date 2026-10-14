@@ -23,16 +23,18 @@ public sealed class UpdateProfileHandler(
             return Result<ProfileResponse>.Failure(CommonErrors.NotFound);
         }
 
-        var taken = await profiles.GetByNormalizedNameAsync(TextNormalization.Normalize(command.Name), cancellationToken);
-        if (taken is not null && taken.Id != profile.Id)
-        {
-            return Result<ProfileResponse>.Failure(PermissionProfileErrors.NameTaken(taken.Name));
-        }
-
+        // Before the name check, so the Gerenciador profile is refused as a system record whatever name comes
+        // (PERM-25). Nothing is written when a later check refuses.
         var details = profile.ChangeDetails(command.Name, command.Description);
         if (details.IsFailure)
         {
             return Result<ProfileResponse>.Failure(details.Error);
+        }
+
+        var taken = await profiles.GetByNormalizedNameAsync(profile.NormalizedName, cancellationToken);
+        if (taken is not null && taken.Id != profile.Id)
+        {
+            return Result<ProfileResponse>.Failure(PermissionProfileErrors.NameTaken(taken.Name));
         }
 
         var replaced = profile.ReplaceLevels(levels.Value);
