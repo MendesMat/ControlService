@@ -1,3 +1,4 @@
+using ControlService.API.Common;
 using ControlService.Application.Auth;
 using ControlService.Application.Auth.ChangePassword;
 using ControlService.Application.Auth.CheckAccount;
@@ -31,10 +32,7 @@ public static class AuthServiceCollectionExtensions
 
         // Handlers are registered by hand; the ones with input to validate are wrapped in the decorator.
         services.AddScoped<ICommandHandler<SignInCommand, SessionGrant>, SignInHandler>();
-        services.AddScoped<ICommandHandler<ChangePasswordCommand, SessionGrant>>(serviceProvider =>
-            new ValidatingCommandHandler<ChangePasswordCommand, SessionGrant>(
-                ActivatorUtilities.CreateInstance<ChangePasswordHandler>(serviceProvider),
-                new ChangePasswordValidator(serviceProvider.GetRequiredService<AuthSettings>())));
+        services.AddValidatedCommandHandler<ChangePasswordCommand, SessionGrant, ChangePasswordHandler, ChangePasswordValidator>();
         services.AddScoped<ICommandHandler<RefreshSessionCommand, SessionGrant>, RefreshSessionHandler>();
         services.AddScoped<ICommandHandler<SignOutCommand, Unit>, SignOutHandler>();
         services.AddScoped<IQueryHandler<GetMeQuery, MeResponse>, GetMeHandler>();

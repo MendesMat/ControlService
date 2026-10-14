@@ -1,3 +1,4 @@
+using ControlService.API.Common;
 using ControlService.Application.Common;
 using ControlService.Application.PermissionProfiles;
 using ControlService.Application.PermissionProfiles.CreateProfile;
@@ -12,7 +13,7 @@ public static class PermissionProfilesServiceCollectionExtensions
     {
         services.AddScoped<IQueryHandler<ListProfilesQuery, IReadOnlyList<ProfileListItemResponse>>, ListProfilesHandler>();
         services.AddScoped<IQueryHandler<GetProfileQuery, ProfileResponse>, GetProfileHandler>();
-        services.AddScoped<ICommandHandler<CreateProfileCommand, ProfileResponse>, CreateProfileHandler>();
+        services.AddValidatedCommandHandler<CreateProfileCommand, ProfileResponse, CreateProfileHandler, CreateProfileValidator>();
 
         return services;
     }

@@ -17,6 +17,8 @@ internal static class ProfileTestSupport
 
     public const string ProfilesPath = "/api/v1/permission-profiles";
 
+    public const string FieldsToFix = "Alguns campos precisam ser corrigidos.";
+
     public static string UniqueSuffix() => Guid.NewGuid().ToString("N")[..12];
 
     /// <summary>A new active person whose only access is `level` on `screen`, already signed in.</summary>
@@ -79,4 +81,8 @@ internal static class ProfileTestSupport
 
         return await client.SendAsync(request, TestContext.Current.CancellationToken);
     }
+
+    /// <summary>The messages a validation_failed response carries under one field.</summary>
+    public static string[] FieldErrors(this System.Text.Json.JsonElement problem, string field) =>
+        problem.GetProperty("errors").GetProperty(field).EnumerateArray().Select(message => message.GetString()!).ToArray();
 }

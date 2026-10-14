@@ -60,4 +60,21 @@ public sealed class CreateProfileApiTests(AuthApiFactory factory) : IClassFixtur
         levels.Count.ShouldBe(20);
         levels.ShouldAllBe(entry => entry.GetProperty("level").GetString() == "negado");
     }
+
+    // #10-T17
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public async Task A_missing_blank_or_absent_name_is_refused(string? name) // PERM-16, API-15
+    {
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+        object body = name is null ? new { description = "Sem nome" } : new { name, description = "Sem nome" };
+
+        using var response = await client.SendWithTokenAsync(HttpMethod.Post, ProfileTestSupport.ProfilesPath, token, body);
+
+        var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
+        problem.FieldErrors("name").ShouldBe(["Dê um nome ao perfil."]);
+    }
 }
