@@ -11,4 +11,7 @@ internal sealed class InMemoryPermissionProfileRepository : IPermissionProfileRe
 
     public Task<IReadOnlyList<PermissionProfile>> ListByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<PermissionProfile>>(_profiles.Where(profile => ids.Contains(profile.Id)).ToArray());
+
+    public Task<IReadOnlyList<PermissionProfile>> ListAllAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<PermissionProfile>>(_profiles.ToArray());
 }

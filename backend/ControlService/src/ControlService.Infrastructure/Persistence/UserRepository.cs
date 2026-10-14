@@ -11,4 +11,12 @@ public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
 
     public Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken) =>
         dbContext.Users.SingleOrDefaultAsync(user => user.Login == login, cancellationToken);
+
+    public async Task<IReadOnlyDictionary<Guid, int>> CountByProfileAsync(CancellationToken cancellationToken) =>
+        await dbContext.Users
+            .AsNoTracking()
+            .SelectMany(user => EF.Property<List<ProfileAssignment>>(user, "_profileAssignments"))
+            .GroupBy(assignment => assignment.ProfileId)
+            .Select(group => new { ProfileId = group.Key, Count = group.Count() })
+            .ToDictionaryAsync(entry => entry.ProfileId, entry => entry.Count, cancellationToken);
 }

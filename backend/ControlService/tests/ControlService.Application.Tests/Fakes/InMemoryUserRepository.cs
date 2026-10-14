@@ -14,4 +14,10 @@ internal sealed class InMemoryUserRepository : IUserRepository
 
     public Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken) =>
         Task.FromResult(_users.Find(user => user.Login.Value == login.Value));
+
+    public Task<IReadOnlyDictionary<Guid, int>> CountByProfileAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<Guid, int>>(_users
+            .SelectMany(user => user.ProfileIds)
+            .GroupBy(profileId => profileId)
+            .ToDictionary(group => group.Key, group => group.Count()));
 }
