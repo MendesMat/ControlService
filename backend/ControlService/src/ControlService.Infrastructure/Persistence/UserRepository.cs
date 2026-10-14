@@ -22,6 +22,13 @@ public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
             .ToDictionaryAsync(user => user.Id, user => user.DisplayName, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<string>> ListDisplayNamesByProfileAsync(Guid profileId, CancellationToken cancellationToken) =>
+        await dbContext.Users
+            .AsNoTracking()
+            .Where(user => EF.Property<List<ProfileAssignment>>(user, "_profileAssignments").Any(assignment => assignment.ProfileId == profileId))
+            .Select(user => user.DisplayName)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyDictionary<Guid, int>> CountByProfileAsync(CancellationToken cancellationToken) =>
         await dbContext.Users
             .AsNoTracking()

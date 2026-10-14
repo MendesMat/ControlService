@@ -3,6 +3,7 @@ using ControlService.API.Common;
 using ControlService.Application.Common;
 using ControlService.Application.PermissionProfiles;
 using ControlService.Application.PermissionProfiles.CreateProfile;
+using ControlService.Application.PermissionProfiles.DeleteProfile;
 using ControlService.Application.PermissionProfiles.GetProfile;
 using ControlService.Application.PermissionProfiles.ListProfiles;
 using ControlService.Application.PermissionProfiles.UpdateProfile;
@@ -33,6 +34,10 @@ public static class PermissionProfilesEndpoints
         api.MapPut(ProfileRoute, UpdateProfile)
             .RequireScreenAccess(ScreenKeys.PermissionProfiles, AccessLevel.Editor)
             .WithSummary("Replaces a profile's name, description and levels; the version read goes in If-Match.");
+
+        api.MapDelete(ProfileRoute, DeleteProfile)
+            .RequireScreenAccess(ScreenKeys.PermissionProfiles, AccessLevel.Manager)
+            .WithSummary("Deletes a profile nobody has; the version read goes in If-Match.");
 
         return api;
     }
@@ -104,5 +109,15 @@ public static class PermissionProfilesEndpoints
 
         httpContext.Response.WriteETag(result.Value.Version);
         return TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<NoContent, ProblemHttpResult>> DeleteProfile(
+        Guid id,
+        ICommandHandler<DeleteProfileCommand, Unit> handler,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(new DeleteProfileCommand(id, httpContext.Request.ReadIfMatch()), cancellationToken);
+        return result.IsFailure ? result.Error.ToProblem() : TypedResults.NoContent();
     }
 }

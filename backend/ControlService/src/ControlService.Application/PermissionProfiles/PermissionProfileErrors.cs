@@ -6,6 +6,13 @@ namespace ControlService.Application.PermissionProfiles;
 /// docs/product/features/permission-profiles.md.</summary>
 public static class PermissionProfileErrors
 {
+    /// <summary>The profile is still assigned (PERM-20). `userNames` is in alphabetical order, and the message
+    /// keeps "(m)" and "(s)" literally, since it must read well for one person or several.</summary>
+    public static Error InUse(IReadOnlyList<string> userNames) => new(
+        "profile_in_use",
+        $"{string.Join(", ", userNames)} usa(m) este perfil. Tire o perfil dessa(s) pessoa(s) na tela Usuários e depois volte para excluir.",
+        Details: new Dictionary<string, object?> { ["userNames"] = userNames });
+
     public const string NameRequiredMessage = "Dê um nome ao perfil.";
 
     public const string UnknownLevelMessage = "Este nível de acesso não existe. Atualize a página e tente de novo.";

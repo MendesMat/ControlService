@@ -16,6 +16,8 @@ public interface IPermissionProfileRepository
 
     void Add(PermissionProfile profile);
 
+    void Remove(PermissionProfile profile);
+
     /// <summary>The profile with its levels, not tracked, or null when no profile has the id.</summary>
     Task<PermissionProfile?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 

@@ -2,6 +2,7 @@ using ControlService.API.Common;
 using ControlService.Application.Common;
 using ControlService.Application.PermissionProfiles;
 using ControlService.Application.PermissionProfiles.CreateProfile;
+using ControlService.Application.PermissionProfiles.DeleteProfile;
 using ControlService.Application.PermissionProfiles.GetProfile;
 using ControlService.Application.PermissionProfiles.ListProfiles;
 using ControlService.Application.PermissionProfiles.UpdateProfile;
@@ -17,6 +18,8 @@ public static class PermissionProfilesServiceCollectionExtensions
         services.AddValidatedCommandHandler<CreateProfileCommand, ProfileResponse, CreateProfileHandler, CreateProfileValidator>();
 
         services.AddValidatedCommandHandler<UpdateProfileCommand, ProfileResponse, UpdateProfileHandler, UpdateProfileValidator>();
+
+        services.AddScoped<ICommandHandler<DeleteProfileCommand, Unit>, DeleteProfileHandler>();
 
         return services;
     }

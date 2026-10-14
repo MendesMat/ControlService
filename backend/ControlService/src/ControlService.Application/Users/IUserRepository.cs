@@ -11,6 +11,9 @@ public interface IUserRepository
     /// <summary>The display name of each user that exists among the given ids.</summary>
     Task<IReadOnlyDictionary<Guid, string>> GetDisplayNamesAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
 
+    /// <summary>The display names of everyone who has the profile, deactivated ones included.</summary>
+    Task<IReadOnlyList<string>> ListDisplayNamesByProfileAsync(Guid profileId, CancellationToken cancellationToken);
+
     /// <summary>How many users have each profile, deactivated ones included. A profile nobody has is absent.</summary>
     Task<IReadOnlyDictionary<Guid, int>> CountByProfileAsync(CancellationToken cancellationToken);
 }
