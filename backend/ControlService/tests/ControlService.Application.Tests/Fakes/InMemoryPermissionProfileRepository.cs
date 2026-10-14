@@ -15,6 +15,9 @@ internal sealed class InMemoryPermissionProfileRepository : IPermissionProfileRe
     public Task<PermissionProfile?> GetByNormalizedNameAsync(string normalizedName, CancellationToken cancellationToken) =>
         Task.FromResult(_profiles.Find(profile => profile.NormalizedName == normalizedName));
 
+    public Task<PermissionProfile?> GetForUpdateAsync(Guid id, uint expectedVersion, CancellationToken cancellationToken) =>
+        Task.FromResult(_profiles.Find(profile => profile.Id == id));
+
     public Task<PermissionProfile?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         Task.FromResult(_profiles.Find(profile => profile.Id == id));
 

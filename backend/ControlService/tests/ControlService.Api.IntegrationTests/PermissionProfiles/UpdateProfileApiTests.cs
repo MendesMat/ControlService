@@ -100,18 +100,14 @@ public sealed class UpdateProfileApiTests(AuthApiFactory factory) : IClassFixtur
     public async Task Saving_with_an_old_version_is_refused_and_writes_nothing() // CNV-13
     {
         var name = $"Concorrência {ProfileTestSupport.UniqueSuffix()}";
-        var profileId = await ProfileTestSupport.CreateProfileAsync(factory.Services, name, (ScreenKeys.Customers, AccessLevel.Editor));
+        var profileId = await ProfileTestSupport.CreateProfileAsync(factory.Services, name);
         using var client = factory.CreateHttpsClient();
         var (_, tokenA) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
         var (editorB, tokenB) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
         var (_, oldVersion) = await ReadProfileAsync(client, tokenA, profileId);
-        // The same content the profile already has: no field changes, so only the version check can refuse A.
-        var unchanged = new
-        {
-            name,
-            description = "Perfil de teste",
-            levels = new[] { new { screen = ScreenKeys.Customers, level = "editor" } },
-        };
+        // The same content the profile already has, with no level to replace: nothing changes in the row, so
+        // only the version check can refuse A.
+        var unchanged = new { name, description = "Perfil de teste" };
         using var savedByB = await client.SendWithTokenAsync(HttpMethod.Put, ProfilePath(profileId), tokenB, unchanged, oldVersion);
         savedByB.StatusCode.ShouldBe(HttpStatusCode.OK);
 

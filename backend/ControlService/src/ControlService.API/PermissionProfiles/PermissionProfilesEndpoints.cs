@@ -5,6 +5,7 @@ using ControlService.Application.PermissionProfiles;
 using ControlService.Application.PermissionProfiles.CreateProfile;
 using ControlService.Application.PermissionProfiles.GetProfile;
 using ControlService.Application.PermissionProfiles.ListProfiles;
+using ControlService.Application.PermissionProfiles.UpdateProfile;
 using ControlService.Domain.Access;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -28,6 +29,10 @@ public static class PermissionProfilesEndpoints
         api.MapPost(ProfilesRoute, CreateProfile)
             .RequireScreenAccess(ScreenKeys.PermissionProfiles, AccessLevel.Editor)
             .WithSummary("Creates a permission profile; a screen left out of `levels` starts as `negado`.");
+
+        api.MapPut(ProfileRoute, UpdateProfile)
+            .RequireScreenAccess(ScreenKeys.PermissionProfiles, AccessLevel.Editor)
+            .WithSummary("Replaces a profile's name, description and levels; the version read goes in If-Match.");
 
         return api;
     }
@@ -81,4 +86,23 @@ public static class PermissionProfilesEndpoints
     }
 
     private sealed record ProfileLevelRequest(string? Screen = null, string? Level = null);
+
+    private static async Task<Results<Ok<ProfileResponse>, ProblemHttpResult>> UpdateProfile(
+        Guid id,
+        ProfileRequest request,
+        ICommandHandler<UpdateProfileCommand, ProfileResponse> handler,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateProfileCommand(
+            id, httpContext.Request.ReadIfMatch(), request.Name ?? string.Empty, request.Description ?? string.Empty, request.ToLevelInputs());
+        var result = await handler.Handle(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.Error.ToProblem();
+        }
+
+        httpContext.Response.WriteETag(result.Value.Version);
+        return TypedResults.Ok(result.Value);
+    }
 }

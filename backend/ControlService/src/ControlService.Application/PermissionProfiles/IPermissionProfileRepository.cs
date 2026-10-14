@@ -10,6 +10,10 @@ public interface IPermissionProfileRepository
     /// <summary>The profile whose normalized name is the given one (CNV-09), not tracked, or null.</summary>
     Task<PermissionProfile?> GetByNormalizedNameAsync(string normalizedName, CancellationToken cancellationToken);
 
+    /// <summary>The profile with its levels, tracked so that changes to it are saved, or null. The saving is checked
+    /// against `expectedVersion`, the version the person read (CNV-13), so a handler holds no concurrency code.</summary>
+    Task<PermissionProfile?> GetForUpdateAsync(Guid id, uint expectedVersion, CancellationToken cancellationToken);
+
     void Add(PermissionProfile profile);
 
     /// <summary>The profile with its levels, not tracked, or null when no profile has the id.</summary>
