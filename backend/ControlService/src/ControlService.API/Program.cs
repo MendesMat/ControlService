@@ -1,5 +1,6 @@
 using ControlService.API.Auth;
 using ControlService.API.Common;
+using ControlService.API.Screens;
 using ControlService.Application.Common;
 using ControlService.Infrastructure;
 using ControlService.Infrastructure.Persistence;
@@ -46,6 +47,7 @@ app.UseAuthorization();
 // Every feature registers its endpoints under /api/v1, for example: api.MapUserEndpoints();
 var api = app.MapApiV1();
 api.MapAuthEndpoints();
+api.MapScreensEndpoints();
 
 app.MapDefaultEndpoints();
 
