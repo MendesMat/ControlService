@@ -8,6 +8,15 @@ public static class PermissionProfileErrors
 {
     public const string NameRequiredMessage = "Dê um nome ao perfil.";
 
+    public const string UnknownLevelMessage = "Este nível de acesso não existe. Atualize a página e tente de novo.";
+
+    /// <summary>A screen or a level in `levels` that the server does not know (PERM-24, PERM-27), as one message
+    /// under the field.</summary>
+    public static Error InvalidLevels(string message) => new(
+        "validation_failed",
+        "Alguns campos precisam ser corrigidos.",
+        Fields: new Dictionary<string, string[]> { ["levels"] = [message] });
+
     /// <summary>Another profile already has the name (PERM-17); it is shown as stored.</summary>
     public static Error NameTaken(string existingName) => new(
         "validation_failed",

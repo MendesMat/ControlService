@@ -85,4 +85,11 @@ internal static class ProfileTestSupport
     /// <summary>The messages a validation_failed response carries under one field.</summary>
     public static string[] FieldErrors(this System.Text.Json.JsonElement problem, string field) =>
         problem.GetProperty("errors").GetProperty(field).EnumerateArray().Select(message => message.GetString()!).ToArray();
+
+    public static async Task<bool> ProfileNameExistsAsync(IServiceProvider services, string name)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return await db.PermissionProfiles.AnyAsync(profile => profile.Name == name);
+    }
 }

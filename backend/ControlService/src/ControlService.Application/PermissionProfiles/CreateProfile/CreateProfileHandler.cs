@@ -12,6 +12,12 @@ public sealed class CreateProfileHandler(
 {
     public async Task<Result<ProfileResponse>> Handle(CreateProfileCommand command, CancellationToken cancellationToken)
     {
+        var levels = LevelInput.ParseAll(command.Levels);
+        if (levels.IsFailure)
+        {
+            return Result<ProfileResponse>.Failure(levels.Error);
+        }
+
         var profile = PermissionProfile.Create(command.Name, command.Description);
         var taken = await profiles.GetByNormalizedNameAsync(profile.NormalizedName, cancellationToken);
         if (taken is not null)
@@ -19,7 +25,7 @@ public sealed class CreateProfileHandler(
             return Result<ProfileResponse>.Failure(PermissionProfileErrors.NameTaken(taken.Name));
         }
 
-        var applied = profile.ReplaceLevels(LevelInput.ParseAll(command.Levels));
+        var applied = profile.ReplaceLevels(levels.Value);
         if (applied.IsFailure)
         {
             return Result<ProfileResponse>.Failure(applied.Error);

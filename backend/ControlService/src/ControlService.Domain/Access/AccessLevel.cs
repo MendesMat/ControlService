@@ -19,12 +19,18 @@ public static class AccessLevelExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(level), level, message: null),
     };
 
-    public static AccessLevel FromWireValue(string wireValue) => wireValue switch
+    public static bool TryFromWireValue(string wireValue, out AccessLevel level)
     {
-        "negado" => AccessLevel.Denied,
-        "leitor" => AccessLevel.Reader,
-        "editor" => AccessLevel.Editor,
-        "gerenciador" => AccessLevel.Manager,
-        _ => throw new ArgumentOutOfRangeException(nameof(wireValue), wireValue, message: null),
-    };
+        var known = wireValue switch
+        {
+            "negado" => AccessLevel.Denied,
+            "leitor" => AccessLevel.Reader,
+            "editor" => AccessLevel.Editor,
+            "gerenciador" => AccessLevel.Manager,
+            _ => (AccessLevel?)null,
+        };
+
+        level = known.GetValueOrDefault();
+        return known.HasValue;
+    }
 }

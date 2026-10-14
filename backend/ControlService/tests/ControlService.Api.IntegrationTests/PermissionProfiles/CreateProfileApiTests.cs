@@ -107,4 +107,44 @@ public sealed class CreateProfileApiTests(AuthApiFactory factory) : IClassFixtur
         var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
         problem.FieldErrors("name").ShouldBe(["Já existe um perfil chamado Gerenciador. Escolha outro nome."]);
     }
+
+    // #10-T20
+    [Fact]
+    public async Task A_screen_missing_from_the_catalog_is_refused_and_nothing_is_saved() // PERM-24
+    {
+        var name = $"Tela inexistente {ProfileTestSupport.UniqueSuffix()}";
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+        var body = new
+        {
+            name,
+            description = string.Empty,
+            levels = new[] { new { screen = ScreenKeys.Customers, level = "editor" }, new { screen = "comercial/tela-que-nao-existe", level = "leitor" } },
+        };
+
+        using var response = await client.SendWithTokenAsync(HttpMethod.Post, ProfileTestSupport.ProfilesPath, token, body);
+
+        var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
+        problem.FieldErrors("levels").ShouldBe(["Esta tela não existe mais no sistema. Atualize a página e tente de novo."]);
+        (await ProfileTestSupport.ProfileNameExistsAsync(factory.Services, name)).ShouldBeFalse();
+    }
+
+    // #10-T21
+    [Fact]
+    public async Task An_unknown_access_level_is_refused() // PERM-27
+    {
+        using var client = factory.CreateHttpsClient();
+        var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.PermissionProfiles, AccessLevel.Editor);
+        var body = new
+        {
+            name = $"Nível inexistente {ProfileTestSupport.UniqueSuffix()}",
+            description = string.Empty,
+            levels = new[] { new { screen = ScreenKeys.Customers, level = "supremo" } },
+        };
+
+        using var response = await client.SendWithTokenAsync(HttpMethod.Post, ProfileTestSupport.ProfilesPath, token, body);
+
+        var problem = await response.ShouldBeProblemAsync(HttpStatusCode.BadRequest, "validation_failed", ProfileTestSupport.FieldsToFix);
+        problem.FieldErrors("levels").ShouldBe(["Este nível de acesso não existe. Atualize a página e tente de novo."]);
+    }
 }
