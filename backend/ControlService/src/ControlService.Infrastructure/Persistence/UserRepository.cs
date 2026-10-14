@@ -12,6 +12,16 @@ public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
     public Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken) =>
         dbContext.Users.SingleOrDefaultAsync(user => user.Login == login, cancellationToken);
 
+    public async Task<IReadOnlyDictionary<Guid, string>> GetDisplayNamesAsync(
+        IEnumerable<Guid> ids, CancellationToken cancellationToken)
+    {
+        var idList = ids.ToArray();
+        return await dbContext.Users
+            .AsNoTracking()
+            .Where(user => idList.Contains(user.Id))
+            .ToDictionaryAsync(user => user.Id, user => user.DisplayName, cancellationToken);
+    }
+
     public async Task<IReadOnlyDictionary<Guid, int>> CountByProfileAsync(CancellationToken cancellationToken) =>
         await dbContext.Users
             .AsNoTracking()
