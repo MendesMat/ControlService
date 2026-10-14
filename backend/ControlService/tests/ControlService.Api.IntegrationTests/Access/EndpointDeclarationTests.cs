@@ -10,7 +10,7 @@ public sealed class EndpointDeclarationTests(ApiFactory factory) : IClassFixture
 {
     // Any active account may call these, whatever its levels. A new route never joins this list by accident:
     // the owner decides, and the list is the only place to do it (API-11).
-    private static readonly string[] SignedInOnly = ["/api/v1/auth/sign-out", "/api/v1/auth/change-password", "/api/v1/me"];
+    private static readonly string[] SignedInOnly = ["/api/v1/auth/sign-out", "/api/v1/auth/change-password", "/api/v1/me", "/api/v1/screens"];
 
     // #9-T19
     [Fact]

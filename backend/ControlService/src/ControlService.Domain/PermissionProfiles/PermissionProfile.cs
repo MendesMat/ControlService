@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using ControlService.Domain.Access;
 using ControlService.Domain.Common;
 
@@ -11,20 +12,18 @@ public sealed class PermissionProfile : AuditedAggregate
     {
         Id = id;
         IsSystem = isSystem;
-        Name = name.Trim();
-        NormalizedName = TextNormalization.Normalize(Name);
-        Description = description.Trim();
+        SetDetails(name, description);
     }
 
     public Guid Id { get; }
 
     public bool IsSystem { get; }
 
-    public string Name { get; }
+    public string Name { get; private set; }
 
-    public string NormalizedName { get; }
+    public string NormalizedName { get; private set; }
 
-    public string Description { get; }
+    public string Description { get; private set; }
 
     public IReadOnlyCollection<ScreenLevel> Levels => _levels;
 
@@ -63,7 +62,46 @@ public sealed class PermissionProfile : AuditedAggregate
         return Result.Success();
     }
 
+    /// <summary>Replaces every level at once: a screen left out becomes Denied, and a screen that appears
+    /// twice keeps the last level.</summary>
+    public Result ReplaceLevels(IEnumerable<ScreenLevel> levels)
+    {
+        var systemCheck = EnsureNotSystem();
+        if (systemCheck.IsFailure)
+        {
+            return systemCheck;
+        }
+
+        _levels.Clear();
+        foreach (var entry in levels)
+        {
+            SetLevel(entry.Screen, entry.Level);
+        }
+
+        return Result.Success();
+    }
+
+    public Result ChangeDetails(string name, string description)
+    {
+        var systemCheck = EnsureNotSystem();
+        if (systemCheck.IsFailure)
+        {
+            return systemCheck;
+        }
+
+        SetDetails(name, description);
+        return Result.Success();
+    }
+
     public Result Delete() => EnsureNotSystem();
+
+    [MemberNotNull(nameof(Name), nameof(NormalizedName), nameof(Description))]
+    private void SetDetails(string name, string description)
+    {
+        Name = name.Trim();
+        NormalizedName = TextNormalization.Normalize(Name);
+        Description = description.Trim();
+    }
 
     private Result EnsureNotSystem() => IsSystem
         ? Result.Failure(new Error(

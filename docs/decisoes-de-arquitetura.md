@@ -175,13 +175,13 @@ As sete primeiras também são o que permite testar um handler com um repositór
 
 2. **Que problema resolve.** O back-end não pode confiar no navegador. Com o decorator, o handler só contém o caso de uso: quando ele roda, os dados já estão no formato certo. Os erros voltam por campo (`address.cep`), para a tela mostrar cada mensagem no lugar.
 3. **O que acontece sem isso.** O handler chamaria o validador na primeira linha. Funciona, mas dá para esquecer.
-4. **Quanto custa.** Dois conceitos a mais para explicar (interface genérica e decorator), e o registro de um handler validado é feito à mão, em quatro linhas.
+4. **Quanto custa.** Dois conceitos a mais para explicar (interface genérica e decorator).
 5. **Alternativas mais simples.** Data Annotations, que são limitadas para regras como "se preenchido, deve ser válido". Ou chamar o validador dentro do handler, sem decorator.
 6. **Por que escolhemos assim.** A validação é automática e o handler fica só com a regra de negócio. Reavaliada em 2026-10-05, com as alternativas "validar dentro do handler" e "handlers sem interface": o dono escolheu manter.
 
-**Registro dos handlers validados.** Um método auxiliar de uma linha para registrar o handler e o decorator juntos foi avaliado em 2026-10-07 e adiado, porque só existe um handler validado. Reavaliar no levantamento da primeira issue que registrar o segundo (#10 ou #11).
+**Registro dos handlers validados.** Registrar um handler com o decorator custava quatro linhas escritas à mão, repetidas a cada handler. Um método auxiliar de uma linha foi avaliado em 2026-10-07 e adiado, porque só existia um handler validado (`ChangePassword`). No levantamento da issue #10, que registra mais dois (criar e alterar perfil), o dono adotou o método: `AddValidatedCommandHandler<Comando, Resposta, Handler, Validator>()`. O decorator continua visível, mas escrito em um lugar só, e o método cria o handler e o validator pelo contêiner, então um validator que precisa de configuração (como o da senha) funciona igual a um que não precisa de nada.
 
-- **Onde ver no código:** [ValidatingCommandHandler.cs](../backend/ControlService/src/ControlService.Application/Common/ValidatingCommandHandler.cs), [ChangePasswordValidator.cs](../backend/ControlService/src/ControlService.Application/Auth/ChangePassword/ChangePasswordValidator.cs).
+- **Onde ver no código:** [ValidatingCommandHandler.cs](../backend/ControlService/src/ControlService.Application/Common/ValidatingCommandHandler.cs), [ValidatedCommandHandlerRegistration.cs](../backend/ControlService/src/ControlService.API/Common/ValidatedCommandHandlerRegistration.cs), [ChangePasswordValidator.cs](../backend/ControlService/src/ControlService.Application/Auth/ChangePassword/ChangePasswordValidator.cs).
 - **Em uma frase:** um "porteiro" confere os dados antes do handler; se estiverem errados, o handler nem roda.
 
 ### 7. Erros esperados como `Result`; erro HTTP em Problem Details
@@ -298,14 +298,16 @@ As sete primeiras também são o que permite testar um handler com um repositór
    builder.Property(user => user.Version).IsRowVersion();
    ```
 
-   Quando as versões não batem, o EF Core lança `DbUpdateConcurrencyException`, e a unidade de trabalho a transforma num `Result` de falha com a mensagem "Este cadastro foi alterado por {nome} enquanto você editava. Recarregue para ver a versão atual." Na API, a versão vai no cabeçalho `ETag` e volta no `If-Match`.
+   Quando as versões não batem, o EF Core lança `DbUpdateConcurrencyException`, e a unidade de trabalho a transforma num `Result` de falha com a mensagem "Este cadastro foi alterado por {nome} enquanto você editava. Recarregue para ver a versão atual." Na API, a versão vai no cabeçalho `ETag`, entre aspas, e volta no `If-Match`. Sem `If-Match` (ou com um valor ilegível), a resposta é a mesma de uma versão antiga: 409 `concurrency_conflict`.
+
+   Quem informa a versão ao EF Core é o repositório: `GetForUpdateAsync(id, versão)` carrega o registro, diz ao EF Core qual versão a tela leu e marca o registro como alterado. A marca é necessária porque um salvamento que não muda nenhum campo não gera `UPDATE`, e sem `UPDATE` o banco não confere a versão. Assim todo salvamento é conferido pelo banco, pelo mesmo caminho da unidade de trabalho, e o handler não tem nenhum código de concorrência. Se o registro foi excluído por outra pessoa no meio do salvamento, a unidade de trabalho responde 404 `not_found`.
 2. **Que problema resolve.** Duas pessoas abrem o mesmo cadastro. Sem controle, a segunda a salvar apaga o trabalho da primeira sem perceber.
 3. **O que acontece sem isso.** Vale o último que salvou, em silêncio.
 4. **Quanto custa.** A tela precisa guardar a versão, reenviá-la e tratar o erro 409.
 5. **Alternativas mais simples.** Não tratar. Ou travar o registro enquanto alguém edita (concorrência pessimista), que é pior: a trava fica presa se a pessoa fechar o navegador.
 6. **Por que escolhemos assim.** É uma regra de negócio do sistema (CNV-12 e CNV-13), e "otimista" significa apostar que o conflito é raro: ninguém espera, e só o caso raro recebe um aviso.
 
-- **Onde ver no código:** [UnitOfWork.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/UnitOfWork.cs), [AuditedAggregate.cs](../backend/ControlService/src/ControlService.Domain/Common/AuditedAggregate.cs). As regras estão em [product/conventions.md](product/conventions.md) e em [api/conventions.md](api/conventions.md).
+- **Onde ver no código:** [UnitOfWork.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/UnitOfWork.cs), [PermissionProfileRepository.cs](../backend/ControlService/src/ControlService.Infrastructure/Persistence/PermissionProfileRepository.cs), [AuditedAggregate.cs](../backend/ControlService/src/ControlService.Domain/Common/AuditedAggregate.cs). As regras estão em [product/conventions.md](product/conventions.md) e em [api/conventions.md](api/conventions.md).
 - **Em uma frase:** cada registro tem uma versão; se alguém alterou enquanto eu editava, o sistema recusa e avisa quem foi.
 
 ### 14. Campos de auditoria preenchidos automaticamente
@@ -387,7 +389,8 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 | Cálculo do nível por tela e chaves de tela | Construído e testado |
 | Troca obrigatória da senha | Construída, mas hoje só o Admin passa por ela; o desenho decidido é o contrário (decisão 21) |
 | Autorização por tela e conferência da conta a cada requisição | Construída e testada (decisão 24) |
-| Rota com o catálogo de telas (`GET /screens`) | **Não construída** (issue #10) |
+| Rota com o catálogo de telas (`GET /screens`) | Construída e testada (decisão 25) |
+| Perfis de permissão: listar, abrir, criar, alterar e excluir | Construídos e testados |
 
 ### 18. Senhas guardadas pelo ASP.NET Core Identity, separadas do usuário
 
@@ -564,22 +567,22 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 3. **O que acontece sem isso.** Corrigir um acento num nome de menu apagaria permissões.
 4. **Quanto custa.** Uma tela nova exige uma constante no back-end e uma entrada no menu do front-end.
 5. **Alternativas mais simples.** Derivar a chave do nome. Ou usar ids numéricos, que são estáveis, mas ilegíveis no banco.
-6. **Por que escolhemos assim.** Separar o identificador do texto exibido custa uma linha por tela. A rota que entrega o catálogo de telas ao front-end (`GET /screens`) chega com a issue #10.
+6. **Por que escolhemos assim.** Separar o identificador do texto exibido custa uma linha por tela. O catálogo completo, com as áreas e os nomes que o menu mostra, também está escrito em código, ao lado das chaves (`ScreenCatalog`), e a rota `GET /screens` o entrega ao front-end. Um teste confere que o catálogo tem as mesmas chaves de `ScreenKeys`, na mesma ordem. Os nomes do catálogo e os de `screen-catalog.json` são conferidos na revisão.
 
-- **Onde ver no código:** [ScreenKeys.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKeys.cs), [ScreenKey.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKey.cs), [screen-catalog.json](product/screen-catalog.json).
+- **Onde ver no código:** [ScreenKeys.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKeys.cs), [ScreenKey.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenKey.cs), [ScreenCatalog.cs](../backend/ControlService/src/ControlService.Domain/Access/ScreenCatalog.cs), [ScreensEndpoints.cs](../backend/ControlService/src/ControlService.API/Screens/ScreensEndpoints.cs), [screen-catalog.json](product/screen-catalog.json).
 - **Em uma frase:** a permissão aponta para um código que nunca muda, e não para o nome que aparece no menu.
 
 ## Bloco D — Qualidade e operação
 
 ### 26. Testes em quatro projetos, cada comportamento em uma camada, contra PostgreSQL de verdade
 
-1. **O que é.** Quatro projetos de teste, com cerca de 270 testes em outubro de 2026:
+1. **O que é.** Quatro projetos de teste, com cerca de 310 testes em outubro de 2026:
 
    | Projeto | O que testa | Testes | Precisa de |
    |---|---|---|---|
-   | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 113 | Nada |
+   | `Domain.Tests` | Value Objects, agregados, `EffectiveAccess` | 117 | Nada |
    | `Application.Tests` | Handlers, com fakes (decisão 27) | 38 | Nada |
-   | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 111 | Docker |
+   | `Api.IntegrationTests` | Chamadas HTTP de verdade, login, banco | 150 | Docker |
    | `ArchitectureTests` | Regras entre as camadas (decisão 28) | 5 | Nada |
 
    As ferramentas são o xUnit v3, que é o framework de testes, e o Shouldly, que escreve as conferências (`result.IsSuccess.ShouldBeTrue()`). Os testes de integração sobem a API inteira em memória (`WebApplicationFactory`) contra um PostgreSQL real, num contêiner que o próprio teste liga e desliga (Testcontainers). Há um contêiner só para todos os testes:

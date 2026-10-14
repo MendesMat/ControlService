@@ -131,4 +131,52 @@ public class PermissionProfileTests
         result.Error.Code.ShouldBe("system_record");
         result.Error.Message.ShouldBe("O perfil Gerenciador é do sistema e não pode ser alterado nem excluído.");
     }
+
+    // #10-T01
+    [Fact]
+    public void Changing_the_details_trims_the_text_and_recalculates_the_normalized_name() // CNV-03, CNV-09
+    {
+        var profile = TestData.NewProfile();
+
+        var result = profile.ChangeDetails(" Financeiro ", " Equipe financeira ");
+
+        result.IsSuccess.ShouldBeTrue();
+        profile.Name.ShouldBe("Financeiro");
+        profile.Description.ShouldBe("Equipe financeira");
+        profile.NormalizedName.ShouldBe(PermissionProfile.Create("financeiro", string.Empty).NormalizedName);
+    }
+
+    // #10-T02
+    [Fact]
+    public void Changing_the_details_of_the_manager_profile_is_refused() // PERM-22, PERM-25
+    {
+        var profile = PermissionProfile.CreateManagerProfile();
+
+        var result = profile.ChangeDetails("Outro nome", "Outra descrição");
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("system_record");
+        result.Error.Message.ShouldBe("O perfil Gerenciador é do sistema e não pode ser alterado nem excluído.");
+        profile.Name.ShouldBe("Gerenciador");
+        profile.Description.ShouldBe("Acesso total a todas as telas do sistema.");
+    }
+
+    // #10-T03
+    [Fact]
+    public void Replacing_the_levels_sets_the_new_ones_and_denies_every_screen_left_out() // PERM-05
+    {
+        var profile = TestData.NewProfile();
+        var users = ScreenKey.Create(ScreenKeys.Users).Value;
+        var customers = ScreenKey.Create(ScreenKeys.Customers).Value;
+        var products = ScreenKey.Create(ScreenKeys.Products).Value;
+        profile.SetLevel(users, AccessLevel.Editor);
+        profile.SetLevel(customers, AccessLevel.Reader);
+
+        var result = profile.ReplaceLevels([new ScreenLevel(customers, AccessLevel.Manager), new ScreenLevel(products, AccessLevel.Reader)]);
+
+        result.IsSuccess.ShouldBeTrue();
+        profile.GetLevel(users).ShouldBe(AccessLevel.Denied);
+        profile.GetLevel(customers).ShouldBe(AccessLevel.Manager);
+        profile.GetLevel(products).ShouldBe(AccessLevel.Reader);
+    }
 }

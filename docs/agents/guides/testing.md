@@ -77,6 +77,14 @@ Because every factory targets the same database, test collections run **sequenti
 - `Persistence/PersistenceApiFactory.cs` replaces `ICurrentUser` and `TimeProvider` with `FakeCurrentUser` and `FixedTimeProvider`, so authorship and timestamps are asserted precisely instead of against the real clock.
 - Assert database errors through `DbUpdateException.InnerException` as `Npgsql.PostgresException` (`SqlState`, `ConstraintName`). PostgreSQL reports an immediate `ON DELETE RESTRICT` violation as `23001` (`restrict_violation`), not `23503` (`foreign_key_violation`, which `NO ACTION` raises instead) — check which delete behavior a foreign key uses before asserting a code.
 
+## Permission profile tests
+
+- `PermissionProfiles/ProfileTestSupport` has the calls and data these tests repeat: `SignInWithLevelAsync` (a new person whose only access is one level on one screen, already signed in), `CreateProfileAsync` and `AssignProfileAsync` (write straight to the database, outside a request, so authorship is the Admin), `SendWithTokenAsync` (a method, a body and an `If-Match` sent exactly as given) and `FieldErrors`. They run on `AuthApiFactory`, like every authenticated API test.
+- The database is shared, so the profile list holds the profiles of other tests: assert only on the records the test created, under names made unique with `UniqueSuffix()`. Never sign in as the Admin (its password change is mandatory).
+- To prove that **the version alone** refuses a save, the profile has no levels and the body repeats what is stored: replacing levels touches the rows of the levels, which forces an `UPDATE` by itself and would hide a missing check (`UpdateProfileApiTests`, #10-T27).
+- A record deleted between the read and the save is tested in `ConcurrencyPersistenceTests`, with two scopes over the same row.
+- Adding a member to `IPermissionProfileRepository` or `IUserRepository` means implementing it in the in-memory fakes of `ControlService.Application.Tests/Fakes`, even when no handler test uses it yet.
+
 ## Authentication tests
 
 - **`Auth/AuthApiFactory`** is the API with a controllable clock (`Clock`, a `FixedTimeProvider` with `Advance`), so sessions and access tokens expire when the test says. `CreateHttpsClient()` talks to `https://localhost` with cookie handling off: the refresh cookie is `Secure`, so it never comes back over `http`, and tests read `Set-Cookie` and send each session's `Cookie` header themselves (`Auth/AuthHttp.cs`).
