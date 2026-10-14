@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using ControlService.Api.IntegrationTests.Auth;
 using ControlService.Domain.Access;
 using ControlService.Domain.PermissionProfiles;
@@ -83,7 +84,7 @@ internal static class ProfileTestSupport
     }
 
     /// <summary>The messages a validation_failed response carries under one field.</summary>
-    public static string[] FieldErrors(this System.Text.Json.JsonElement problem, string field) =>
+    public static string[] FieldErrors(this JsonElement problem, string field) =>
         problem.GetProperty("errors").GetProperty(field).EnumerateArray().Select(message => message.GetString()!).ToArray();
 
     public static async Task<bool> ProfileNameExistsAsync(IServiceProvider services, string name)

@@ -16,9 +16,7 @@ public static class PermissionProfilesServiceCollectionExtensions
         services.AddScoped<IQueryHandler<ListProfilesQuery, IReadOnlyList<ProfileListItemResponse>>, ListProfilesHandler>();
         services.AddScoped<IQueryHandler<GetProfileQuery, ProfileResponse>, GetProfileHandler>();
         services.AddValidatedCommandHandler<CreateProfileCommand, ProfileResponse, CreateProfileHandler, CreateProfileValidator>();
-
         services.AddValidatedCommandHandler<UpdateProfileCommand, ProfileResponse, UpdateProfileHandler, UpdateProfileValidator>();
-
         services.AddScoped<ICommandHandler<DeleteProfileCommand, Unit>, DeleteProfileHandler>();
 
         return services;

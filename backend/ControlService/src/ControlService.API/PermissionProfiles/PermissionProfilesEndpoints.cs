@@ -83,15 +83,6 @@ public static class PermissionProfilesEndpoints
         return TypedResults.Created($"{ApiV1Group.Prefix}{ProfilesRoute}/{result.Value.Id}", result.Value);
     }
 
-    // Missing or null fields are treated as empty, so they fail validation instead of crashing (API-12).
-    private sealed record ProfileRequest(string? Name = null, string? Description = null, IReadOnlyList<ProfileLevelRequest?>? Levels = null)
-    {
-        public LevelInput[] ToLevelInputs() =>
-            (Levels ?? []).Select(level => new LevelInput(level?.Screen ?? string.Empty, level?.Level ?? string.Empty)).ToArray();
-    }
-
-    private sealed record ProfileLevelRequest(string? Screen = null, string? Level = null);
-
     private static async Task<Results<Ok<ProfileResponse>, ProblemHttpResult>> UpdateProfile(
         Guid id,
         ProfileRequest request,
@@ -120,4 +111,13 @@ public static class PermissionProfilesEndpoints
         var result = await handler.Handle(new DeleteProfileCommand(id, httpContext.Request.ReadIfMatch()), cancellationToken);
         return result.IsFailure ? result.Error.ToProblem() : TypedResults.NoContent();
     }
+
+    // Missing or null fields are treated as empty, so they fail validation instead of crashing (API-12).
+    private sealed record ProfileRequest(string? Name = null, string? Description = null, IReadOnlyList<ProfileLevelRequest?>? Levels = null)
+    {
+        public LevelInput[] ToLevelInputs() =>
+            (Levels ?? []).Select(level => new LevelInput(level?.Screen ?? string.Empty, level?.Level ?? string.Empty)).ToArray();
+    }
+
+    private sealed record ProfileLevelRequest(string? Screen = null, string? Level = null);
 }
