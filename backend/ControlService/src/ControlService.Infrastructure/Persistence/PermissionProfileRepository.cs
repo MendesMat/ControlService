@@ -15,6 +15,8 @@ public sealed class PermissionProfileRepository(AppDbContext dbContext) : IPermi
             .ToListAsync(cancellationToken);
     }
 
+    public void Add(PermissionProfile profile) => dbContext.PermissionProfiles.Add(profile);
+
     public Task<PermissionProfile?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         dbContext.PermissionProfiles.AsNoTracking().SingleOrDefaultAsync(profile => profile.Id == id, cancellationToken);
 
