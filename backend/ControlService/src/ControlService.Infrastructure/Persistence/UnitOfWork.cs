@@ -19,13 +19,17 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
         }
     }
 
-    // A conflict on a row deleted meanwhile is out of scope here: GetDatabaseValuesAsync
-    // returns null and this throws, propagating as an unexpected failure.
+    // GetDatabaseValuesAsync returns null when the row was deleted meanwhile: there is no latest editor to name.
     private async Task<Result> ConcurrencyConflict(DbUpdateConcurrencyException exception, CancellationToken cancellationToken)
     {
         var entry = exception.Entries.Single();
         var databaseValues = await entry.GetDatabaseValuesAsync(cancellationToken);
-        var updatedBy = (Guid)databaseValues![nameof(AuditedAggregate.UpdatedBy)]!;
+        if (databaseValues is null)
+        {
+            return Result.Failure(CommonErrors.NotFound);
+        }
+
+        var updatedBy = (Guid)databaseValues[nameof(AuditedAggregate.UpdatedBy)]!;
         var updatedByUser = await dbContext.Users.AsNoTracking().SingleAsync(user => user.Id == updatedBy, cancellationToken);
 
         return Result.Failure(new Error(

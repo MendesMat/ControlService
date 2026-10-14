@@ -142,6 +142,39 @@ public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) :
         saved.UpdatedBy.ShouldBe(brunoId);
     }
 
+    // #10-T38
+    [Fact]
+    public async Task Saving_a_record_deleted_by_someone_else_returns_not_found() // API-16
+    {
+        var profile = PermissionProfile.Create("Excluído no meio", "Alguém exclui antes do salvamento");
+        await using (var setupScope = factory.Services.CreateAsyncScope())
+        {
+            var db = setupScope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.PermissionProfiles.Add(profile);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        await using var scopeA = factory.Services.CreateAsyncScope();
+        var dbA = scopeA.ServiceProvider.GetRequiredService<AppDbContext>();
+        var profileA = await dbA.PermissionProfiles.SingleAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken);
+
+        await using (var scopeB = factory.Services.CreateAsyncScope())
+        {
+            var dbB = scopeB.ServiceProvider.GetRequiredService<AppDbContext>();
+            var profileB = await dbB.PermissionProfiles.SingleAsync(p => p.Id == profile.Id, TestContext.Current.CancellationToken);
+            dbB.PermissionProfiles.Remove(profileB);
+            await dbB.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        profileA.ChangeDetails("Renomeado depois de excluído", string.Empty);
+        var unitOfWorkA = scopeA.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var result = await unitOfWorkA.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe("not_found");
+        result.Error.Message.ShouldBe("Registro não encontrado.");
+    }
+
     // Bruno Lima is the conflict's actor, and must exist in `users` because the authorship columns are
     // foreign keys to it. The display name is unique across the shared database, so both tests reuse
     // the same row instead of each creating their own "Bruno Lima".
