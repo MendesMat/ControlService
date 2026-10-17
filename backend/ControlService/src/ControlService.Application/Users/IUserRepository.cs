@@ -8,6 +8,9 @@ public interface IUserRepository
 
     Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken);
 
+    /// <summary>The logins, deactivated users included, that start with the prefix (both in lowercase).</summary>
+    Task<IReadOnlyList<string>> ListLoginsStartingWithAsync(string prefix, CancellationToken cancellationToken);
+
     /// <summary>The display name of each user that exists among the given ids.</summary>
     Task<IReadOnlyDictionary<Guid, string>> GetDisplayNamesAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
 

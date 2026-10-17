@@ -86,23 +86,25 @@ internal static class AuthTestSupport
 
     /// <summary>An active user with a credential, under a login no other test uses, so a test never
     /// collides with the unique indexes of another.</summary>
-    public static async Task<TestUser> CreateUserAsync(IServiceProvider services, string password = UserPassword)
+    public static async Task<TestUser> CreateUserAsync(
+        IServiceProvider services, string password = UserPassword, string? login = null, string? displayName = null)
     {
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var credentials = scope.ServiceProvider.GetRequiredService<UserManager<UserCredential>>();
 
         var suffix = Guid.NewGuid().ToString("N")[..12];
-        var login = $"user{suffix}";
+        login ??= $"user{suffix}";
+        displayName ??= $"Pessoa {suffix}";
         var user = User.Create(
-            Login.Create(login).Value, EmailAddress.Create($"{login}@example.com").Value, $"Pessoa {suffix}", $"Pessoa de Teste {suffix}");
+            Login.Create(login).Value, EmailAddress.Create($"{login}@example.com").Value, displayName, $"Pessoa de Teste {suffix}");
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
         var credential = new UserCredential { Id = user.Id, UserName = user.Id.ToString() };
         (await credentials.CreateAsync(credential, password)).Succeeded.ShouldBeTrue();
 
-        return new TestUser(user.Id, login, password, $"Pessoa {suffix}");
+        return new TestUser(user.Id, login, password, displayName);
     }
 }
 

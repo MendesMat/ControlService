@@ -2,6 +2,7 @@ using ControlService.API.Auth;
 using ControlService.API.Common;
 using ControlService.API.PermissionProfiles;
 using ControlService.API.Screens;
+using ControlService.API.Users;
 using ControlService.Application.Common;
 using ControlService.Infrastructure;
 using ControlService.Infrastructure.Persistence;
@@ -26,6 +27,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.AddInfrastructure();
 builder.Services.AddAuthFeature(builder.Configuration);
 builder.Services.AddPermissionProfilesFeature();
+builder.Services.AddUsersFeature();
 
 var app = builder.Build();
 
@@ -46,10 +48,11 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Every feature registers its endpoints under /api/v1, for example: api.MapUserEndpoints();
+// Every feature registers its endpoints under /api/v1.
 var api = app.MapApiV1();
 api.MapAuthEndpoints();
 api.MapPermissionProfilesEndpoints();
+api.MapUsersEndpoints();
 api.MapScreensEndpoints();
 
 app.MapDefaultEndpoints();
