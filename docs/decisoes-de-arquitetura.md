@@ -722,6 +722,8 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 
 **Regra de manutenção.** Uma versão só é declarada quando um projeto a usa. `MailKit` (envio de e-mail), `Microsoft.Extensions.Caching.Hybrid` (cache de permissões) e `FluentValidation.DependencyInjectionExtensions` foram removidos por falta de uso. O último pode voltar se houver justificativa, por exemplo registrar os validadores automaticamente.
 
+**Vulnerabilidade numa dependência de outro pacote.** Se a auditoria quebrar o build por causa de um pacote que o projeto não usa diretamente, e o pacote que o traz ainda não tiver versão corrigida, a versão corrigida é declarada aqui e citada no projeto que a puxa, com um comentário dizendo quando remover. A alternativa de silenciar o alerta (`NuGetAuditSuppress`) não é usada, porque deixaria a versão vulnerável no projeto. Caso atual: `MessagePack`, trazido pelo Aspire, fixado no AppHost (alerta GHSA-qhrr-8q5h-9q3h).
+
 - **Onde ver no código:** [Directory.Packages.props](../backend/ControlService/Directory.Packages.props), [dependabot.yml](../.github/dependabot.yml).
 - **Em uma frase:** cada pacote tem a versão declarada num lugar só, e o build quebra se algum tiver uma vulnerabilidade conhecida.
 
