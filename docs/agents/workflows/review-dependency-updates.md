@@ -37,8 +37,18 @@ Dependabot opens pull requests every Monday for NuGet packages (grouped as `aspi
    gh pr merge <number> --squash
    ```
 
+6. When several are approved, merge them **one at a time**. The ruleset requires an up-to-date branch, so after each merge the others become `BEHIND` (or `DIRTY`, when they change nearby lines of `Directory.Packages.props`). Before each merge, update the next one and wait for CI:
+
+   ```bash
+   gh pr update-branch <number> --rebase
+   gh pr checks <number> --watch
+   ```
+
+   If `update-branch` fails because of a conflict, comment `@dependabot rebase` on the pull request and wait for Dependabot to push the new version.
+
 ## Rules
 
 - Never pin a package to an older version or ignore an update without telling the owner why.
 - A license change to a commercial model (as happened with MediatR, AutoMapper and FluentAssertions) is a blocker: do not merge; raise it with the owner.
 - If `global.json` or the .NET SDK major version changes, treat it as a decision (decision 1) and ask the owner.
+- If every pull request and `main` fail at once with `NU1902`/`NU1903` on restore, a vulnerability was just published for a package, often a transitive one. The pull requests are not the cause: fix it first in a separate pull request, as decision 30 describes, then merge the others.
