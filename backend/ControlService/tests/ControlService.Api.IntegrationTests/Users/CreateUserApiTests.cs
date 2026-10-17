@@ -121,15 +121,15 @@ public sealed class CreateUserApiTests(AuthApiFactory factory) : IClassFixture<A
     public async Task The_new_user_signs_in_with_the_temporary_password_and_must_replace_it() // AUTH-02, AUTH-14, AUTH-16
     {
         var marker = ProfileTestSupport.UniqueSuffix();
-        const string password = " temporaria 1 ";
+        const string Password = " temporaria 1 ";
         using var client = factory.CreateHttpsClient();
         var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.Users, AccessLevel.Editor);
         var body = UserTestSupport.NewUserBody(marker);
-        body["temporaryPassword"] = password;
+        body["temporaryPassword"] = Password;
         using var created = await client.SendWithTokenAsync(HttpMethod.Post, UserTestSupport.UsersPath, token, body);
         created.StatusCode.ShouldBe(HttpStatusCode.Created);
 
-        using var signIn = await client.SignInAsync($"ana.{marker}", password);
+        using var signIn = await client.SignInAsync($"ana.{marker}", Password);
 
         signIn.StatusCode.ShouldBe(HttpStatusCode.OK);
         (await signIn.ReadJsonAsync()).GetProperty("mustChangePassword").GetBoolean().ShouldBeTrue();
@@ -162,7 +162,7 @@ public sealed class CreateUserApiTests(AuthApiFactory factory) : IClassFixture<A
     [Fact]
     public async Task Fields_in_an_invalid_format_are_refused_each_under_its_own_path() // USR-05, USR-07, USR-08, USR-10, USR-11, USR-12, USR-26
     {
-        const string invalidPhone = "Digite o telefone com DDD. Ex.: (21) 98765-4321.";
+        const string InvalidPhone = "Digite o telefone com DDD. Ex.: (21) 98765-4321.";
         using var client = factory.CreateHttpsClient();
         var (_, token) = await ProfileTestSupport.SignInWithLevelAsync(factory, client, ScreenKeys.Users, AccessLevel.Editor);
         var body = UserTestSupport.NewUserBody(ProfileTestSupport.UniqueSuffix());
@@ -182,9 +182,9 @@ public sealed class CreateUserApiTests(AuthApiFactory factory) : IClassFixture<A
         problem.FieldErrors("email").ShouldBe(
             ["Este e-mail não parece válido. Confira se ele tem @ e o domínio, por exemplo ana@empresa.com.br."]);
         problem.FieldErrors("cpf").ShouldBe(["Este CPF não é válido. Confira os números ou deixe o campo em branco."]);
-        problem.FieldErrors("phone").ShouldBe([invalidPhone]);
+        problem.FieldErrors("phone").ShouldBe([InvalidPhone]);
         problem.FieldErrors("address.cep").ShouldBe(["O CEP precisa ter 8 números."]);
-        problem.FieldErrors("emergencyContact.phone").ShouldBe([invalidPhone]);
+        problem.FieldErrors("emergencyContact.phone").ShouldBe([InvalidPhone]);
         problem.FieldErrors("bloodType").ShouldBe(["Este tipo sanguíneo não é válido."]);
     }
 
