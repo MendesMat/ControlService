@@ -15,6 +15,9 @@ internal sealed class InMemoryUserRepository : IUserRepository
     public Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken) =>
         Task.FromResult(_users.Find(user => user.Login.Value == login.Value));
 
+    public Task<User?> GetByNormalizedDisplayNameAsync(string normalizedDisplayName, CancellationToken cancellationToken) =>
+        Task.FromResult(_users.Find(user => user.NormalizedDisplayName == normalizedDisplayName));
+
     public Task<IReadOnlyList<string>> ListLoginsStartingWithAsync(string prefix, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<string>>(
             _users.Select(user => user.Login.Value).Where(login => login.StartsWith(prefix, StringComparison.Ordinal)).ToArray());

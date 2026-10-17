@@ -3,6 +3,7 @@ using ControlService.API.Common;
 using ControlService.Application.Common;
 using ControlService.Application.Users;
 using ControlService.Application.Users.CreateUser;
+using ControlService.Application.Users.GetUser;
 using ControlService.Application.Users.SuggestLogin;
 using ControlService.Domain.Access;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -12,9 +13,14 @@ namespace ControlService.API.Users;
 public static class UsersEndpoints
 {
     private const string UsersRoute = "/users";
+    private const string UserRoute = "/users/{id:guid}";
 
     public static RouteGroupBuilder MapUsersEndpoints(this RouteGroupBuilder api)
     {
+        api.MapGet(UserRoute, GetUser)
+            .RequireScreenAccess(ScreenKeys.Users, AccessLevel.Reader)
+            .WithSummary("One user with the names of who acted; the version is in the body and in the ETag.");
+
         api.MapPost($"{UsersRoute}/login-suggestion", SuggestLogin)
             .RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor)
             .WithSummary("Suggests a login from a full name; the name travels in the body, never in the URL.");
@@ -33,6 +39,22 @@ public static class UsersEndpoints
     {
         var result = await handler.Handle(new SuggestLoginQuery(request.FullName ?? string.Empty), cancellationToken);
         return result.IsFailure ? result.Error.ToProblem() : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<UserResponse>, ProblemHttpResult>> GetUser(
+        Guid id,
+        IQueryHandler<GetUserQuery, UserResponse> handler,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(new GetUserQuery(id), cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.Error.ToProblem();
+        }
+
+        httpContext.Response.WriteETag(result.Value.Version);
+        return TypedResults.Ok(result.Value);
     }
 
     private static async Task<Results<Created<UserResponse>, ProblemHttpResult>> CreateUser(
