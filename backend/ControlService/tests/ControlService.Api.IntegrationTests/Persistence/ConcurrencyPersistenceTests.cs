@@ -35,7 +35,7 @@ public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) :
         var fabioB = await dbB.Users.SingleAsync(u => u.Id == fabio.Id, TestContext.Current.CancellationToken);
 
         factory.CurrentUser.UserId = brunoId;
-        fabioA.Activate(DateTimeOffset.UtcNow);
+        fabioA.Deactivate(brunoId, DateTimeOffset.UtcNow);
         await dbA.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         factory.CurrentUser.UserId = SystemIds.AdminUser;
@@ -76,7 +76,7 @@ public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) :
             var gustavoB = await dbB.Users.SingleAsync(u => u.Id == gustavo.Id, TestContext.Current.CancellationToken);
 
             factory.CurrentUser.UserId = brunoId;
-            gustavoA.Activate(DateTimeOffset.UtcNow);
+            gustavoA.Deactivate(brunoId, DateTimeOffset.UtcNow);
             await dbA.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             factory.CurrentUser.UserId = SystemIds.AdminUser;
@@ -89,9 +89,8 @@ public sealed class ConcurrencyPersistenceTests(PersistenceApiFactory factory) :
         var verifyDb = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
         var saved = await verifyDb.Users.SingleAsync(u => u.Id == gustavo.Id, TestContext.Current.CancellationToken);
 
-        saved.Status.ShouldBe(UserStatus.Active);
-        saved.DeactivatedAt.ShouldBeNull();
-        saved.DeactivatedBy.ShouldBeNull();
+        saved.Status.ShouldBe(UserStatus.Inactive);
+        saved.DeactivatedBy.ShouldBe(brunoId);
         saved.UpdatedBy.ShouldBe(brunoId);
     }
 

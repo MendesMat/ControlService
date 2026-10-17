@@ -15,7 +15,6 @@ public sealed class CheckAccountHandler(IUserRepository users) : IQueryHandler<C
             return Result<Unit>.Failure(AuthErrors.SessionExpired);
         }
 
-        // `Pending` is still in the code (decision 21) and counts as not active, as in RefreshSessionHandler.
         if (user.Status != UserStatus.Active)
         {
             return Result<Unit>.Failure(AuthErrors.AccountInactive);

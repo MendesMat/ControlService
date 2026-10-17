@@ -36,7 +36,7 @@ public sealed class UserPersistenceTests(PersistenceApiFactory factory) : IClass
             saved.DisplayName.ShouldBe("Ana Souza");
             saved.NormalizedDisplayName.ShouldBe("ana souza");
             saved.FullName.ShouldBe("Ana Paula Souza");
-            saved.Status.ShouldBe(UserStatus.Pending);
+            saved.Status.ShouldBe(UserStatus.Active);
             saved.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
         }
     }

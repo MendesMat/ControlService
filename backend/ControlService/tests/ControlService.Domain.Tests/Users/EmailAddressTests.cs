@@ -13,13 +13,14 @@ public class EmailAddressTests
         result.Value.Value.ShouldBe("ana@empresa.com.br");
     }
 
+    // #11-T02
     [Fact]
-    public void EmailAddress_left_blank_is_rejected() // previous plan, see decision 21: the e-mail became optional (USR-07)
+    public void EmailAddress_left_blank_means_no_email() // USR-07
     {
         var result = EmailAddress.Create("");
 
-        result.IsFailure.ShouldBeTrue();
-        result.Error.Message.ShouldBe("Informe o e-mail. É para ele que o link de ativação será enviado.");
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.Value.ShouldBe(string.Empty);
     }
 
     [Theory]

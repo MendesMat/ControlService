@@ -17,7 +17,7 @@ public class UserTests
         user.Email.Value.ShouldBe("ana.souza@example.com");
         user.DisplayName.ShouldBe("Ana Souza");
         user.FullName.ShouldBe("Ana Paula Souza");
-        user.Status.ShouldBe(UserStatus.Pending);
+        user.Status.ShouldBe(UserStatus.Active);
     }
 
     [Fact]
@@ -43,12 +43,13 @@ public class UserTests
         user.NormalizedDisplayName.ShouldBe("ana souza");
     }
 
+    // #11-T01
     [Fact]
-    public void New_user_is_pending() // previous plan, see decision 21 (was AUTH-02)
+    public void New_user_is_active() // AUTH-02
     {
         var user = TestData.NewUser();
 
-        user.Status.ShouldBe(UserStatus.Pending);
+        user.Status.ShouldBe(UserStatus.Active);
     }
 
     [Fact]
@@ -62,50 +63,9 @@ public class UserTests
     }
 
     [Fact]
-    public void Activating_a_pending_user_makes_it_active_with_the_activation_date() // previous plan, see decision 21 (was AUTH-02)
-    {
-        var user = TestData.NewUser();
-        var now = new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero);
-
-        var result = user.Activate(now);
-
-        result.IsSuccess.ShouldBeTrue();
-        user.Status.ShouldBe(UserStatus.Active);
-        user.ActivatedAt.ShouldBe(now);
-    }
-
-    [Fact]
-    public void Activating_an_active_user_is_refused_as_invalid_link() // previous plan, see decision 21 (was AUTH-23)
-    {
-        var user = TestData.NewUser();
-        user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
-
-        var result = user.Activate(new DateTimeOffset(2026, 9, 13, 8, 0, 0, TimeSpan.Zero));
-
-        result.IsFailure.ShouldBeTrue();
-        result.Error.Code.ShouldBe("link_invalid");
-        result.Error.Message.ShouldBe(
-            "Este link não vale mais. Peça a quem cadastrou você para reenviar o acesso.");
-    }
-
-    [Fact]
-    public void Activating_an_inactive_user_is_refused_as_invalid_link() // previous plan, see decision 21 (was AUTH-23)
-    {
-        var user = TestData.NewUser();
-        user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
-
-        var result = user.Activate(new DateTimeOffset(2026, 9, 21, 9, 0, 0, TimeSpan.Zero));
-
-        result.IsFailure.ShouldBeTrue();
-        result.Error.Code.ShouldBe("link_invalid");
-        user.Status.ShouldBe(UserStatus.Inactive);
-    }
-
-    [Fact]
     public void Deactivating_an_active_user_records_status_date_and_author() // USR-16, USR-17
     {
         var user = TestData.NewUser();
-        user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
         var deactivatedBy = Guid.CreateVersion7();
         var deactivatedAt = new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero);
 
@@ -115,17 +75,6 @@ public class UserTests
         user.Status.ShouldBe(UserStatus.Inactive);
         user.DeactivatedAt.ShouldBe(deactivatedAt);
         user.DeactivatedBy.ShouldBe(deactivatedBy);
-    }
-
-    [Fact]
-    public void Deactivating_a_pending_user_makes_it_inactive() // USR-17
-    {
-        var user = TestData.NewUser();
-
-        var result = user.Deactivate(Guid.CreateVersion7(), DateTimeOffset.UtcNow);
-
-        result.IsSuccess.ShouldBeTrue();
-        user.Status.ShouldBe(UserStatus.Inactive);
     }
 
     [Fact]
@@ -153,32 +102,19 @@ public class UserTests
         result.IsFailure.ShouldBeTrue();
         result.Error.Code.ShouldBe("self_deactivation");
         result.Error.Message.ShouldBe("Você não pode desativar o seu próprio acesso.");
-        user.Status.ShouldBe(UserStatus.Pending);
+        user.Status.ShouldBe(UserStatus.Active);
     }
 
     [Fact]
-    public void Reactivating_a_user_who_had_a_password_makes_it_active() // USR-18
+    public void Reactivating_an_inactive_user_makes_it_active() // USR-18
     {
         var user = TestData.NewUser();
-        user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
         user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
 
         var result = user.Reactivate();
 
         result.IsSuccess.ShouldBeTrue();
         user.Status.ShouldBe(UserStatus.Active);
-    }
-
-    [Fact]
-    public void Reactivating_a_user_who_never_had_a_password_makes_it_pending() // previous plan, see decision 21 (USR-18 no longer has this case)
-    {
-        var user = TestData.NewUser();
-        user.Deactivate(Guid.CreateVersion7(), new DateTimeOffset(2026, 9, 20, 17, 41, 2, TimeSpan.Zero));
-
-        var result = user.Reactivate();
-
-        result.IsSuccess.ShouldBeTrue();
-        user.Status.ShouldBe(UserStatus.Pending);
     }
 
     [Fact]
@@ -193,16 +129,10 @@ public class UserTests
         user.DeactivatedBy.ShouldBeNull();
     }
 
-    [Theory]
-    [InlineData(false)] // pending
-    [InlineData(true)] // active
-    public void Reactivating_a_user_who_is_not_inactive_is_refused(bool activateFirst) // USR-18, USR-29
+    [Fact]
+    public void Reactivating_a_user_who_is_not_inactive_is_refused() // USR-18, USR-29
     {
         var user = TestData.NewUser();
-        if (activateFirst)
-        {
-            user.Activate(new DateTimeOffset(2026, 9, 12, 13, 5, 44, TimeSpan.Zero));
-        }
 
         var result = user.Reactivate();
 
@@ -248,7 +178,6 @@ public class UserTests
         admin.Status.ShouldBe(UserStatus.Active);
         admin.IsSystem.ShouldBeTrue();
         admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
-        admin.ActivatedAt.ShouldBeNull();
     }
 
     [Fact]
@@ -277,27 +206,4 @@ public class UserTests
         admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
     }
 
-    [Fact]
-    public void Completing_the_first_access_fills_activated_at() // previous plan, see decision 21 (was USR-34)
-    {
-        var admin = TestData.NewAdmin();
-        var now = new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero);
-
-        admin.CompleteFirstAccess(now);
-
-        admin.ActivatedAt.ShouldBe(now);
-        admin.Status.ShouldBe(UserStatus.Active);
-    }
-
-    [Fact]
-    public void Completing_the_first_access_again_keeps_the_first_time() // previous plan, see decision 21 (was USR-34)
-    {
-        var admin = TestData.NewAdmin();
-        var first = new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero);
-        admin.CompleteFirstAccess(first);
-
-        admin.CompleteFirstAccess(first.AddHours(1));
-
-        admin.ActivatedAt.ShouldBe(first);
-    }
 }
