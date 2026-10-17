@@ -699,7 +699,7 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 5. **Alternativas mais simples.** Deixar os avisos como avisos. Configurar cada projeto.
 6. **Por que escolhemos assim.** Um aviso que não quebra o build acaba ignorado.
 
-**O CI confere a formatação.** O trabalho **Build and test** roda `dotnet format ControlService.slnx --verify-no-changes --no-restore` antes de compilar: o comando confere sem alterar, e um arquivo fora do padrão reprova o pull request. O `check.ps1` continua corrigindo a formatação na máquina de quem desenvolve.
+**O CI confere a formatação.** O trabalho **Build and test** roda `dotnet format ControlService.slnx --verify-no-changes --no-restore` antes de compilar: o comando confere sem alterar, e um arquivo fora do padrão reprova o pull request. O `check.ps1` continua corrigindo a formatação na máquina de quem desenvolve e, em seguida, roda a mesma conferência do CI: algumas regras não têm correção automática (um nome fora da regra de nomes, IDE1006, por exemplo), e só a conferência as acusa.
 
 - **Onde ver no código:** [Directory.Build.props](../backend/ControlService/Directory.Build.props), [.editorconfig](../backend/ControlService/.editorconfig), [check.ps1](../backend/ControlService/check.ps1).
 - **Em uma frase:** as regras de qualidade ficam num arquivo só, valem para todos os projetos, e um aviso quebra o build.

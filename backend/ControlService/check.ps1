@@ -18,6 +18,10 @@ Write-Output '== format'
 # Fixes instead of verifying: files written by agents come out with LF, and .editorconfig requires CRLF.
 dotnet format ControlService.slnx
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+# Then verifies like CI: some rules have no automatic fix (IDE1006, a name outside the naming rule), and the
+# command above does not fail on them.
+dotnet format ControlService.slnx --verify-no-changes --no-restore
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Output '== build'
 dotnet build ControlService.slnx -v q -clp:Summary -nologo
