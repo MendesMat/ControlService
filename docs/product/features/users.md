@@ -6,7 +6,7 @@ Registering people, keeping their data, deactivating and reactivating them. Sign
 - **Decisions:** in the [decisions document](../../decisoes-de-arquitetura.md): 3 (value objects), 12 (ids), 15 (deactivation), 16 (Admin), 17 (paging), 21 (temporary password).
 - **Read with:** [conventions](../conventions.md), [API conventions](../../api/conventions.md), [glossary](../glossary.md).
 
-**Not built yet.** These rules are the decided behavior. The code still has the `pending` status, the `activatedAt` field and a required e-mail, left over from the plan with activation links; they change with the users endpoints (issue #11).
+**Not built yet.** The record, the registration (`createUser`), the single-record read (`getUser`) and `suggestLogin` are built (issue #11). Still to come: the list (#59), changing the record (#60), deactivating and reactivating (#61, which also ends the person's sessions, AUTH-21) and resetting the password (#62). The `signature` field is not part of the record yet (USR-36): the API neither accepts nor returns it until a screen needs it on a document.
 
 ## Data model
 
@@ -38,7 +38,7 @@ Passwords and the lockout counter are not part of the record (AUTH-19). Whether 
 | `phone` | text | no | 10 digits (landline) or 11 (mobile), with area code, no formatting: `21987654321` |
 | `address` | object | yes | Always present, even with every field empty |
 | `emergencyContact` | object | yes | Always present, even with every field empty |
-| `signature` | text | no | Signature image (see [signature](#signature)) |
+| `signature` | text | no | Signature image (see [signature](#signature)). **Not in the API contract yet** |
 | `profileIds` | list of text | yes | Ids of the person's permission profiles. May be empty (USR-13, USR-21) |
 
 `address` (all optional): `cep` (8 digits, `20040020`), `street`, `number` (text, to accept "S/N" or "120A"), `complement` (e.g. "apto 101"), `district`, `city`. The state (UF) is not part of the record.
@@ -103,11 +103,12 @@ Messages are verbatim, in Portuguese (CNV-16). The error path of each field is t
 | USR-06 | `login` | Unique among **all** users, including the Admin and deactivated users, ignoring case. | Já existe um usuário com o login “*{login}*”. Escolha outro. |
 | USR-07 | `email` | Optional. When filled in, it must be in a valid e-mail format. **Not unique.** | Este e-mail não parece válido. Confira se ele tem @ e o domínio, por exemplo ana@empresa.com.br. |
 | USR-08 | `cpf` | Optional. When filled in, it must pass the [check digits](#cpf-check-digits); CPFs with all digits equal, such as `111.111.111-11`, are refused. **Not unique.** | Este CPF não é válido. Confira os números ou deixe o campo em branco. |
-| USR-09 | `birthDate` | When filled in, it cannot be after today. | A data de nascimento não pode ser no futuro. |
+| USR-09 | `birthDate` | When filled in, it cannot be after today. "Today" is the date in Brasília (`America/Sao_Paulo`, CNV-11), not the server's or UTC's. | A data de nascimento não pode ser no futuro. |
 | USR-10 | `phone` | When filled in, 10 or 11 digits. | Digite o telefone com DDD. Ex.: (21) 98765-4321. |
 | USR-11 | `address.cep` | When filled in, 8 digits. | O CEP precisa ter 8 números. |
 | USR-12 | `emergencyContact.phone` | Same rule as USR-10. | Digite o telefone com DDD. Ex.: (21) 98765-4321. |
 | USR-13 | `profileIds` | May be empty. Ids of profiles that do not exist are discarded on save. | — |
+| USR-37 | `birthDate` | When filled in, it must be in the format `YYYY-MM-DD` and be a date that exists. | Esta data de nascimento não é válida. |
 | USR-35 | `temporaryPassword` | Only when registering a new user: required, with the minimum length of AUTH-16. It is never returned and is not part of the record (AUTH-19). | Missing: Informe a senha temporária. — Too short: A senha precisa ter pelo menos 8 caracteres. |
 | USR-26 | `bloodType` | When filled in, must be one of the closed list `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`, `O+`, `O-`. | Este tipo sanguíneo não é válido. |
 
@@ -198,12 +199,14 @@ Minimum levels follow [permission profiles](permission-profiles.md#what-each-lev
 |---|---|---|---|
 | `listUsers({ page, pageSize, search, status })` | `GET /api/v1/users` | Reader | Paged, see below |
 | `getUser(id)` | `GET /api/v1/users/{id}` | Reader | |
-| `suggestLogin(fullName)` | `POST /api/v1/users/login-suggestion` | Editor | Full name in the body, never in the URL (personal data) |
-| `createUser(data)` | `POST /api/v1/users` | Editor | `data` includes `temporaryPassword` (USR-35). Returns the created user |
+| `suggestLogin(fullName)` | `POST /api/v1/users/login-suggestion` | Editor | Full name in the body, never in the URL (personal data). Answers 200 `{ "login": "ana.souza" }`, or `{ "login": "" }` when there is no suggestion (USR-15) |
+| `createUser(data)` | `POST /api/v1/users` | Editor | `data` includes `temporaryPassword` (USR-35). Answers 201 with the created user, `Location` and `ETag`; the password never comes back (AUTH-19) |
 | `updateUser(id, data, version)` | `PUT /api/v1/users/{id}` | Editor | Version in `If-Match` |
 | `resetUserPassword(id, temporaryPassword)` | `POST /api/v1/users/{id}/reset-password` | Manager | AUTH-29. Answers 204; the password is not part of the record, so no version is sent |
 | `deactivateUser(id, version)` | `POST /api/v1/users/{id}/deactivate` | Manager | |
 | `reactivateUser(id, version)` | `POST /api/v1/users/{id}/reactivate` | Manager | |
+
+**Sending a record.** A field that is missing or `null` counts as empty; `address` or `emergencyContact` missing count as having every field empty. `id`, `status`, `isSystem`, the deactivation fields and the audit fields are ignored if sent: the server decides them. CPF, phones and CEP are accepted with or without a mask and stored as digits (CNV-07). The credential is saved in the same transaction as the user, so nobody is registered without a password.
 
 **Listing.** `status` accepts `active` (the default), `inactive` or `all`. `search` looks in the display name, full name, login and CPF digits, ignoring accents and case. The response is `{ items, page, pageSize, totalCount }`, and each item has `profileNames` for the Perfis column. The prototype shows 10 users per page.
 
