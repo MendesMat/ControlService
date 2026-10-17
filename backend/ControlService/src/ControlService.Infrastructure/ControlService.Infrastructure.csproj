@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="FluentValidation" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <!-- ASP.NET Core Identity: password hashing and lockout, without SignInManager. -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
