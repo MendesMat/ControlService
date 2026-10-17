@@ -8,9 +8,7 @@ public sealed class ChangePasswordHandler(
     IUserRepository users,
     ICredentialStore credentials,
     ISessionStore sessions,
-    IAccessTokenIssuer accessTokens,
-    IUnitOfWork unitOfWork,
-    TimeProvider timeProvider) : ICommandHandler<ChangePasswordCommand, SessionGrant>
+    IAccessTokenIssuer accessTokens) : ICommandHandler<ChangePasswordCommand, SessionGrant>
 {
     public async Task<Result<SessionGrant>> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
     {
@@ -28,15 +26,6 @@ public sealed class ChangePasswordHandler(
         if (await credentials.IsCurrentPasswordAsync(command.UserId, command.Password, cancellationToken))
         {
             return Result<SessionGrant>.Failure(AuthErrors.NewPasswordEqualsInitial);
-        }
-
-        // Previous plan, still in the code (decision 21): the account with a mandatory change is the Admin.
-        // The user is saved before the password changes: a retry after a failure repeats harmlessly.
-        user.CompleteFirstAccess(timeProvider.GetUtcNow());
-        var saved = await unitOfWork.SaveChangesAsync(cancellationToken);
-        if (saved.IsFailure)
-        {
-            return Result<SessionGrant>.Failure(saved.Error);
         }
 
         await credentials.ReplacePasswordAsync(command.UserId, command.Password, cancellationToken);

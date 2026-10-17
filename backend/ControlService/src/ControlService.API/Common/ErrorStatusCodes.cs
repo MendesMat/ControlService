@@ -19,10 +19,7 @@ internal static class ErrorStatusCodes
         ["profile_in_use"] = StatusCodes.Status409Conflict,
         ["system_record"] = StatusCodes.Status409Conflict,
         ["self_deactivation"] = StatusCodes.Status409Conflict,
-        ["not_pending"] = StatusCodes.Status409Conflict,
         ["not_inactive"] = StatusCodes.Status409Conflict,
-        ["email_missing"] = StatusCodes.Status409Conflict,
-        ["link_invalid"] = StatusCodes.Status410Gone,
         ["locked_out"] = StatusCodes.Status429TooManyRequests,
         ["unexpected_error"] = StatusCodes.Status500InternalServerError,
     };

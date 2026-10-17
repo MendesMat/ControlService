@@ -6,7 +6,7 @@ Signing in, temporary passwords, lockout and sessions. The account data itself (
 - **Decisions:** in the [decisions document](../../decisoes-de-arquitetura.md): 16 (system records), 18 (Identity), 19 (access token), 20 (sessions), 21 (temporary password and the Admin demo account), 22 (lockout and rate limiting).
 - **Read with:** [conventions](../conventions.md), [API conventions](../../api/conventions.md).
 
-**Not built yet.** These rules are the decided behavior. Until the users endpoints are delivered (issue #11), the code still follows the previous plan: only the Admin has a mandatory password change, its initial password comes from the configuration, and registered users have no password. Decision 21 lists what is left over.
+**Not built yet.** A user registered through `createUser` is created active with a temporary password and the mandatory change (AUTH-02, AUTH-14); that is built (issue #11). Still to come: resetting a password (AUTH-29, #62), and the Admin as the demo account with the messages that still say "senha inicial" and "Esqueci minha senha" (AUTH-13 to AUTH-15, AUTH-24, AUTH-25, #63). Until then, the Admin keeps its mandatory password change, and its initial password comes from the configuration. Decision 21 lists what is left over.
 
 Access by e-mail (activation links, "Esqueci minha senha") is postponed until the product cycle is closed; the rules that described it are retired below.
 

@@ -1,4 +1,5 @@
 using ControlService.Application.Auth;
+using ControlService.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 
 namespace ControlService.Infrastructure.Auth;
@@ -6,8 +7,13 @@ namespace ControlService.Infrastructure.Auth;
 /// <summary>Passwords, lockout and the mandatory-change flag on top of Identity's UserManager, without
 /// SignInManager. Lockout is checked before the password, and an attempt made while locked out is
 /// not counted.</summary>
-public sealed class CredentialStore(UserManager<UserCredential> users) : ICredentialStore
+public sealed class CredentialStore(UserManager<UserCredential> users, AppDbContext dbContext) : ICredentialStore
 {
+    // Not UserManager.CreateAsync: it saves by itself, and the credential has to be saved with the user (AUTH-02).
+    public void AddWithTemporaryPassword(Guid userId, string temporaryPassword) =>
+        dbContext.Set<UserCredential>().Add(
+            UserCredential.CreateWithTemporaryPassword(userId, temporaryPassword, users.PasswordHasher));
+
     public async Task<CredentialCheck> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken)
     {
         var credential = await FindAsync(userId);

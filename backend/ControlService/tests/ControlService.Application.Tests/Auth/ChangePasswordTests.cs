@@ -122,20 +122,6 @@ public class ChangePasswordTests
     }
 
     [Fact]
-    public async Task Changing_the_initial_password_fills_the_admin_activation_time() // previous plan, see decision 21 (was USR-34)
-    {
-        var bed = new AuthTestBed();
-        var admin = bed.AddAdminWithInitialPassword("senha-inicial");
-
-        var result = await bed.CreateChangePasswordHandler()
-            .Handle(new ChangePasswordCommand(admin.Id, "nova-senha-1", "nova-senha-1"), TestContext.Current.CancellationToken);
-
-        result.IsSuccess.ShouldBeTrue();
-        admin.ActivatedAt.ShouldBe(bed.Clock.GetUtcNow());
-        bed.UnitOfWork.SaveCount.ShouldBe(1);
-    }
-
-    [Fact]
     public async Task Change_password_of_a_user_that_no_longer_exists_is_refused_as_session_expired() // AUTH-17
     {
         var bed = new AuthTestBed();
@@ -147,19 +133,4 @@ public class ChangePasswordTests
         result.Error.ShouldBe(AuthErrors.SessionExpired);
     }
 
-    [Fact]
-    public async Task Change_password_stops_when_the_user_cannot_be_saved()
-    {
-        var bed = new AuthTestBed();
-        var admin = bed.AddAdminWithInitialPassword("senha-inicial");
-        var conflict = new Error("concurrency_conflict", "Este cadastro foi alterado.");
-        bed.UnitOfWork.FailWith = conflict;
-
-        var result = await bed.CreateChangePasswordHandler()
-            .Handle(new ChangePasswordCommand(admin.Id, "nova-senha-1", "nova-senha-1"), TestContext.Current.CancellationToken);
-
-        result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(conflict);
-        (await bed.Credentials.IsCurrentPasswordAsync(admin.Id, "senha-inicial", TestContext.Current.CancellationToken)).ShouldBeTrue();
-    }
 }

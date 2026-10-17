@@ -6,11 +6,23 @@ namespace ControlService.Infrastructure.Persistence;
 
 public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
 {
+    public void Add(User user) => dbContext.Users.Add(user);
+
     public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         dbContext.Users.SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
 
     public Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken) =>
         dbContext.Users.SingleOrDefaultAsync(user => user.Login == login, cancellationToken);
+
+    public Task<User?> GetByNormalizedDisplayNameAsync(string normalizedDisplayName, CancellationToken cancellationToken) =>
+        dbContext.Users.AsNoTracking().SingleOrDefaultAsync(user => user.NormalizedDisplayName == normalizedDisplayName, cancellationToken);
+
+    // Raw SQL because the login is a value object stored through a converter, which EF cannot search by prefix.
+    // `starts_with` takes the prefix literally, so "_" in a login is not read as a wildcard, as it would be in LIKE.
+    public async Task<IReadOnlyList<string>> ListLoginsStartingWithAsync(string prefix, CancellationToken cancellationToken) =>
+        await dbContext.Database
+            .SqlQuery<string>($"SELECT login AS \"Value\" FROM users WHERE starts_with(login, {prefix})")
+            .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyDictionary<Guid, string>> GetDisplayNamesAsync(
         IEnumerable<Guid> ids, CancellationToken cancellationToken)

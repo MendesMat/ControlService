@@ -1,4 +1,5 @@
 using ControlService.Application.Common;
+using ControlService.Domain.Common;
 using ControlService.Domain.PermissionProfiles;
 using ControlService.Domain.Users;
 using ControlService.Infrastructure.Persistence;
@@ -40,7 +41,7 @@ public sealed class UnitOfWorkPersistenceTests(PersistenceApiFactory factory) : 
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         var firstVersion = user.Version;
 
-        user.Activate(DateTimeOffset.UtcNow);
+        user.Deactivate(SystemIds.AdminUser, DateTimeOffset.UtcNow);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         user.Version.ShouldNotBe(firstVersion);

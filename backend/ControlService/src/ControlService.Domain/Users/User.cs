@@ -33,18 +33,23 @@ public sealed class User : AuditedAggregate
 
     public string FullName { get; }
 
+    // Not a constructor parameter: EF Core cannot bind a complex property to one.
+    public PersonalData PersonalData { get; private set; } = PersonalData.Empty;
+
     public IReadOnlyCollection<Guid> ProfileIds => _profileAssignments.Select(assignment => assignment.ProfileId).ToArray();
 
     public UserStatus Status { get; private set; }
-
-    public DateTimeOffset? ActivatedAt { get; private set; }
 
     public DateTimeOffset? DeactivatedAt { get; private set; }
 
     public Guid? DeactivatedBy { get; private set; }
 
-    public static User Create(Login login, EmailAddress email, string displayName, string fullName) =>
-        new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending, login, email, displayName, fullName);
+    public static User Create(
+        Login login, EmailAddress email, string displayName, string fullName, PersonalData? personalData = null) =>
+        new(Guid.CreateVersion7(), isSystem: false, UserStatus.Active, login, email, displayName, fullName)
+        {
+            PersonalData = personalData ?? PersonalData.Empty,
+        };
 
     public static User CreateAdmin(EmailAddress email)
     {
@@ -53,24 +58,6 @@ public sealed class User : AuditedAggregate
         admin.ReplaceProfiles([SystemIds.ManagerProfile]);
         return admin;
     }
-
-    public Result Activate(DateTimeOffset now)
-    {
-        if (Status != UserStatus.Pending)
-        {
-            return Result.Failure(new Error(
-                "link_invalid",
-                "Este link não vale mais. Peça a quem cadastrou você para reenviar o acesso."));
-        }
-
-        Status = UserStatus.Active;
-        ActivatedAt = now;
-        return Result.Success();
-    }
-
-    /// <summary>Previous plan, still in the code (decision 21): the Admin replacing its initial password
-    /// fills its activation time. It is not an edit of the record, so the system-record guard does not apply.</summary>
-    public void CompleteFirstAccess(DateTimeOffset now) => ActivatedAt ??= now;
 
     public Result Deactivate(Guid by, DateTimeOffset now)
     {
@@ -119,7 +106,7 @@ public sealed class User : AuditedAggregate
                 "Só é possível reativar um acesso desativado."));
         }
 
-        Status = ActivatedAt.HasValue ? UserStatus.Active : UserStatus.Pending;
+        Status = UserStatus.Active;
         DeactivatedAt = null;
         DeactivatedBy = null;
         return Result.Success();

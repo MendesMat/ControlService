@@ -25,11 +25,11 @@ Domain  ◄──  Application  ◄──  Infrastructure
 Inside every project, group code by feature, never by technical type:
 
 ```
-Domain/Users/                    User.cs, Login.cs, Cpf.cs, UserStatus.cs
+Domain/Users/                    User.cs, PersonalData.cs, Login.cs, Cpf.cs, UserStatus.cs
 Domain/PermissionProfiles/       PermissionProfile.cs, ScreenLevel.cs
 Domain/Access/                   AccessLevel.cs, ScreenKeys.cs, EffectiveAccess.cs
 Application/Users/CreateUser/    CreateUserCommand.cs, CreateUserHandler.cs, CreateUserValidator.cs
-API/Users/                       UsersEndpoints.cs  (MapUserEndpoints)
+API/Users/                       UsersEndpoints.cs  (MapUsersEndpoints), AddUsersFeature
 Infrastructure/Persistence/      AppDbContext.cs, Configurations/UserConfiguration.cs
 ```
 
@@ -64,7 +64,8 @@ Current features: `Access`, `Auth`, `Users`, `PermissionProfiles`, `Screens`. Sh
 - Every endpoint declares its permission: `.RequireScreenAccess(ScreenKeys.Users, AccessLevel.Editor)`, with the minimum level from the feature document's *Operations* table (PERM-03). The exception of PERM-04 passes a second screen: `.RequireScreenAccess(ScreenKeys.PermissionProfiles, AccessLevel.Reader, ScreenKeys.Users)`. An endpoint that needs only a signed-in person (`me`, sign-out, change-password and `GET /screens`) goes on the list of `EndpointDeclarationTests`, which fails the build for any `/api/v1` route that is neither declared, anonymous nor on that list (API-11).
 - Routes, status codes and error codes must match the feature document and `docs/api/conventions.md` exactly: the front-end depends on them.
 - The version of a record travels in the `ETag` header (`WriteETag`, between quotes) and comes back in `If-Match` (`ReadIfMatch`, `API/Common/VersionHeaders.cs`); a missing or unreadable header reads as version 0, which no row has, so it is refused as a conflict. A `201` also carries `Location`, built from `ApiV1Group.Prefix`.
-- `GET /screens` (`API/Screens`) has no handler: the catalog is a fixed list in `Domain/Access/ScreenCatalog.cs`, returned as is. The permission profile operations (`API/PermissionProfiles`) follow the pattern of authentication: one folder per use case in `Application/PermissionProfiles`, the registration in `AddPermissionProfilesFeature`, called from `Program.cs`.
+- `GET /screens` (`API/Screens`) has no handler: the catalog is a fixed list in `Domain/Access/ScreenCatalog.cs`, returned as is. The permission profile operations (`API/PermissionProfiles`) and the user operations (`API/Users`) follow the pattern of authentication: one folder per use case in `Application/PermissionProfiles` and `Application/Users`, the registration in `AddPermissionProfilesFeature` and `AddUsersFeature`, called from `Program.cs`.
+- **Users.** The optional personal data (`PersonalData`, with `Address` and `EmergencyContact`) is one complex property of `User`, stored as columns of the `users` table. A blank optional value is `null` in the domain and in the database and `""` in the response (CNV-03). Registering a user adds the user and its credential to the same save: `ICredentialStore.AddWithTemporaryPassword` adds the credential to the context without saving, and the unit of work stores both (AUTH-02, decision 21). `CreateUserValidator` checks the typed values (formats go through the value objects, so each message exists once); the rules that need the database (USR-03, USR-06) are in the handler. "Today" for USR-09 is the date in Brasília (`BrasiliaTime`).
 
 ## Persistence (decisions 10 to 14)
 
@@ -86,5 +87,5 @@ Current features: `Access`, `Auth`, `Users`, `PermissionProfiles`, `Screens`. Sh
 - **`MapApiV1()`** (`API/Common/ApiV1Group.cs`) builds the `/api/v1` group for `Program.cs` and the test factories: it requires authorization and adds two filters, **in this order, which is the order of the refusals (AUTH-30)**: `AccountCheckFilter` and `PasswordChangeRequiredFilter`. `AccountCheckFilter` asks `CheckAccountHandler` on every request whether the account exists and is active (401 `session_expired` or `account_inactive`), skipping the endpoints marked `AllowAnonymous`. `PasswordChangeRequiredFilter` answers 401 `password_change_required` while the token carries `must_change_password`. Endpoints opt out with `.AllowAnonymous()` (sign-in, refresh) or `.AllowPendingPasswordChange()` (`me`, sign-out, change-password); the account check still covers the second group.
 - **`RequireScreenAccess`** (`API/Auth/ScreenAccessFilter.cs`) puts a `ScreenAccessMetadata` on the endpoint and adds `ScreenAccessFilter`, a per-endpoint filter that runs after the group's. It asks `CheckScreenAccessHandler` (user and profiles read from the database, `EffectiveAccess` from the domain) and answers 403 `forbidden` with the message of PERM-26. Both handlers live in `Application/Auth` and follow `GetMeHandler`; the filters only translate the `Result` with `ToProblem()`. There is no cache: a change to a profile counts from the next request (PERM-13).
 - **Rate limiting** (`API/Auth/AuthRateLimiting`): a sliding window of 60 seconds in 6 segments per client address on sign-in and refresh; a refused request answers 429 `locked_out` with `Retry-After`.
-- **Not yet covered:** revoking sessions on deactivation (AUTH-21, #11). Not planned for now: a permission cache, activation and reset links by e-mail, and a global rate limit (decisions 21, 22 and 24).
+- **Not yet covered:** revoking sessions on deactivation (AUTH-21, #61). Not planned for now: a permission cache, activation and reset links by e-mail, and a global rate limit (decisions 21, 22 and 24).
 

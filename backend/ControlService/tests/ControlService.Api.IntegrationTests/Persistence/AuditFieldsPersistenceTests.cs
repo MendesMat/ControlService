@@ -64,7 +64,7 @@ public sealed class AuditFieldsPersistenceTests(PersistenceApiFactory factory) :
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var tracked = await db.Users.SingleAsync(u => u.Id == carla.Id, TestContext.Current.CancellationToken);
-            tracked.Activate(updatedAt);
+            tracked.Deactivate(SystemIds.AdminUser, updatedAt);
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 

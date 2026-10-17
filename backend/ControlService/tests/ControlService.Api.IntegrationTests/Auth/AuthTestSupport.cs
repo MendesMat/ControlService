@@ -25,8 +25,8 @@ internal static class AuthTestSupport
         await db.Set<UserCredential>().Where(credential => credential.Id == SystemIds.AdminUser).ExecuteDeleteAsync();
     }
 
-    /// <summary>Puts the Admin back as the seeder creates it: initial password, mandatory change, no lockout,
-    /// no sessions and no activation time. The Admin is one row shared by the whole assembly.</summary>
+    /// <summary>Puts the Admin back as the seeder creates it: initial password, mandatory change, no lockout
+    /// and no sessions. The Admin is one row shared by the whole assembly.</summary>
     public static async Task ResetAdminAsync(IServiceProvider services)
     {
         await using var scope = services.CreateAsyncScope();
@@ -40,8 +40,6 @@ internal static class AuthTestSupport
             .SetProperty(candidate => candidate.MustChangePassword, true)
             .SetProperty(candidate => candidate.AccessFailedCount, 0)
             .SetProperty(candidate => candidate.LockoutEnd, (DateTimeOffset?)null));
-        await db.Users.Where(user => user.Id == SystemIds.AdminUser)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.ActivatedAt, (DateTimeOffset?)null));
     }
 
     /// <summary>Marks the user's password as temporary, so the next sign-in carries `must_change_password`.</summary>
@@ -88,24 +86,25 @@ internal static class AuthTestSupport
 
     /// <summary>An active user with a credential, under a login no other test uses, so a test never
     /// collides with the unique indexes of another.</summary>
-    public static async Task<TestUser> CreateUserAsync(IServiceProvider services, string password = UserPassword)
+    public static async Task<TestUser> CreateUserAsync(
+        IServiceProvider services, string password = UserPassword, string? login = null, string? displayName = null)
     {
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var credentials = scope.ServiceProvider.GetRequiredService<UserManager<UserCredential>>();
 
         var suffix = Guid.NewGuid().ToString("N")[..12];
-        var login = $"user{suffix}";
+        login ??= $"user{suffix}";
+        displayName ??= $"Pessoa {suffix}";
         var user = User.Create(
-            Login.Create(login).Value, EmailAddress.Create($"{login}@example.com").Value, $"Pessoa {suffix}", $"Pessoa de Teste {suffix}");
-        user.Activate(DateTimeOffset.UtcNow);
+            Login.Create(login).Value, EmailAddress.Create($"{login}@example.com").Value, displayName, $"Pessoa de Teste {suffix}");
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
         var credential = new UserCredential { Id = user.Id, UserName = user.Id.ToString() };
         (await credentials.CreateAsync(credential, password)).Succeeded.ShouldBeTrue();
 
-        return new TestUser(user.Id, login, password, $"Pessoa {suffix}");
+        return new TestUser(user.Id, login, password, displayName);
     }
 }
 

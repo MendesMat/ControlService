@@ -25,7 +25,6 @@ public sealed class StartupSeedTests(ApiFactory factory) : IClassFixture<ApiFact
         admin.Status.ShouldBe(UserStatus.Active);
         admin.IsSystem.ShouldBeTrue();
         admin.ProfileIds.ShouldBe([SystemIds.ManagerProfile]);
-        admin.ActivatedAt.ShouldBeNull();
         admin.CreatedBy.ShouldBe(SystemIds.AdminUser);
         admin.UpdatedBy.ShouldBe(SystemIds.AdminUser);
 

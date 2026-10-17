@@ -246,8 +246,8 @@ As sete primeiras também são o que permite testar um handler com um repositór
 
    ```csharp
    // No handler (Application)
-   var user = await users.GetByIdAsync(command.UserId, cancellationToken);
-   user.CompleteFirstAccess(timeProvider.GetUtcNow());
+   users.Add(user);
+   credentials.AddWithTemporaryPassword(user.Id, command.TemporaryPassword);
    var saved = await unitOfWork.SaveChangesAsync(cancellationToken);
 
    // Na Infrastructure
@@ -276,8 +276,12 @@ As sete primeiras também são o que permite testar um handler com um repositór
 1. **O que é.** O id de cada registro é um `Guid` criado pelo próprio agregado, e não um número gerado pelo banco:
 
    ```csharp
-   public static User Create(Login login, EmailAddress email, string displayName, string fullName) =>
-       new(Guid.CreateVersion7(), isSystem: false, UserStatus.Pending, login, email, displayName, fullName);
+   public static User Create(
+       Login login, EmailAddress email, string displayName, string fullName, PersonalData? personalData = null) =>
+       new(Guid.CreateVersion7(), isSystem: false, UserStatus.Active, login, email, displayName, fullName)
+       {
+           PersonalData = personalData ?? PersonalData.Empty,
+       };
    ```
 
    A versão 7 do UUID começa pela data e hora, então os ids saem em ordem crescente.
@@ -387,7 +391,8 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 | Login, sessão, renovação, sair, `GET /me` | Construído e testado |
 | Bloqueio por tentativas e limite de requisições no login | Construído e testado |
 | Cálculo do nível por tela e chaves de tela | Construído e testado |
-| Troca obrigatória da senha | Construída, mas hoje só o Admin passa por ela; o desenho decidido é o contrário (decisão 21) |
+| Troca obrigatória da senha | Construída: todo usuário cadastrado passa por ela. O Admin ainda passa também, e o desenho decidido é que não passe (issue #63, decisão 21) |
+| Usuários: cadastrar, abrir e sugerir o login | Construídos e testados. Faltam a lista, a alteração, desativar e reativar, e redefinir a senha (issues #59 a #62) |
 | Autorização por tela e conferência da conta a cada requisição | Construída e testada (decisão 24) |
 | Rota com o catálogo de telas (`GET /screens`) | Construída e testada (decisão 25) |
 | Perfis de permissão: listar, abrir, criar, alterar e excluir | Construídos e testados |
@@ -479,7 +484,7 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 5. **Alternativas mais simples.** Esta já é a mais simples. A mais completa é o link de ativação por e-mail, adiado até o ciclo do produto estar fechado.
 6. **Por que escolhemos assim.** O objetivo agora é um produto que possa ser testado do início ao fim. O que precisa mudar antes de um uso real está em [Antes de ir para o mundo real](#antes-de-ir-para-o-mundo-real).
 
-**O código ainda reflete o plano antigo.** Hoje é o contrário do decidido: só o Admin nasce com a troca obrigatória, e os usuários cadastrados ainda não recebem senha (a issue #11 traz o cadastro). A senha inicial do Admin ainda vem da configuração (`Admin:InitialPassword`). Também sobram do plano antigo o status `pending`, o campo `ActivatedAt` e `User.Activate` com o erro `link_invalid`, o e-mail obrigatório, e as mensagens que falam em "senha inicial" e em "Esqueci minha senha". As regras em [product/](product/) já descrevem o desenho decidido (AUTH-13 a AUTH-15, AUTH-29, USR-07 e USR-35); o código muda nas issues do marco M1.
+**O que já segue o desenho e o que falta.** Já segue: quem cadastra um usuário define a senha temporária, e a pessoa nasce ativa, com a troca obrigatória (a credencial é gravada no mesmo salvamento do usuário, na issue #11). Saíram do código o status `pending`, o campo `ActivatedAt`, `User.Activate` com o erro `link_invalid` e o e-mail obrigatório. Ainda falta: o Admin como conta de demonstração, que hoje ainda passa pela troca obrigatória e tem a senha inicial vinda da configuração (`Admin:InitialPassword`), e as mensagens que falam em "senha inicial" e em "Esqueci minha senha" (issue #63); e redefinir a senha de alguém (AUTH-29, issue #62). As regras em [product/](product/) já descrevem o desenho decidido (AUTH-13 a AUTH-15, AUTH-29, USR-07 e USR-35).
 
 - **Onde ver no código:** [PasswordChangeRequiredFilter.cs](../backend/ControlService/src/ControlService.API/Auth/PasswordChangeRequiredFilter.cs), [ApiV1Group.cs](../backend/ControlService/src/ControlService.API/Common/ApiV1Group.cs), [ChangePasswordHandler.cs](../backend/ControlService/src/ControlService.Application/Auth/ChangePassword/ChangePasswordHandler.cs).
 - **Em uma frase:** a primeira senha é de quem cadastrou, então o sistema obriga a trocá-la antes de liberar qualquer tela.
@@ -694,7 +699,7 @@ Este bloco descreve o desenho decidido. Parte dele ainda não está no código, 
 5. **Alternativas mais simples.** Deixar os avisos como avisos. Configurar cada projeto.
 6. **Por que escolhemos assim.** Um aviso que não quebra o build acaba ignorado.
 
-**O CI confere a formatação.** O trabalho **Build and test** roda `dotnet format ControlService.slnx --verify-no-changes --no-restore` antes de compilar: o comando confere sem alterar, e um arquivo fora do padrão reprova o pull request. O `check.ps1` continua corrigindo a formatação na máquina de quem desenvolve.
+**O CI confere a formatação.** O trabalho **Build and test** roda `dotnet format ControlService.slnx --verify-no-changes --no-restore` antes de compilar: o comando confere sem alterar, e um arquivo fora do padrão reprova o pull request. O `check.ps1` continua corrigindo a formatação na máquina de quem desenvolve e, em seguida, roda a mesma conferência do CI: algumas regras não têm correção automática (um nome fora da regra de nomes, IDE1006, por exemplo), e só a conferência as acusa.
 
 - **Onde ver no código:** [Directory.Build.props](../backend/ControlService/Directory.Build.props), [.editorconfig](../backend/ControlService/.editorconfig), [check.ps1](../backend/ControlService/check.ps1).
 - **Em uma frase:** as regras de qualidade ficam num arquivo só, valem para todos os projetos, e um aviso quebra o build.

@@ -32,8 +32,6 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
 
     public FakeAccessTokenIssuer Tokens { get; } = new();
 
-    public FakeUnitOfWork UnitOfWork { get; } = new();
-
     public SignInHandler CreateSignInHandler() => new(Users, Credentials, Sessions, Tokens, Settings, Clock);
 
     public RefreshSessionHandler CreateRefreshSessionHandler() => new(Users, Credentials, Sessions, Tokens);
@@ -41,7 +39,7 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
     public SignOutHandler CreateSignOutHandler() => new(Sessions);
 
     public ValidatingCommandHandler<ChangePasswordCommand, SessionGrant> CreateChangePasswordHandler() =>
-        new(new ChangePasswordHandler(Users, Credentials, Sessions, Tokens, UnitOfWork, Clock), new ChangePasswordValidator(Settings));
+        new(new ChangePasswordHandler(Users, Credentials, Sessions, Tokens), new ChangePasswordValidator(Settings));
 
     public GetMeHandler CreateGetMeHandler() => new(Users, Profiles);
 
@@ -63,23 +61,16 @@ internal sealed class AuthTestBed(AuthSettings? settings = null)
         return profile;
     }
 
-    public User AddPendingUser(string login)
+    public User AddActiveUser(string login, string password)
     {
         var user = User.Create(
             Login.Create(login).Value, EmailAddress.Create($"{login}@example.com").Value, login, login);
         Users.Add(user);
-        return user;
-    }
-
-    public User AddActiveUser(string login, string password)
-    {
-        var user = AddPendingUser(login);
-        user.Activate(new DateTimeOffset(2026, 9, 1, 8, 0, 0, TimeSpan.Zero));
         Credentials.SetPassword(user.Id, password);
         return user;
     }
 
-    /// <summary>The Admin as the seeder creates it, with the initial password that must be replaced (previous plan, see decision 21).</summary>
+    /// <summary>The Admin as the seeder creates it, with the initial password that must be replaced.</summary>
     public User AddAdminWithInitialPassword(string initialPassword)
     {
         var admin = User.CreateAdmin(EmailAddress.Create("admin@example.com").Value);

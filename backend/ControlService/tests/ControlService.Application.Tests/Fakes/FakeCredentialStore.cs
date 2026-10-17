@@ -16,6 +16,12 @@ internal sealed class FakeCredentialStore : ICredentialStore
 
     public void LockOutUntil(Guid userId, DateTimeOffset lockoutEnd) => _lockouts[userId] = lockoutEnd;
 
+    public void AddWithTemporaryPassword(Guid userId, string temporaryPassword)
+    {
+        _passwords[userId] = temporaryPassword;
+        _mustChange.Add(userId);
+    }
+
     public Task<CredentialCheck> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken)
     {
         if (_lockouts.TryGetValue(userId, out var lockoutEnd))

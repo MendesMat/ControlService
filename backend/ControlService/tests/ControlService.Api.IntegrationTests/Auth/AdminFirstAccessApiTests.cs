@@ -61,7 +61,7 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
     }
 
     [Fact]
-    public async Task Change_password_returns_new_tokens_and_unlocks_other_endpoints() // AUTH-14; activation time is the previous plan, see decision 21 (was USR-34)
+    public async Task Change_password_returns_new_tokens_and_unlocks_other_endpoints() // AUTH-14
     {
         await AuthTestSupport.ResetAdminAsync(factory.Services);
         using var client = factory.CreateHttpsClient();
@@ -82,12 +82,6 @@ public sealed class AdminFirstAccessApiTests(AuthApiFactory factory) : IClassFix
         oldPassword.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         using var newPassword = await client.SignInAsync("admin", NewPassword);
         newPassword.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-        await using var scope = factory.Services.CreateAsyncScope();
-        var admin = await scope.ServiceProvider.GetRequiredService<AppDbContext>().Users
-            .AsNoTracking().SingleAsync(user => user.Id == SystemIds.AdminUser, TestContext.Current.CancellationToken);
-        admin.ActivatedAt.ShouldBe(factory.Clock.GetUtcNow());
-        admin.UpdatedBy.ShouldBe(SystemIds.AdminUser);
     }
 
     [Fact]

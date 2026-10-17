@@ -11,11 +11,10 @@ public sealed partial class EmailAddress
 
     public static Result<EmailAddress> Create(string email)
     {
+        // The e-mail is optional (USR-07): blank means "no e-mail".
         if (string.IsNullOrWhiteSpace(email))
         {
-            return Result<EmailAddress>.Failure(new Error(
-                "validation_failed",
-                "Informe o e-mail. É para ele que o link de ativação será enviado."));
+            return Result<EmailAddress>.Success(new EmailAddress(string.Empty));
         }
 
         if (!ValidFormat().IsMatch(email))

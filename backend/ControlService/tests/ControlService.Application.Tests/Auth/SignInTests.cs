@@ -63,20 +63,6 @@ public class SignInTests
     }
 
     [Fact]
-    public async Task Pending_account_is_refused_as_invalid_credentials() // AUTH-08; the pending status is the previous plan, see decision 21
-    {
-        var bed = new AuthTestBed();
-        var user = bed.AddPendingUser("bruno.lima");
-
-        var result = await bed.CreateSignInHandler()
-            .Handle(new SignInCommand("bruno.lima", "any-password"), TestContext.Current.CancellationToken);
-
-        result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(AuthErrors.InvalidCredentials);
-        bed.Sessions.SessionsOf(user.Id).ShouldBeEmpty();
-    }
-
-    [Fact]
     public async Task Locked_out_login_is_refused_even_with_the_right_password() // AUTH-08
     {
         var bed = new AuthTestBed();

@@ -25,10 +25,7 @@ public sealed class ErrorResultsTests
     [InlineData("profile_in_use", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
     [InlineData("system_record", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
     [InlineData("self_deactivation", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
-    [InlineData("not_pending", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
     [InlineData("not_inactive", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
-    [InlineData("email_missing", 409, "https://tools.ietf.org/html/rfc9110#section-15.5.10", "Conflict")]
-    [InlineData("link_invalid", 410, "https://tools.ietf.org/html/rfc9110#section-15.5.11", "Gone")]
     [InlineData("locked_out", 429, "https://tools.ietf.org/html/rfc6585#section-4", "Too Many Requests")]
     [InlineData("unexpected_error", 500, "https://tools.ietf.org/html/rfc9110#section-15.6.1", "Internal Server Error")]
     public async Task Every_documented_error_code_maps_to_its_status(string code, int status, string type, string title) // API-14

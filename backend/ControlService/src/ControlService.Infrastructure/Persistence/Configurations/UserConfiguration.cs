@@ -32,6 +32,40 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.Status).HasConversion<string>().IsRequired();
 
+        // A blank optional value is NULL in the database; the API answers it as "" (CNV-03). The converters are
+        // not called for NULL, so a missing CPF, phone, CEP or blood type never reaches them.
+        builder.ComplexProperty(user => user.PersonalData, personal =>
+        {
+            personal.Property(data => data.Cpf)
+                .HasConversion(cpf => cpf!.Value, value => Cpf.Create(value).Value).HasColumnName("cpf");
+            personal.Property(data => data.Rg).HasColumnName("rg").IsRequired();
+            personal.Property(data => data.BirthDate).HasColumnName("birth_date");
+            personal.Property(data => data.BloodType)
+                .HasConversion(bloodType => bloodType!.Value, value => BloodType.Create(value).Value).HasColumnName("blood_type");
+            personal.Property(data => data.Phone)
+                .HasConversion(phone => phone!.Value, value => PhoneNumber.Create(value).Value).HasColumnName("phone");
+
+            personal.ComplexProperty(data => data.Address, address =>
+            {
+                address.Property(part => part.Cep)
+                    .HasConversion(cep => cep!.Value, value => Cep.Create(value).Value).HasColumnName("address_cep");
+                address.Property(part => part.Street).HasColumnName("address_street").IsRequired();
+                address.Property(part => part.Number).HasColumnName("address_number").IsRequired();
+                address.Property(part => part.Complement).HasColumnName("address_complement").IsRequired();
+                address.Property(part => part.District).HasColumnName("address_district").IsRequired();
+                address.Property(part => part.City).HasColumnName("address_city").IsRequired();
+            });
+
+            personal.ComplexProperty(data => data.EmergencyContact, contact =>
+            {
+                contact.Property(part => part.Name).HasColumnName("emergency_contact_name").IsRequired();
+                contact.Property(part => part.Relationship).HasColumnName("emergency_contact_relationship").IsRequired();
+                contact.Property(part => part.Phone)
+                    .HasConversion(phone => phone!.Value, value => PhoneNumber.Create(value).Value)
+                    .HasColumnName("emergency_contact_phone");
+            });
+        });
+
         builder.Property(user => user.Version).IsRowVersion();
 
         builder.HasOne<User>().WithMany().HasForeignKey(user => user.DeactivatedBy).OnDelete(DeleteBehavior.Restrict);
