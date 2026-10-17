@@ -33,6 +33,9 @@ public sealed class User : AuditedAggregate
 
     public string FullName { get; }
 
+    // Not a constructor parameter: EF Core cannot bind a complex property to one.
+    public PersonalData PersonalData { get; private set; } = PersonalData.Empty;
+
     public IReadOnlyCollection<Guid> ProfileIds => _profileAssignments.Select(assignment => assignment.ProfileId).ToArray();
 
     public UserStatus Status { get; private set; }
@@ -41,8 +44,12 @@ public sealed class User : AuditedAggregate
 
     public Guid? DeactivatedBy { get; private set; }
 
-    public static User Create(Login login, EmailAddress email, string displayName, string fullName) =>
-        new(Guid.CreateVersion7(), isSystem: false, UserStatus.Active, login, email, displayName, fullName);
+    public static User Create(
+        Login login, EmailAddress email, string displayName, string fullName, PersonalData? personalData = null) =>
+        new(Guid.CreateVersion7(), isSystem: false, UserStatus.Active, login, email, displayName, fullName)
+        {
+            PersonalData = personalData ?? PersonalData.Empty,
+        };
 
     public static User CreateAdmin(EmailAddress email)
     {

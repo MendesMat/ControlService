@@ -4,6 +4,8 @@ namespace ControlService.Application.Users;
 
 public interface IUserRepository
 {
+    void Add(User user);
+
     Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<User?> GetByLoginAsync(Login login, CancellationToken cancellationToken);

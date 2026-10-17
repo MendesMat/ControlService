@@ -12,6 +12,10 @@ public interface ICredentialStore
     /// <summary>Sets a new password and clears the mandatory-change flag.</summary>
     Task ReplacePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken);
 
+    /// <summary>Adds the credential of a new user, with the temporary password and the mandatory change (AUTH-02,
+    /// AUTH-14), to the save in progress without saving: the unit of work stores it together with the user.</summary>
+    void AddWithTemporaryPassword(Guid userId, string temporaryPassword);
+
     /// <summary>True while the account still has a temporary password (AUTH-14).</summary>
     Task<bool> MustChangePasswordAsync(Guid userId, CancellationToken cancellationToken);
 }

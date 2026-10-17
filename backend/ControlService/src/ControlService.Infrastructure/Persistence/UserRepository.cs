@@ -6,6 +6,8 @@ namespace ControlService.Infrastructure.Persistence;
 
 public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
 {
+    public void Add(User user) => dbContext.Users.Add(user);
+
     public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         dbContext.Users.SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
 

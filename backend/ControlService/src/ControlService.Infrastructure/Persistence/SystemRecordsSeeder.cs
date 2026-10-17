@@ -45,28 +45,13 @@ public static class SystemRecordsSeeder
 
         if (!hasAdminCredential)
         {
-            db.Set<UserCredential>().Add(CreateAdminCredential(adminInitialPassword));
+            db.Set<UserCredential>().Add(
+                UserCredential.CreateWithTemporaryPassword(SystemIds.AdminUser, adminInitialPassword, new PasswordHasher<UserCredential>()));
         }
 
         if (!hasManagerProfile)
         {
             db.PermissionProfiles.Add(PermissionProfile.CreateManagerProfile());
         }
-    }
-
-    private static UserCredential CreateAdminCredential(string initialPassword)
-    {
-        var id = SystemIds.AdminUser.ToString();
-        var credential = new UserCredential
-        {
-            Id = SystemIds.AdminUser,
-            UserName = id,
-            NormalizedUserName = id.ToUpperInvariant(),
-            SecurityStamp = Guid.NewGuid().ToString(),
-            LockoutEnabled = true,
-            MustChangePassword = true,
-        };
-        credential.PasswordHash = new PasswordHasher<UserCredential>().HashPassword(credential, initialPassword);
-        return credential;
     }
 }
