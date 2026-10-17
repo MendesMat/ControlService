@@ -20,6 +20,7 @@ Collection `users`. Besides the fields below, every user has the audit fields an
 | `login` | text | yes | Name used to sign in, e.g. `ana.souza`. See USR-05 and USR-06 |
 | `email` | text | no | Contact information only: no rule of the system depends on it while access by e-mail is postponed. **Not unique**: two people may share a department mailbox |
 | `status` | text | yes | `active` or `inactive`. Controlled by the system, never edited directly |
+| `isSystem` | boolean | yes | `true` only for the Admin (USR-23). Controlled by the system, never edited directly |
 | `deactivatedAt` | text | no | Deactivation date and time. `""` if not deactivated |
 | `deactivatedBy` | text | no | `id` of who deactivated. `""` if not deactivated |
 
@@ -55,6 +56,7 @@ CPF, phone, address, emergency contact and blood type are personal data under th
   "login": "ana.souza",
   "email": "ana.souza@example.com",
   "status": "active",
+  "isSystem": false,
   "deactivatedAt": "",
   "deactivatedBy": "",
   "fullName": "Ana Paula Souza",
@@ -77,7 +79,6 @@ CPF, phone, address, emergency contact and blood type are personal data under th
     "relationship": "irmão",
     "phone": "21998765432"
   },
-  "signature": "",
   "profileIds": ["00000000-0000-7000-8000-000000000002", "0192f1a2-1b4d-7e8f-a0c3-5d6e7f8a9b0c"],
   "createdAt": "2026-09-12T12:58:10Z",
   "createdBy": "00000000-0000-7000-8000-000000000001",
