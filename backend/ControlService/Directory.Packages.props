@@ -15,7 +15,7 @@
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.1" />
     <!-- Transitive dependency of Aspire.Hosting, pinned because 2.5.302 has GHSA-qhrr-8q5h-9q3h.
          Remove it (and its PackageReference in the AppHost) when Aspire brings 2.5.303 or later. -->
-    <PackageVersion Include="MessagePack" Version="2.5.307" />
+    <PackageVersion Include="MessagePack" Version="3.1.12" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.19.1" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.19.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
