@@ -9,7 +9,7 @@ EXPOSE 8081
 
 
 # Esta fase é usada para compilar o projeto de serviço
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 # Configurações comuns da solução e os projetos de que a API depende, para o restore ficar em cache
