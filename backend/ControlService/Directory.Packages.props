@@ -12,7 +12,7 @@
 
   <!-- Aspire -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.1" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.5" />
     <!-- Transitive dependency of Aspire.Hosting, pinned because 2.5.302 has GHSA-qhrr-8q5h-9q3h.
          Remove it (and its PackageReference in the AppHost) when Aspire brings 2.5.303 or later. -->
     <PackageVersion Include="MessagePack" Version="2.5.307" />
