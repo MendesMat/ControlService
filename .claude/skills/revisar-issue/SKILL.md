@@ -1,6 +1,6 @@
 ---
 name: revisar-issue
-description: Review the implementation of a Control Service issue before the merge - compare the pull request with the issue, the acceptance criteria, the numbered tests, the business rules and the project decisions, and report the problems by severity, explained for a junior developer. Use when the owner asks for /revisar-issue or says "revise a issue" or "revisar a issue", preferably in a new conversation.
+description: Review the implementation of a Control Service issue before the merge - compare the pull request with the issue, the acceptance criteria, the numbered tests, the business rules and the project decisions, and report the problems by severity, explained for a junior developer, as a pull request comment. It changes no code. Use when the owner asks for /revisar-issue or says "revise a issue" or "revisar a issue", preferably in a new conversation.
 argument-hint: "<issue number>"
 ---
 
@@ -8,19 +8,26 @@ argument-hint: "<issue number>"
 
 Third of the three commands (`AGENTS.md`, "Workflow: three commands"). It works best in a **new conversation**: whoever wrote the code tends to defend it.
 
+**The review only reports.** It changes no code, makes no commit and pushes nothing. The fixes the owner chooses are made by `/executar-issue`, in re-execution, in a new conversation, and then reviewed again.
+
 Issue: `$ARGUMENTS`
 
 Talk to the owner in Portuguese. The review report is written in Portuguese, from the template below.
 
 ## Steps
 
-1. **Read the issue** (`gh issue view <n> --comments`) and find the pull request that closes it (`gh pr list --state all --search "<n> in:body"`; confirm the `Closes #<n>`). Without a pull request, stop and say so. If the pull request is already merged, say so in the first line of the report and review `main` at the merge commit: in step 4, update `main` instead of checking out the pull request, and in step 7 the fixes go in a new branch and a new pull request.
-2. **Read the pull request:** `gh pr view <pr>`, `gh pr diff <pr>` and the CI status.
-3. **Read the documents** the issue cites. The review is against the written rule, not against a memory of it.
-4. **Bring the code:** `gh pr checkout <pr>`, then run `powershell.exe -NoProfile -File check.ps1` in `backend/ControlService`.
-5. **Check** the list below.
-6. **Deliver the report** in the format below and stop. Change no code during the review.
-7. **After the owner chooses** what to apply: new commits on the same branch, test-first; run `check.ps1`, push, wait for CI and report only what changed, with the result of the tests affected.
+1. **Read the issue** (`gh issue view <n> --comments`) and find the pull request that closes it (`gh pr list --state all --search "<n> in:body"`; confirm the `Closes #<n>`). Without a pull request, stop and say so. If the pull request is already merged, say so in the first line of the report and review `main` at the merge commit: in step 4, update `main` instead of checking out the pull request.
+2. **Check the entry state** (`AGENTS.md`, "Issue states"): the issue must be in `status:in-review`. In any other state, say which state it is in and which command fits, and stop; go on only on the owner's explicit order in the conversation, recorded first in a comment on the issue (`gh issue comment <n> --body-file <file>`). A pull request that is already merged is reviewed whatever the label.
+3. **Read the pull request:** `gh pr view <pr> --comments`, `gh pr diff <pr>` and the CI status. The comments hold the execution report and any earlier review.
+4. **Read the documents** the issue cites. The review is against the written rule, not against a memory of it.
+5. **Bring the code:** `gh pr checkout <pr>`, then run `powershell.exe -NoProfile -File check.ps1` in `backend/ControlService`.
+6. **Check** the list below.
+7. **Publish the report** on the pull request: write it to a file outside the repository and run `gh pr comment <pr> --body-file <file>`.
+8. **Mark the issue** from the verdict: "Pode ir para a main" → `gh issue edit <n> --remove-label status:in-review --add-label status:approved`; "Corrigir antes do merge" → `--add-label status:changes-requested` instead. For a pull request already merged, change no label.
+9. **Deliver the report** in the conversation, with the link to the comment and the new label, and stop. The next step goes in the last line of the report:
+   - `status:approved`: the owner merges.
+   - `status:changes-requested`: the owner says which findings to apply, in a pull request comment or in the next conversation, and runs `/executar-issue <n>` in a new conversation.
+   - pull request already merged: the findings the owner chooses become a new issue, through `/levantar-issue`.
 
 ## What to check
 
@@ -93,6 +100,8 @@ Pull request: <link> · CI: <estado> · `check.ps1` local: <resultado>
 ## Decisões para você
 
 <Lista numerada: os achados que dependem de uma escolha sua.>
+
+Estado da issue: `<status:approved ou status:changes-requested>`. Próximo passo: <o merge, feito por você; ou "diga quais achados aplicar e rode `/executar-issue <n>` numa conversa nova"; ou, com o pull request já mesclado, "os achados escolhidos viram uma issue nova, por `/levantar-issue`">.
 ```
 
 With no finding in a severity, say "nenhum". Never invent a problem to fill the report.

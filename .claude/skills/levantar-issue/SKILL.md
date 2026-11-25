@@ -15,6 +15,13 @@ Issue: `$ARGUMENTS`
 
 Talk to the owner in Portuguese. The issue body is written in Portuguese, from the template below.
 
+## Before starting
+
+The states and their rules are in `AGENTS.md`, "Issue states".
+
+1. **Check the entry state** of an existing issue: `gh issue view <n> --json state,labels`. It must be open, in `status:survey` or with no `status:*` label. In any other state, say which state the issue is in and which command fits, and stop. Go on only on the owner's explicit order in the conversation, and record it first: `gh issue comment <n> --body-file <file>`, quoting the order. A new issue (text instead of a number) has no state to check.
+2. **Check that no other issue is in flight:** `gh issue list --state open --search 'label:"status:in-progress","status:in-review","status:changes-requested","status:approved"'`. If one appears, remind the owner that one issue goes to `main` at a time, and ask whether to go on.
+
 ## Steps
 
 1. **Read the issue** and its comments: `gh issue view <n> --comments`.
@@ -23,16 +30,19 @@ Talk to the owner in Portuguese. The issue body is written in Portuguese, from t
 4. **Survey:**
    - the requirement or the problem, in one sentence;
    - the smallest scope that solves it;
-   - the dependencies (other issues, decisions, documents);
+   - the dependencies (other issues, decisions, documents), and whether each issue among them is still open (`gh issue view <m> --json state`);
    - the risks (what may surprise the execution);
    - the gaps: a rule `docs/` does not answer, an error case without a verbatim message, a contradiction between documents or between a document and the code, a duplicated rule ID.
 5. **Apply proportionality** (`AGENTS.md`). Anything that is an abstraction, layer, pattern, package, migration or contract change enters the draft as a decision explained in the six points. An improvement the issue does not need goes to "Recomendações futuras".
 6. **Build the test list** (rules below).
 7. **Present to the owner and wait:**
    - what you read;
+   - each dependency issue that is still open: `/executar-issue` will refuse to start until it is closed;
    - each gap and each decision, in the six points, with your recommendation;
    - the complete draft of the issue, in the template below.
-8. **After the approval, write it:** `gh issue edit <n> --body-file <file>` (or `gh issue create --title ... --body-file <file> --milestone ...` for a new issue). Confirm with the link and stop.
+8. **After the approval, write it and mark it:** `gh issue edit <n> --body-file <file> --remove-label status:survey --add-label status:ready` (or `gh issue create --title ... --body-file <file> --milestone ... --label status:ready` for a new issue). Confirm with the link and the new label, and stop.
+
+**If the survey stops with questions unanswered** (the owner leaves them for later, or ends the conversation before approving the draft): publish the open questions, each with what you already know about it, in a comment on the issue (`gh issue comment <n> --body-file <file>`), and set `gh issue edit <n> --remove-label status:survey --add-label status:blocked`. Tell the owner the new label. When they answer, they set the label of the next step.
 
 ## Test list
 
@@ -105,7 +115,7 @@ Sem teste próprio: <peça> — coberta por <ID>.
 ## Rules
 
 - Write no code and no tests in this command.
-- Never write the issue to GitHub before the owner approves the draft.
+- Never write the issue body to GitHub before the owner approves the draft. The `status:*` labels and the comments above are part of the normal flow.
 - Never invent a business rule or a message: ask. A new message is approved by the owner with its exact text and enters the feature document, with a new rule ID, in the pull request of the execution.
 - Never widen the scope without a justification.
 - Whatever `AGENTS.md` lists under "Ask the owner first" must appear in **Escopo**: it is the authorization `/executar-issue` relies on to work without stopping.
