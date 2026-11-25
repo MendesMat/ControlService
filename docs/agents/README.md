@@ -8,9 +8,11 @@ Work on an issue goes through three commands, each one a skill in `.claude/skill
 
 | Command | Skill | Ends with |
 |---|---|---|
-| `/levantar-issue <n>` | [levantar-issue](../../.claude/skills/levantar-issue/SKILL.md) | The issue rewritten on GitHub: scope, numbered tests, acceptance criteria |
-| `/executar-issue <n>` | [executar-issue](../../.claude/skills/executar-issue/SKILL.md) | The pull request open with CI green, and the final report |
-| `/revisar-issue <n>` | [revisar-issue](../../.claude/skills/revisar-issue/SKILL.md) | Findings by severity, explained for the owner to decide |
+| `/levantar-issue <n>` | [levantar-issue](../../.claude/skills/levantar-issue/SKILL.md) | The issue rewritten on GitHub: scope, numbered tests, acceptance criteria; label `status:ready` |
+| `/executar-issue <n>` | [executar-issue](../../.claude/skills/executar-issue/SKILL.md) | The pull request open with CI green, and the final report as a pull request comment; label `status:in-review` |
+| `/revisar-issue <n>` | [revisar-issue](../../.claude/skills/revisar-issue/SKILL.md) | Findings by severity, as a pull request comment, for the owner to decide; label `status:approved` or `status:changes-requested`. It changes no code |
+
+Each command checks the issue's `status:*` label before starting and changes it at the end. The labels, the entry state of each command and the one-issue-at-a-time rule are in [AGENTS.md, "Issue states"](../../AGENTS.md#issue-states).
 
 ## Guides
 

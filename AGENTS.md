@@ -57,13 +57,33 @@ All work on an issue goes through these commands and no others. Each one is a sk
 
 | Command | What it does | Ends with |
 |---|---|---|
-| `/levantar-issue <n>` | Reads the documents and the code, defines scope, dependencies, risks, the numbered test list and the acceptance criteria | The issue body rewritten on GitHub, after the owner approves the draft |
-| `/executar-issue <n>` | Implements the issue test-first, **without pausing for approval**, runs every test of the issue and the whole suite | The pull request open with CI green, and the final report |
-| `/revisar-issue <n>` | Reviews the pull request against the issue, the rules and this file | Findings by severity, explained; the owner decides which to apply |
+| `/levantar-issue <n>` | Reads the documents and the code, defines scope, dependencies, risks, the numbered test list and the acceptance criteria | The issue body rewritten on GitHub, after the owner approves the draft; label `status:ready` |
+| `/executar-issue <n>` | Implements the issue test-first, **without pausing for approval**, runs every test of the issue and the whole suite; in re-execution, applies the review findings the owner chose | The pull request open with CI green, the final report as a pull request comment; label `status:in-review` |
+| `/revisar-issue <n>` | Reviews the pull request against the issue, the rules and this file. **It only reports: it changes no code** | Findings by severity, as a pull request comment; label `status:approved` or `status:changes-requested` |
 
 **Agents open pull requests; the owner merges them.** Delivery follows [git and pull requests](docs/agents/workflows/git-and-pull-requests.md).
 
-The owner merges after `/revisar-issue`, not before: a review only protects `main` if it comes first.
+The owner merges after `/revisar-issue`, not before: a review only protects `main` if it comes first. A fix the review asks for goes back through `/executar-issue` and then through a new review.
+
+### Issue states
+
+GitHub keeps the state of each issue in one `status:*` label, and what each command produces in comments, so the next command, in a new conversation, starts from what the previous one concluded.
+
+| Label | Means | Set by |
+|---|---|---|
+| `status:survey` | Waiting for `/levantar-issue` | The owner, when prioritizing an issue |
+| `status:ready` | Surveyed and approved; waiting for `/executar-issue` | `/levantar-issue`, after the owner approves the draft |
+| `status:in-progress` | Being executed | `/executar-issue`, when it starts |
+| `status:in-review` | Pull request open with CI green; waiting for `/revisar-issue` | `/executar-issue`, when it delivers |
+| `status:changes-requested` | The review asked for changes; waiting for `/executar-issue` | `/revisar-issue` |
+| `status:approved` | Review approved; waiting for the owner's merge | `/revisar-issue` |
+| `status:blocked` | Stopped, waiting for an answer from the owner | The command that stopped; the owner, when answering, sets the label of the next step |
+
+- **At most one `status:*` label per issue.** After the merge, `Closes #<n>` closes the issue and the label stays as it is.
+- **Entry state.** Each command starts only from its entry label: `/levantar-issue` from `status:survey`, an open issue with no `status:*` label, or the text of a new issue; `/executar-issue` from `status:ready` or `status:changes-requested`; `/revisar-issue` from `status:in-review`. In any other state the command says which state the issue is in and which command fits, and stops. It goes on only on the owner's explicit order in the conversation, recorded in a comment on the issue.
+- **One issue at a time.** `/levantar-issue` and `/executar-issue` check whether another open issue is in `status:in-progress`, `status:in-review`, `status:changes-requested` or `status:approved` (work still outside `main`). If one is, they remind the owner of this rule and ask whether to go on, before starting.
+- **Dependencies.** Every issue listed under "Dependências" must be closed: `/levantar-issue` warns about an open one when presenting the draft; `/executar-issue` stops and names it.
+- **The label changes in the last step** of each command, and the final message says the new label.
 
 ## Tests
 

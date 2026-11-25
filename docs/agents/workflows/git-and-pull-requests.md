@@ -98,7 +98,21 @@ gh pr update-branch
 
 ## 7. Hand over to the owner
 
-When CI is green, tell the owner in Portuguese: the pull request link, what changed, how you verified it, and anything they should look at closely. End with the next step: `/revisar-issue <n>` in a new conversation, before the merge. Then stop.
+When CI is green and the work comes from an issue:
+
+1. Publish the final report on the pull request, from a file outside the repository:
+
+   ```bash
+   gh pr comment <number> --body-file report.md
+   ```
+
+2. Move the issue to review ([AGENTS.md, "Issue states"](../../../AGENTS.md#issue-states)):
+
+   ```bash
+   gh issue edit <n> --remove-label status:in-progress --add-label status:in-review
+   ```
+
+Then tell the owner in Portuguese: the pull request link, the link to the report comment, what changed, how you verified it, anything they should look at closely, and the new label. End with the next step: `/revisar-issue <n>` in a new conversation, before the merge. Then stop.
 
 ## 8. After the owner merges
 
